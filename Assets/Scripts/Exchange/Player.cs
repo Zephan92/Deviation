@@ -164,7 +164,7 @@ namespace Assets.Scripts.Exchange
 			if (tm.IsReady(currentAction.Name))
 			{
 				currentAction.InitiateAttack(bc);
-
+				
 				tm.StartTimer(currentAction.Name);
 			}
 			else

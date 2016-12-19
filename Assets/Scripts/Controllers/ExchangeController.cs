@@ -19,16 +19,16 @@ namespace Assets.Scripts.Controllers
 		public static int NumberOfPlayers = 2;
 
 		//Public Static Variables
-		public static ExchangeState ExchangeState;
+		public ExchangeState ExchangeState;
 
 
 		//Private Static Variables
-		private static Player _mainPlayer;
-		private static GameObject[] _displays;
-		private static bool _battleStartDisplayIsEnabled = false;
-		private static bool _ExchangeControlsDisplayIsEnabled = false;
-		private static bool _awaitingPlayerInput = false;
-		private static MainPlayerController mp;
+		private Player _mainPlayer;
+		private GameObject[] _displays;
+		private bool _battleStartDisplayIsEnabled = false;
+		private bool _ExchangeControlsDisplayIsEnabled = false;
+		private bool _awaitingPlayerInput = false;
+		private MainPlayerController mp;
 
 		void Awake()
 		{
@@ -80,6 +80,7 @@ namespace Assets.Scripts.Controllers
                     break;
                 case ExchangeState.Battle:
                     mp.CheckInput();
+					CheckBattleEnd();
                     break;
                 case ExchangeState.End:
                     ExchangeState = ExchangeState.PostBattle;
@@ -96,6 +97,14 @@ namespace Assets.Scripts.Controllers
                     break;
             }
         }
+
+		private void CheckBattleEnd()
+		{
+			if (_mainPlayer.GetHealth() <= 0 || PlayerObjects[0].GetComponent<Player>().GetHealth() <= 0)
+			{
+				ExchangeState = ExchangeState.End;
+			}
+		}
 
 		private void SelectButton(string UIGroupName, string buttonName)
 		{
@@ -219,6 +228,12 @@ namespace Assets.Scripts.Controllers
 
 			text = GetTextFromPanelUIGroup(ExchangeControls, "EnergyText");
 			text.text = _mainPlayer.GetEnergy().ToString();
+
+			text = GetTextFromPanelUIGroup(ExchangeControls, "Enemy1EnergyText");
+			text.text = PlayerObjects[0].GetComponent<Player>().GetEnergy().ToString();
+
+			text = GetTextFromPanelUIGroup(ExchangeControls, "Enemy1HealthText");
+			text.text = PlayerObjects[0].GetComponent<Player>().GetHealth().ToString();
 		}
 
 		private void UpdateButtonColor(Button button, Color color)

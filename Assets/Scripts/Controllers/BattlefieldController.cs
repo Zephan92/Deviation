@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Enum;
 using Assets.Scripts.Exchange;
+using Assets.Scripts.Interface;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -139,14 +140,19 @@ namespace Assets.Scripts.Controllers
 			StartCoroutine(DeleteAfterTimeoutCoroutine(timeout, battlefieldObjects));
 		}
 
-		public void SpawnAfterTimeout(float timeout, float deletionTimeout, string resourceName, Vector3 zone, Quaternion rotation)
+		public void SpawnAfterTimeout(float timeout, float deletionTimeout, string resourceName, Attack attack, Type attackType, Vector3 zone, Quaternion rotation)
 		{
-			StartCoroutine(SpawnAfterTimeoutCoroutine(timeout, deletionTimeout, resourceName, zone, rotation));
+			StartCoroutine(SpawnAfterTimeoutCoroutine(timeout, deletionTimeout, resourceName, attack, attackType, zone, rotation));
 		}
 
-		public void Spawn(float deletionTimeout, string resourceName, Vector3 zone, Quaternion rotation)
+		public void Spawn(float deletionTimeout, string resourceName, Attack attack, Type attackType, Vector3 zone, Quaternion rotation)
 		{
 			GameObject go = (GameObject)Instantiate(Resources.Load(resourceName), zone, rotation);
+			
+			IExchangeAttack attackScript = go.GetComponent(attackType) as IExchangeAttack;
+			if (attackScript == null)
+				attackScript = go.GetComponentInChildren(attackType) as IExchangeAttack;
+			attackScript.SetAttack(attack);
 			DeleteAfterTimeout(deletionTimeout, go);
 		}
 
@@ -159,10 +165,15 @@ namespace Assets.Scripts.Controllers
 			}
 		}
 
-		private IEnumerator SpawnAfterTimeoutCoroutine(float timeout, float deletionTimeout, string resourceName, Vector3 zone, Quaternion rotation)
+		private IEnumerator SpawnAfterTimeoutCoroutine(float timeout, float deletionTimeout, string resourceName, Attack attack, Type attackType, Vector3 zone, Quaternion rotation)
 		{
 			yield return new WaitForSeconds(timeout);
 			GameObject go = (GameObject)Instantiate(Resources.Load(resourceName), zone, rotation);
+
+			IExchangeAttack attackScript = go.GetComponent(attackType) as IExchangeAttack;
+			if (attackScript == null)
+				attackScript = go.GetComponentInChildren(attackType) as IExchangeAttack;
+			attackScript.SetAttack(attack);
 			DeleteAfterTimeout(deletionTimeout, go);
 		}
 	}

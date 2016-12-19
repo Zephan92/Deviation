@@ -1,9 +1,15 @@
-﻿using UnityEngine;
+﻿using System;
+using Assets.Scripts.Interface;
+using UnityEngine;
+using Assets.Scripts.Controllers;
 
 namespace Assets.Scripts.Exchange
 {
-	public class ProjectileOnHit : MonoBehaviour
+	public class ProjectileOnHit : MonoBehaviour, IExchangeAttack
 	{
+		private Attack Attack;
+		private static ExchangeController ec;
+
 		void Awake()
 		{
 			if (gameObject.name.Equals("PortalRocket(Clone)"))
@@ -15,13 +21,21 @@ namespace Assets.Scripts.Exchange
 			{
 				GetComponent<Rigidbody>().velocity = 2 * new Vector3(0, 0, 15);
 			}
+
+			if (ec == null)
+			{
+				var ecObject = GameObject.FindGameObjectWithTag("ExchangeController");
+				ec = ecObject.GetComponent<ExchangeController>();
+			}
 		}
 
 		public void OnTriggerEnter(Collider other)
 		{
 			if (other.tag.Equals("Player") || other.tag.Equals("MainPlayer"))
 			{
-				Debug.Log("I hit " + other.name + " I'm destroying myself!!");
+				Attack.SetDefender(other.GetComponent<Player>());
+				Attack.InitiateDrain();
+				ec.UpdateExchangeControlsDisplay();
 				Destroy(gameObject);
 			}
 		}
@@ -32,6 +46,11 @@ namespace Assets.Scripts.Exchange
 			{
 				Destroy(gameObject);
 			}
+		}
+
+		public void SetAttack(Attack attack)
+		{
+			Attack = attack;
 		}
 	}
 }

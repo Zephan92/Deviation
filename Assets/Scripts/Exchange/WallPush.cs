@@ -1,16 +1,21 @@
 ﻿
+using System;
 using Assets.Scripts.Controllers;
 using Assets.Scripts.Enum;
+using Assets.Scripts.Interface;
 using UnityEngine;
 
 namespace Assets.Scripts.Exchange
 {
-	public class WallPush : MonoBehaviour
+	public class WallPush : MonoBehaviour, IExchangeAttack
 	{
+		private static ExchangeController ec;
 		private static BattlefieldController bc;
 		private MovingDetails _movingDetails;
 		public int CurrentColumn = 0;
 		public int CurrentRow = 0;
+
+		private Attack Attack;
 
 		public void Awake()
 		{
@@ -20,6 +25,12 @@ namespace Assets.Scripts.Exchange
 			{
 				var bcObject = GameObject.FindGameObjectWithTag("BattlefieldController");
 				bc = bcObject.GetComponent<BattlefieldController>();
+			}
+
+			if (ec == null)
+			{
+				var ecObject = GameObject.FindGameObjectWithTag("ExchangeController");
+				ec = ecObject.GetComponent<ExchangeController>();
 			}
 
 			CurrentColumn = (int) transform.localPosition.x;
@@ -50,11 +61,12 @@ namespace Assets.Scripts.Exchange
 
 		public void OnTriggerEnter(Collider other)
 		{
-			Debug.Log("happening");
 			if(other.name.Equals("Player"))
 			{
 				Player player = other.gameObject.GetComponent<Player>();
-				player.AddHealth(-30);
+				Attack.SetDefender(player);
+				Attack.InitiateDrain();
+				ec.UpdateExchangeControlsDisplay();
 				if (player.CurrentColumn == -2)
 				{
 					player.MoveObject(Direction.Right, 2, true);
@@ -75,6 +87,11 @@ namespace Assets.Scripts.Exchange
 		private int ConvertFromArrayNumber(int input)
 		{
 			return input - 2;
+		}
+
+		public void SetAttack(Attack attack)
+		{
+			Attack = attack;
 		}
 	}
 }
