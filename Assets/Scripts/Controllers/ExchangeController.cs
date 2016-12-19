@@ -213,7 +213,9 @@ namespace Assets.Scripts.Controllers
 
 			button = GetButtonFromUIGroup(ExchangeControls, "CurrentAction");
 			UpdateButtonColor(button, _mainPlayer.EquipedKit.GetCurrentModule().GetCurrentAction().ActionTexture);
-			UpdateButtonText(button, _mainPlayer.EquipedKit.GetCurrentModule().GetCurrentAction().Name);
+			UpdateButtonText(button, _mainPlayer.EquipedKit.GetCurrentModule().GetCurrentAction().Name + ": " +
+				(int) (-1 * _mainPlayer.EquipedKit.GetCurrentModule().GetCurrentAction().Attack.EnergyRecoilModifier 
+				* _mainPlayer.EquipedKit.GetCurrentModule().GetCurrentAction().Attack.BaseDamage));
 
 			button = GetButtonFromUIGroup(ExchangeControls, "NextAction");
 			UpdateButtonColor(button, _mainPlayer.EquipedKit.GetCurrentModule().GetRightAction().ActionTexture);

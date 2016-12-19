@@ -17,17 +17,25 @@ namespace Assets.Scripts.Exchange
 		public int CurrentRow = 0;
 
 		private int _health = 100;
+		private int _maxHealth = 100;
 		private int _energy = 100;
+		private int _maxEnergy = 100;
+		private float _restoreEnergy = 0.0f;
+		private float _energyRate = 0.01f;
 		private MovingDetails _movingDetails;
 
-		private static BattlefieldController bc;
-		private static TimerManager tm;
+		private BattlefieldController bc;
+		private ExchangeController ec;
+		private TimerManager tm;
 
-		public Player(Battlefield startField, int startRow, int startColumn, Kit kit)
+		public Player(Battlefield startField, int startRow, int startColumn, Kit kit, float energyRate, int maxHealth, int maxEnergy)
 		{
 			CurrentBattlefield = startField;
 			UpdateLocation(startRow, startColumn);
 			EquipedKit = kit;
+			_energyRate = energyRate;
+			_maxHealth = maxHealth;
+			_maxEnergy = maxEnergy;
 			ResetHealth();
 			ResetEnergy();
 		}
@@ -38,6 +46,12 @@ namespace Assets.Scripts.Exchange
 			{
 				var bcObject = GameObject.FindGameObjectWithTag("BattlefieldController");
 				bc = bcObject.GetComponent<BattlefieldController>();
+			}
+
+			if (ec == null)
+			{
+				var ecObject = GameObject.FindGameObjectWithTag("ExchangeController");
+				ec = ecObject.GetComponent<ExchangeController>();
 			}
 
 			if (EquipedKit == null)
@@ -51,7 +65,9 @@ namespace Assets.Scripts.Exchange
 				tm = tmObject.GetComponent<TimerManager>();
 				CreateTimersForKitActions();
 			}
-
+			_energyRate = 0.01f;
+			_maxHealth = 100;
+			_maxEnergy = 100;
 			ResetHealth();
 			ResetEnergy();
 			//bc.SetBattlefieldState(CurrentBattlefield, ConvertToArrayNumber(CurrentRow), ConvertToArrayNumber(CurrentColumn), true);
@@ -60,16 +76,26 @@ namespace Assets.Scripts.Exchange
 		public void Update()
 		{
 			CheckMovingDetails();
+			_restoreEnergy += _energyRate;
+			if (_restoreEnergy > 1)
+			{
+				AddEnergy(1);
+				if (_energy > _maxEnergy)
+					_energy = _maxEnergy;
+				_restoreEnergy = 0.0f;
+				ec.UpdateExchangeControlsDisplay();
+			}
+
 		}
 
 		public void ResetHealth()
 		{
-			_health = 100;
+			_health = _maxHealth;
 		}
 
 		public void ResetEnergy()
 		{
-			_energy = 100;
+			_energy = _maxEnergy;
 		}
 
 		public int GetHealth()
@@ -85,21 +111,29 @@ namespace Assets.Scripts.Exchange
 		public void SetHealth(int health)
 		{
 			_health = health;
+			if (_health > _maxHealth)
+				_health = _maxHealth;
 		}
 
 		public void SetEnergy(int energy)
 		{
 			_energy = energy;
+			if (_energy > _maxEnergy)
+				_energy = _maxEnergy;
 		}
 
 		public void AddHealth(int health)
 		{
 			_health += health;
+			if (_health > _maxHealth)
+				_health = _maxHealth;
 		}
 
 		public void AddEnergy(int energy)
 		{
 			_energy += energy;
+			if (_energy > _maxEnergy)
+				_energy = _maxEnergy;
 		}
 
 		//Move Related Methods
@@ -161,7 +195,7 @@ namespace Assets.Scripts.Exchange
 		{
 			Library.Action currentAction = EquipedKit.GetCurrentModule().GetCurrentAction();
 
-			if (tm.IsReady(currentAction.Name))
+			if (tm.IsReady(currentAction.Name) && _energy >= (int) (-1 * currentAction.Attack.EnergyRecoilModifier * currentAction.Attack.BaseDamage))
 			{
 				currentAction.InitiateAttack(bc);
 				
