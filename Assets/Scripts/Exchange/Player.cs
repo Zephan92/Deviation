@@ -85,7 +85,6 @@ namespace Assets.Scripts.Exchange
 				_restoreEnergy = 0.0f;
 				ec.UpdateExchangeControlsDisplay();
 			}
-
 		}
 
 		public void ResetHealth()
@@ -113,6 +112,8 @@ namespace Assets.Scripts.Exchange
 			_health = health;
 			if (_health > _maxHealth)
 				_health = _maxHealth;
+			else if (_health < 0)
+				_health = 0;
 		}
 
 		public void SetEnergy(int energy)
@@ -120,6 +121,8 @@ namespace Assets.Scripts.Exchange
 			_energy = energy;
 			if (_energy > _maxEnergy)
 				_energy = _maxEnergy;
+			else if (_energy < 0)
+				_energy = 0;
 		}
 
 		public void AddHealth(int health)
@@ -127,6 +130,8 @@ namespace Assets.Scripts.Exchange
 			_health += health;
 			if (_health > _maxHealth)
 				_health = _maxHealth;
+			else if (_health < 0)
+				_health = 0;
 		}
 
 		public void AddEnergy(int energy)
@@ -134,6 +139,8 @@ namespace Assets.Scripts.Exchange
 			_energy += energy;
 			if (_energy > _maxEnergy)
 				_energy = _maxEnergy;
+			else if (_energy < 0)
+				_energy = 0;
 		}
 
 		//Move Related Methods
