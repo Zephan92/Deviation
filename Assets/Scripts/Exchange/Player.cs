@@ -10,11 +10,13 @@ using Assets.Scripts.Utilities;
 namespace Assets.Scripts.Exchange
 {
 	public class Player : MonoBehaviour, IExchangeObject
-	{
-		public Kit EquipedKit;
+	{		
 		public Battlefield CurrentBattlefield = Battlefield.One;
 		public int CurrentColumn = 0;
 		public int CurrentRow = 0;
+
+		//player specific variables
+		public Kit EquipedKit;
 
 		private int _health = 100;
 		private int _maxHealth = 100;
@@ -22,6 +24,7 @@ namespace Assets.Scripts.Exchange
 		private int _maxEnergy = 100;
 		private float _restoreEnergy = 0.0f;
 		private float _energyRate = 0.01f;
+
 		private MovingDetails _movingDetails;
 
 		private BattlefieldController bc;
@@ -76,6 +79,12 @@ namespace Assets.Scripts.Exchange
 		public void Update()
 		{
 			CheckMovingDetails();
+			RestoreEnergy();
+		}
+
+		//restores energy
+		public void RestoreEnergy()
+		{
 			_restoreEnergy += _energyRate;
 			if (_restoreEnergy > 1)
 			{
@@ -87,26 +96,31 @@ namespace Assets.Scripts.Exchange
 			}
 		}
 
+		//reset health to max
 		public void ResetHealth()
 		{
 			_health = _maxHealth;
 		}
 
+		//reset energy to max
 		public void ResetEnergy()
 		{
 			_energy = _maxEnergy;
 		}
 
+		//returns current health
 		public int GetHealth()
 		{
 			return _health;
 		}
 
+		//returns current energy
 		public int GetEnergy()
 		{
 			return _energy;
 		}
 
+		//sets health
 		public void SetHealth(int health)
 		{
 			_health = health;
@@ -116,6 +130,7 @@ namespace Assets.Scripts.Exchange
 				_health = 0;
 		}
 
+		//sets energy
 		public void SetEnergy(int energy)
 		{
 			_energy = energy;
@@ -125,6 +140,7 @@ namespace Assets.Scripts.Exchange
 				_energy = 0;
 		}
 
+		//adds specified health
 		public void AddHealth(int health)
 		{
 			_health += health;
@@ -134,6 +150,7 @@ namespace Assets.Scripts.Exchange
 				_health = 0;
 		}
 
+		//adds specified energy
 		public void AddEnergy(int energy)
 		{
 			_energy += energy;
@@ -143,7 +160,7 @@ namespace Assets.Scripts.Exchange
 				_energy = 0;
 		}
 
-		//Move Related Methods
+		//moves the player over time
 		public void MoveObject(Direction direction, int distance, bool force = false)
 		{
 			if (_movingDetails != null)
@@ -187,17 +204,16 @@ namespace Assets.Scripts.Exchange
 					}
 					break;
 			}
-			
-			//UpdateTransform(CurrentRow,CurrentColumn);
 		}
 
+		//moves the player instantly
 		public void MoveObject_Instant(int row, int column)
 		{
 			UpdateLocation(row, column);
 			UpdateTransform(row, column);
 		}
 
-		//Kit/Module/Action methods
+		//uses the current action
 		public void PrimaryAction()
 		{
 			Library.Action currentAction = EquipedKit.GetCurrentModule().GetCurrentAction();
@@ -214,43 +230,50 @@ namespace Assets.Scripts.Exchange
 			}
 		}
 
+		//uses the current module ultimate
 		public void PrimaryModule()
 		{
 			Debug.Log("CurrentModule");
 		}
 
+		//Cycle Action Left
 		public void CycleActionLeft()
 		{
 			EquipedKit.GetCurrentModule().CycleActionLeft();
 		}
 
+		//Cycle Action Right
 		public void CycleActionRight()
 		{
 			EquipedKit.GetCurrentModule().CycleActionRight();
 		}
 
+		//Cycle Module Left
 		public void CycleModuleLeft()
 		{
 			EquipedKit.CycleModuleLeft();
 		}
 
+		//Cycle Module Right
 		public void CycleModuleRight()
 		{
 			EquipedKit.CycleModuleRight();
 		}
 
 
-		//Battlefield Methods
+		//Cycles the Battlefield counter clockwise
 		public void CycleBattlefieldCC()
 		{
 			
 		}
 
+		//cycles the battlefiled clockwise
 		public void CycleBattlefieldCW()
 		{
 			
 		}
 
+		//create a timer for each action in each module
 		private void CreateTimersForKitActions()
 		{
 			Kit kit = EquipedKit;
@@ -271,7 +294,7 @@ namespace Assets.Scripts.Exchange
 			}
 		}
 
-		//Utilities
+		//Utilities move this!!!!!!
 		private int ConvertToArrayNumber(int input)
 		{
 			return input + 2;
@@ -282,6 +305,7 @@ namespace Assets.Scripts.Exchange
 			return input - 2;
 		}
 
+		//update current location of the player
 		private void UpdateLocation(int row, int column)
 		{
 			if (!bc.GetBattlefieldState(CurrentBattlefield, ConvertToArrayNumber(column), ConvertToArrayNumber(row)))
@@ -291,12 +315,14 @@ namespace Assets.Scripts.Exchange
 			}
 		}
 
+		//moves the player over time
 		private void UpdateTransform(float row, float column)
 		{
 			transform.localPosition = new Vector3(column, 0, row);
 			transform.Translate(0, 0, 0);
 		}
 
+		//update moving details
 		private void CheckMovingDetails()
 		{
 			if (_movingDetails != null)

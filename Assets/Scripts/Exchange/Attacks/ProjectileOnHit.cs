@@ -12,11 +12,13 @@ namespace Assets.Scripts.Exchange
 
 		void Awake()
 		{
+			//if the object is a portal rocket shoot rocket toward player
 			if (gameObject.name.Equals("PortalRocket(Clone)"))
 			{
 				GetComponent<Rigidbody>().velocity = 2 * new Vector3(0, 0, -15);
 			}
 
+			//if the object is a normal rocket shoot rocket toward enemy
 			if (gameObject.name.Equals("Rocket(Clone)"))
 			{
 				GetComponent<Rigidbody>().velocity = 2 * new Vector3(0, 0, 15);
@@ -31,6 +33,7 @@ namespace Assets.Scripts.Exchange
 
 		public void OnTriggerEnter(Collider other)
 		{
+			//if this objects hit a player attack it
 			if (other.tag.Equals("Player") || other.tag.Equals("MainPlayer"))
 			{
 				Attack.SetDefender(other.GetComponent<Player>());

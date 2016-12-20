@@ -1,9 +1,5 @@
 ﻿using Assets.Scripts.Controllers;
 using Assets.Scripts.Enum;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace Assets.Scripts.Exchange
@@ -27,10 +23,11 @@ namespace Assets.Scripts.Exchange
 
 		void Update()
 		{
-			CheckSpheres();
+			RefreshBattlefield();
 		}
 
-		private void CheckSpheres()
+		//on update, refreshes the grid color
+		private void RefreshBattlefield()
 		{
 			foreach (Transform sphere in _gridSpheres)
 			{
@@ -50,6 +47,7 @@ namespace Assets.Scripts.Exchange
 			}
 		}
 
+		//move these to a utilities class
 		private int ConvertToArrayNumber(int input)
 		{
 			return input + 2;

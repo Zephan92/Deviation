@@ -19,6 +19,7 @@ namespace Assets.Scripts.Exchange
 
 		public void Awake()
 		{
+			//start moving wall toward center
 			_movingDetails = new MovingDetails(new Vector3(transform.position.x + 2, 0, transform.position.z),Direction.Right);
 
 			if (bc == null)
@@ -61,6 +62,7 @@ namespace Assets.Scripts.Exchange
 
 		public void OnTriggerEnter(Collider other)
 		{
+			//if this hits a player, push them and deal damage
 			if(other.name.Equals("Player"))
 			{
 				Player player = other.gameObject.GetComponent<Player>();
@@ -79,6 +81,7 @@ namespace Assets.Scripts.Exchange
 			}
 		}
 
+		//should put these in a utilities class
 		private int ConvertToArrayNumber(int input)
 		{
 			return input + 2;
