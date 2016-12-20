@@ -10,24 +10,29 @@ using UnityEngine.EventSystems;
 
 namespace Assets.Scripts.Controllers
 {
+	//this is the multiplayer exchange controller
 	public class ExchangeController : MonoBehaviour, IExchangeController
 	{
+		//Public Static Variables
+		public static int NumberOfPlayers = 2;
+
 		//Unity Objects
 		public GameObject MainPlayerObject;
 		public GameObject[] PlayerObjects;
 
-		public static int NumberOfPlayers = 2;
-
-		//Public Static Variables
+		//Current state
 		public ExchangeState ExchangeState;
 
-
-		//Private Static Variables
+		//Private Variables
 		private Player _mainPlayer;
 		private GameObject[] _displays;
+
+		//bools
 		private bool _battleStartDisplayIsEnabled = false;
 		private bool _ExchangeControlsDisplayIsEnabled = false;
 		private bool _awaitingPlayerInput = false;
+
+		//controllers
 		private MainPlayerController mp;
 
 		void Awake()
@@ -98,6 +103,7 @@ namespace Assets.Scripts.Controllers
             }
         }
 
+		//check to see if the battle is over
 		private void CheckBattleEnd()
 		{
 			if (_mainPlayer.GetHealth() <= 0 || PlayerObjects[0].GetComponent<Player>().GetHealth() <= 0)
@@ -106,17 +112,19 @@ namespace Assets.Scripts.Controllers
 			}
 		}
 
+		//select a button on the display
 		private void SelectButton(string UIGroupName, string buttonName)
 		{
 			GetButtonFromUIGroup(GetDisplayObject(UIGroupName), buttonName).GetComponent<Selectable>().Select();
 		}
 
+		//turn on/off specified display
         private void ToggleDisplay(string displayName, bool currentDisplayValue)
         {
 			toggleVisibility(GetDisplayObject(displayName), !currentDisplayValue);
         }
 
-
+		//turn on/off visibility for a display
         private void toggleVisibility(GameObject display, bool visibility)
         {
             CanvasGroup _canvasGroup = display.GetComponent<CanvasGroup>();
@@ -131,11 +139,13 @@ namespace Assets.Scripts.Controllers
                 childRenderer.enabled = visibility;
 		}
 
+		//load main menu
         private void BackToMainMenu()
         {
             SceneManager.LoadScene("MainMenu");
         }
 
+		//returns the specified display
 		private GameObject GetDisplayObject(string displayName)
 		{
 			foreach (GameObject display in _displays)
@@ -148,6 +158,7 @@ namespace Assets.Scripts.Controllers
 			return null;
 		}
 
+		//returns the specified button
 		private Button GetButtonFromUIGroup(GameObject UIGroup, string buttonName)
 		{
 			foreach (Button button in UIGroup.GetComponentsInChildren<Button>())
@@ -160,6 +171,7 @@ namespace Assets.Scripts.Controllers
 			return null;
 		}
 
+		//returns the specified text
 		private Text GetTextFromPanelUIGroup(GameObject UIGroup, string panelName)
 		{
 			foreach (Text text in UIGroup.GetComponentsInChildren<Text>())
@@ -172,6 +184,7 @@ namespace Assets.Scripts.Controllers
 			return null;
 		}
 
+		//click on the specified button
 		public void ClickOnButton(string groupUIName, string buttonName)
 		{
 			GameObject ExchangeControlsUIGroup = GetDisplayObject(groupUIName);
@@ -179,16 +192,18 @@ namespace Assets.Scripts.Controllers
 			PointerEventData pointer = new PointerEventData(EventSystem.current);
 			ExecuteEvents.Execute(button.gameObject, pointer, ExecuteEvents.pointerEnterHandler);
 			ExecuteEvents.Execute(button.gameObject, pointer, ExecuteEvents.pointerDownHandler);
-			StartCoroutine(UnClickPointer(button, pointer));
+			StartCoroutine(UnClickPointerCoroutine(button, pointer));
 		}
 
-		private IEnumerator UnClickPointer(Button button, PointerEventData pointer)
+		//coroutine to unclick point on button
+		private IEnumerator UnClickPointerCoroutine(Button button, PointerEventData pointer)
 		{
 			yield return new WaitForSeconds(0.1f);
 			ExecuteEvents.Execute(button.gameObject, pointer, ExecuteEvents.pointerUpHandler);
 			ExecuteEvents.Execute(button.gameObject, pointer, ExecuteEvents.pointerExitHandler);
 		}
 
+		//changes the state to start
 		public void ChangeStateToStart()
         {
             ToggleDisplay("BattleStart", _battleStartDisplayIsEnabled);
@@ -196,6 +211,7 @@ namespace Assets.Scripts.Controllers
             _awaitingPlayerInput = false;
         }
 
+		//updates the exchange controls to the latest
 		public void UpdateExchangeControlsDisplay()
 		{
 			var ExchangeControls = GetDisplayObject("ExchangeControls");
@@ -238,6 +254,7 @@ namespace Assets.Scripts.Controllers
 			text.text = PlayerObjects[0].GetComponent<Player>().GetHealth().ToString();
 		}
 
+		//updates the button color
 		private void UpdateButtonColor(Button button, Color color)
 		{
 			
@@ -261,6 +278,7 @@ namespace Assets.Scripts.Controllers
 			}
 		}
 
+		//updates the button text
 		private void UpdateButtonText(Button button, String name)
 		{
 

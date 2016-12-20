@@ -1,12 +1,9 @@
 ﻿using UnityEngine;
-using System.Collections;
 using Assets.Scripts.Interfaces;
-using System;
 using System.Runtime.Serialization.Formatters.Binary;
 using Assets.Scripts.External;
 using System.IO;
 using Assets.Scripts.Enum;
-using Assets.Scripts.Utilities;
 using UnityEngine.SceneManagement;
 
 namespace Assets.Scripts.Controllers
@@ -46,6 +43,7 @@ namespace Assets.Scripts.Controllers
             }
         }
 
+		//this saves the player data file
         public void Save()
         {
             BinaryFormatter bf = new BinaryFormatter();
@@ -59,6 +57,7 @@ namespace Assets.Scripts.Controllers
             file.Close();
         }
 
+		//this loads the player data file
         public void Load()
         {
             BinaryFormatter bf = new BinaryFormatter();
@@ -70,6 +69,7 @@ namespace Assets.Scripts.Controllers
             //SaveFile.playerName = data.playerName;
         }
 
+		//this makes sure that there is only one game controler
         private void InstantiateGameController()
         {
             if (control == null)

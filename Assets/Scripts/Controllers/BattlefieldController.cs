@@ -7,11 +7,13 @@ using UnityEngine;
 
 namespace Assets.Scripts.Controllers
 {
+	//this is a controller for the battlefield
 	public class BattlefieldController : MonoBehaviour
 	{
-		public static bool[,,] Battlefields;
 		public GameObject[] PlayerObjects;
 		public GameObject MainPlayerObject;
+
+		private bool[,,] _battlefields;
 
 		public void Awake()
 		{
@@ -26,12 +28,13 @@ namespace Assets.Scripts.Controllers
 			AssignBattlefields();
 		}
 
+		//this method initializes the battlefields
 		private void InitializeBattlefields(int numBattlefields)
 		{
-			if (Battlefields == null)
+			if (_battlefields == null)
 			{
-				Battlefields = new bool[numBattlefields, 5, 5];
-				Battlefields.Initialize();
+				_battlefields = new bool[numBattlefields, 5, 5];
+				_battlefields.Initialize();
 			}
 			else
 			{
@@ -40,36 +43,33 @@ namespace Assets.Scripts.Controllers
 			
 		}
 
+		//sets the specified battlefield state of a particular cell
 		public void SetBattlefieldState(Battlefield field, int row, int column, bool state)
 		{
 			if (field == Battlefield.One)
 			{
-				Battlefields[0, row, column] = state;
+				_battlefields[0, row, column] = state;
 			}
 			else if (field == Battlefield.Two)
 			{
-				Battlefields[1, row, column] = state;
+				_battlefields[1, row, column] = state;
 			}
 		}
 
+		//sets the specifed battlefield state of a particular cell after a period of time
 		public void SetBattlefieldStateAfterTimout(float timeout, Battlefield field, int row, int column, bool state)
 		{
 			StartCoroutine(SetBattlefieldStateAfterTimoutCoroutine(timeout, field, row,  column, state));
 		}
 
+		//coroutine for battlefield state
 		private IEnumerator SetBattlefieldStateAfterTimoutCoroutine(float timeout, Battlefield field, int row, int column, bool state)
 		{
 			yield return new WaitForSeconds(timeout);
-			if (field == Battlefield.One)
-			{
-				Battlefields[0, row, column] = state;
-			}
-			else if (field == Battlefield.Two)
-			{
-				Battlefields[1, row, column] = state;
-			}
+			SetBattlefieldState(field, row, column, state);
 		}
-
+		
+		//returns the battlefield state from the specified battlefield cell
 		public bool GetBattlefieldState(Battlefield field, int row, int column)
 		{
 			if (column < 0 || column > 4 || row < 0 || row > 4)
@@ -80,20 +80,21 @@ namespace Assets.Scripts.Controllers
 			bool state = false;
 			if (field == Battlefield.One)
 			{
-				state = Battlefields[0, row, column];
+				state = _battlefields[0, row, column];
 			}
 			else if (field == Battlefield.Two)
 			{
-				state = Battlefields[1, row, column];
+				state = _battlefields[1, row, column];
 			}
 			else
 			{
-				throw new ApplicationException("The battlefield inputed has not been implemented yet. Battlefield was: " + field);
+				Debug.LogError("The battlefield inputed has not been implemented yet. Battlefield was: " + field);
 			}
 
 			return state;
 		}
 
+		//assign battlefields to players
 		private void AssignBattlefields()
 		{
 			foreach (GameObject playerObject in PlayerObjects)
@@ -130,21 +131,25 @@ namespace Assets.Scripts.Controllers
 			}
 		}
 
+		//delete object after timeout
 		public void DeleteAfterTimeout(float timeout, GameObject gameObjects)
 		{
 			DeleteAfterTimeout(timeout, new GameObject[] { gameObjects });
 		}
 
+		//delete objects after timeout
 		public void DeleteAfterTimeout(float timeout, GameObject[] battlefieldObjects)
 		{
 			StartCoroutine(DeleteAfterTimeoutCoroutine(timeout, battlefieldObjects));
 		}
 
+		//spawn object after timeout
 		public void SpawnAfterTimeout(float timeout, float deletionTimeout, string resourceName, Attack attack, Type attackType, Vector3 zone, Quaternion rotation)
 		{
 			StartCoroutine(SpawnAfterTimeoutCoroutine(timeout, deletionTimeout, resourceName, attack, attackType, zone, rotation));
 		}
 
+		//spawn a specified object
 		public void Spawn(float deletionTimeout, string resourceName, Attack attack, Type attackType, Vector3 zone, Quaternion rotation)
 		{
 			GameObject go = (GameObject)Instantiate(Resources.Load(resourceName), zone, rotation);
@@ -156,6 +161,7 @@ namespace Assets.Scripts.Controllers
 			DeleteAfterTimeout(deletionTimeout, go);
 		}
 
+		//coroutine to delete specified objects
 		private IEnumerator DeleteAfterTimeoutCoroutine(float timeout, GameObject[] battlefieldObjects)
 		{
 			yield return new WaitForSeconds(timeout);
@@ -165,16 +171,11 @@ namespace Assets.Scripts.Controllers
 			}
 		}
 
+		//coroutine to spawn an object after a timeout
 		private IEnumerator SpawnAfterTimeoutCoroutine(float timeout, float deletionTimeout, string resourceName, Attack attack, Type attackType, Vector3 zone, Quaternion rotation)
 		{
 			yield return new WaitForSeconds(timeout);
-			GameObject go = (GameObject)Instantiate(Resources.Load(resourceName), zone, rotation);
-
-			IExchangeAttack attackScript = go.GetComponent(attackType) as IExchangeAttack;
-			if (attackScript == null)
-				attackScript = go.GetComponentInChildren(attackType) as IExchangeAttack;
-			attackScript.SetAttack(attack);
-			DeleteAfterTimeout(deletionTimeout, go);
+			Spawn(deletionTimeout, resourceName, attack, attackType, zone, rotation);
 		}
 	}
 }

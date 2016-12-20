@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Assets.Scripts.Enum
+﻿namespace Assets.Scripts.Enum
 {
     public enum ExchangeState
     {
         Setup,
-        PreBattle,
+        PreBattle,	//user can interact here
         Start,
-        Battle,
-        End,
-        PostBattle,
-        Teardown,
-        Paused,
-    }
+        Battle,     //user can interact here
+		End,
+        PostBattle,	//user can interact here
+		Teardown,
+        Paused,     //user can interact here
+	}
 }

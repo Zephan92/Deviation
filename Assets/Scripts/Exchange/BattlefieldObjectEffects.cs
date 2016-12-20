@@ -1,5 +1,4 @@
-﻿
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Assets.Scripts.Exchange
 {
@@ -13,9 +12,9 @@ namespace Assets.Scripts.Exchange
 		CycleYZ
 	}
 
+	// this class makes a game object rotate or move on fixed update
 	public class BattlefieldObjectEffects : MonoBehaviour
 	{
-
 		public BattlefieldObjectEffect Effect = BattlefieldObjectEffect.FloatY;
 		public bool RandomRotation;
 		public bool RandomRadius;
@@ -43,9 +42,14 @@ namespace Assets.Scripts.Exchange
 
 		public void FixedUpdate()
 		{
+			MoveObject();
+		}
+
+		private void MoveObject()
+		{
+			Debug.LogWarning("This is slow! optimize me");
 			if (rotating)
 			{
-
 				transform.Rotate(rotationSpeed.x, rotationSpeed.y, rotationSpeed.z);
 			}
 			switch (Effect)
