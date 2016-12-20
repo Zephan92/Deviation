@@ -8,7 +8,7 @@ namespace Assets.Scripts.Exchange
 	public class ProjectileOnHit : MonoBehaviour, IExchangeAttack
 	{
 		private Attack Attack;
-		private static ExchangeController ec;
+		private ExchangeController ec;
 
 		void Awake()
 		{

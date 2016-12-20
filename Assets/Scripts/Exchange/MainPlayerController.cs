@@ -8,7 +8,7 @@ namespace Assets.Scripts.Exchange
 	class MainPlayerController : MonoBehaviour
 	{
 		private Player _mainPlayer;
-		private static ExchangeController ec;
+		private ExchangeController ec;
 
 		public void Awake()
 		{

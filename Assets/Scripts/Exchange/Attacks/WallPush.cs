@@ -9,8 +9,8 @@ namespace Assets.Scripts.Exchange
 {
 	public class WallPush : MonoBehaviour, IExchangeAttack
 	{
-		private static ExchangeController ec;
-		private static BattlefieldController bc;
+		private ExchangeController ec;
+		private BattlefieldController bc;
 		private MovingDetails _movingDetails;
 		public int CurrentColumn = 0;
 		public int CurrentRow = 0;

@@ -10,8 +10,9 @@ namespace Assets.Scripts.Controllers
 	//this is a controller for the battlefield
 	public class BattlefieldController : MonoBehaviour
 	{
-		public GameObject[] PlayerObjects;
 		public GameObject MainPlayerObject;
+		public Player[] Players;
+		
 
 		private bool[,,] _battlefields;
 
@@ -22,7 +23,7 @@ namespace Assets.Scripts.Controllers
 				MainPlayerObject = GameObject.FindGameObjectWithTag("MainPlayer");
 			}
 
-			PlayerObjects = GameObject.FindGameObjectsWithTag("Player");
+			Players = FindObjectsOfType<Player>();
 
 			InitializeBattlefields(ExchangeController.NumberOfPlayers);
 			AssignBattlefields();
@@ -97,18 +98,16 @@ namespace Assets.Scripts.Controllers
 		//assign battlefields to players
 		private void AssignBattlefields()
 		{
-			foreach (GameObject playerObject in PlayerObjects)
+			foreach (Player player in Players)
 			{
-				Player player = playerObject.GetComponent<Player>();
-
 				switch (player.CurrentBattlefield)
 				{
-					case Battlefield.One:
-						if (PlayerObjects[0] == null)
-						{
-							PlayerObjects[0] = playerObject;
-						}
-						break;
+					//case Battlefield.One:
+					//	if (PlayerObjects[0] == null)
+					//	{
+					//		PlayerObjects[0] = player;
+					//	}
+					//	break;
 					//case Battlefield.Two:
 					//	if (PlayerObjects[1] == null)
 					//	{
