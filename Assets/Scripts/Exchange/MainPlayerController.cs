@@ -89,6 +89,11 @@ namespace Assets.Scripts.Exchange
 			{
 				CycleModuleRight();
 			}
+			else if (Input.GetKeyUp(KeyCode.Escape))
+			{
+				if (ec.ExchangeState == ExchangeState.Battle)
+					ec.ChangeStateToPause();
+			}
 		}
 
 		//click on primary module button

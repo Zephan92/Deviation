@@ -29,11 +29,13 @@ namespace Assets.Scripts.Controllers
 
 		//bools
 		private bool _battleStartDisplayIsEnabled = false;
+		private bool _unpauseDisplayIsEnabled = false;
 		private bool _ExchangeControlsDisplayIsEnabled = false;
 		private bool _awaitingPlayerInput = false;
 
 		//controllers
 		private MainPlayerController mp;
+		private NonPlayerCharacterController npc;
 
 		void Awake()
 		{
@@ -43,6 +45,12 @@ namespace Assets.Scripts.Controllers
 			{
 				var mpObject = GameObject.FindGameObjectWithTag("MainPlayerController");
 				mp = mpObject.GetComponent<MainPlayerController>();
+			}
+
+			if (npc == null)
+			{
+				var npcObject = GameObject.FindGameObjectWithTag("NonPlayerCharacterController");
+				npc = npcObject.GetComponent<NonPlayerCharacterController>();
 			}
 
 			if (MainPlayerObject == null)
@@ -85,6 +93,7 @@ namespace Assets.Scripts.Controllers
                     break;
                 case ExchangeState.Battle:
                     mp.CheckInput();
+					npc.StartDecisionMaker();
 					CheckBattleEnd();
                     break;
                 case ExchangeState.End:
@@ -97,7 +106,11 @@ namespace Assets.Scripts.Controllers
                     BackToMainMenu();
                     break;
                 case ExchangeState.Paused:
-                    break;
+					if (!_awaitingPlayerInput)
+					{
+						_awaitingPlayerInput = true;
+					}
+					break;
                 default:
                     break;
             }
@@ -108,6 +121,7 @@ namespace Assets.Scripts.Controllers
 		{
 			if (_mainPlayer.GetHealth() <= 0 || PlayerObjects[0].GetComponent<Player>().GetHealth() <= 0)
 			{
+				npc.StopDecisionMaker();
 				ExchangeState = ExchangeState.End;
 			}
 		}
@@ -207,9 +221,29 @@ namespace Assets.Scripts.Controllers
 		public void ChangeStateToStart()
         {
             ToggleDisplay("BattleStart", _battleStartDisplayIsEnabled);
-            ExchangeState = ExchangeState.Start;
+			ExchangeState = ExchangeState.Start;
             _awaitingPlayerInput = false;
         }
+
+		//changes the state to Pause
+		public void ChangeStateToPause()
+		{
+			ExchangeState = ExchangeState.Paused;
+			npc.PauseDecisionMaker();
+			ToggleDisplay("Unpause", _unpauseDisplayIsEnabled);
+			_unpauseDisplayIsEnabled = true;
+			SelectButton("Unpause", "Unpause");
+			_awaitingPlayerInput = true;
+		}
+
+		//changes the state to Pause
+		public void Unpause()
+		{
+			npc.UnpauseDecisionMaker();
+			ToggleDisplay("Unpause", _unpauseDisplayIsEnabled);
+			_unpauseDisplayIsEnabled = false;
+			ExchangeState = ExchangeState.Battle;
+		}
 
 		//updates the exchange controls to the latest
 		public void UpdateExchangeControlsDisplay()
