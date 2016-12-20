@@ -12,15 +12,18 @@ namespace Assets.Scripts.Utilities
 
 		void Awake()
 		{
+			//on awake find ghost button to select
 			_ghostButton = GameObject.FindGameObjectWithTag("GhostButton").GetComponent<Selectable>();
 		}
 
+		//Selects button after short delay
 		public void OnSelect(BaseEventData eventData)
 		{
-			StartCoroutine(DelaySelect(_ghostButton));
+			StartCoroutine(DelaySelectCoroutine(_ghostButton));
 		}
 
-		private IEnumerator DelaySelect(Selectable select)
+		//Delay Select Coroutine
+		private IEnumerator DelaySelectCoroutine(Selectable select)
 		{
 			yield return new WaitForEndOfFrame();
 			select.Select();

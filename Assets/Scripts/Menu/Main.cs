@@ -4,13 +4,10 @@ using UnityEngine.SceneManagement;
 
 namespace Assets.Scripts.Menu
 {
+	//this is the main menu utilties
     public class Main : MonoBehaviour
     {
-        public void Awake()
-        {
-            
-        }
-
+		//this function loads the multiplayer exchange scene
         public void Multiplayer()
         {
             SceneManager.LoadScene("MultiplayerExchange");

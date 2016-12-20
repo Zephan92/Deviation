@@ -202,7 +202,7 @@ namespace Assets.Scripts.Exchange
 		{
 			Library.Action currentAction = EquipedKit.GetCurrentModule().GetCurrentAction();
 
-			if (tm.IsReady(currentAction.Name) && _energy >= (int) (-1 * currentAction.Attack.EnergyRecoilModifier * currentAction.Attack.BaseDamage))
+			if (tm.TimerUp(currentAction.Name) && _energy >= (int) (-1 * currentAction.Attack.EnergyRecoilModifier * currentAction.Attack.BaseDamage))
 			{
 				currentAction.InitiateAttack(bc);
 				
