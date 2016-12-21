@@ -14,7 +14,8 @@ namespace Assets.Scripts.Controllers
 	public class ExchangeController : MonoBehaviour, IExchangeController
 	{
 		//Public Static Variables
-		public static int NumberOfPlayers = 6;
+		public static int NumberOfPlayers = 2;
+		public static Battlefield MainPlayerFieldNumber = Battlefield.One;
 
 		//Unity Objects
 		public GameObject MainPlayerObject;
@@ -52,21 +53,19 @@ namespace Assets.Scripts.Controllers
 				var npcObject = GameObject.FindGameObjectWithTag("NonPlayerCharacterController");
 				npc = npcObject.GetComponent<NonPlayerCharacterController>();
 			}
-
-			if (MainPlayerObject == null)
-			{
-				MainPlayerObject = GameObject.FindGameObjectWithTag("MainPlayer");
-				_mainPlayer = MainPlayerObject.GetComponent<Player>();
-			}
-
-			Players = FindObjectsOfType<Player>();
-
+			
 			_displays = GameObject.FindGameObjectsWithTag("Display");
 
 			ExchangeState = ExchangeState.PreBattle;
 		}
 
-        void Update()
+		public void Start()
+		{
+			Players = FindObjectsOfType<Player>();
+			_mainPlayer = Players[(int) MainPlayerFieldNumber];
+		}
+
+		void Update()
         {
             switch (ExchangeState)
             {

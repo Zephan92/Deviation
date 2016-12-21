@@ -11,43 +11,33 @@ namespace Assets.Scripts.Controllers
 	//this is a controller for the battlefield
 	public class BattlefieldController : MonoBehaviour
 	{
-		public GameObject MainPlayerObject;
 		public Player[] Players;
 
 		private bool[,,] _battlefields;
 
 		public void Awake()
 		{
-			InitializeBattlefields(ExchangeController.NumberOfPlayers, 0);
-			AssignBattlefields();
+			InitializeBattlefields(ExchangeController.NumberOfPlayers, (int) ExchangeController.MainPlayerFieldNumber);
 
 			Players = FindObjectsOfType<Player>();
-
-			if (MainPlayerObject == null)
-			{
-				MainPlayerObject = GameObject.FindGameObjectWithTag("MainPlayer");
-			}
 		}
 
 		//this method initializes the battlefields
 		private void InitializeBattlefields(int numBattlefields, int mainPlayerFieldNumber)
 		{
-			if (_battlefields == null)
-			{
-				_battlefields = new bool[numBattlefields, 5, 5];
-				_battlefields.Initialize();
-			}
-			else
-			{
-				Debug.LogWarning("Trying to initialize Battlefields, but Battlefields is already initialized.");
-			}
-
+			_battlefields = new bool[numBattlefields, 5, 5];
+			_battlefields.Initialize();
+			
 			for (int i = 0; i < numBattlefields; i++)
 			{
 				if(mainPlayerFieldNumber == i)
+				{
 					CreateBattlefield((Battlefield) i, true);
+				}
 				else
-					CreateBattlefield((Battlefield) i, false);
+				{
+					CreateBattlefield((Battlefield)i, false);
+				}		
 			}
 		}
 
@@ -89,8 +79,6 @@ namespace Assets.Scripts.Controllers
 				if (mainPlayer)
 				{
 					go.tag = "MainPlayer";
-					GameObject camera = GameObject.FindGameObjectWithTag("MainCamera");
-					camera.transform.position = new Vector3(go.transform.position.x, camera.transform.position.y, camera.transform.position.z);
 				}
 				Player player = go.AddComponent<Player>();
 				player.SetPlayer(startField, 0, 0, KitLibrary.KitLibraryTable["InitialKit"], 0.01f, 100, 100);
@@ -105,21 +93,7 @@ namespace Assets.Scripts.Controllers
 		//sets the specified battlefield state of a particular cell
 		public void SetBattlefieldState(Battlefield field, int row, int column, bool state)
 		{
-			if (_battlefields != null)
-			{
-				if (field == Battlefield.One)
-				{
-					_battlefields[0, row, column] = state;
-				}
-				else if (field == Battlefield.Two)
-				{
-					_battlefields[1, row, column] = state;
-				}
-			}
-			else
-			{
-				Debug.Log("Battlefields not set yet");
-			}
+			_battlefields[(int) field, row, column] = state;
 		}
 
 		//sets the specifed battlefield state of a particular cell after a period of time
@@ -153,41 +127,6 @@ namespace Assets.Scripts.Controllers
 			}
 			
 			return false;
-		}
-
-		//assign battlefields to players
-		private void AssignBattlefields()
-		{
-			foreach (Player player in Players)
-			{
-				switch (player.CurrentBattlefield)
-				{
-					//case Battlefield.One:
-					//	if (PlayerObjects[0] == null)
-					//	{
-					//		PlayerObjects[0] = player;
-					//	}
-					//	break;
-					//case Battlefield.Two:
-					//	if (PlayerObjects[1] == null)
-					//	{
-					//		PlayerObjects[1] = playerObject;
-					//	}
-					//	break;
-					//case Battlefield.Three:
-					//	if (PlayerObjects[2] == null)
-					//	{
-					//		PlayerObjects[2] = playerObject;
-					//	}
-					//	break;
-					//case Battlefield.Four:
-					//	if (PlayerObjects[3] == null)
-					//	{
-					//		PlayerObjects[3] = playerObject;
-					//	}
-					//	break;
-				}
-			}
 		}
 
 		//delete object after timeout

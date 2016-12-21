@@ -147,6 +147,7 @@ namespace Assets.Scripts.Exchange
 		public void AddHealth(int health)
 		{
 			_health += health;
+
 			if (_health > _maxHealth)
 				_health = _maxHealth;
 			else if (_health < 0)
@@ -157,6 +158,7 @@ namespace Assets.Scripts.Exchange
 		public void AddEnergy(int energy)
 		{
 			_energy += energy;
+
 			if (_energy > _maxEnergy)
 				_energy = _maxEnergy;
 			else if (_energy < 0)
@@ -221,7 +223,9 @@ namespace Assets.Scripts.Exchange
 		{
 			Library.Action currentAction = EquipedKit.GetCurrentModule().GetCurrentAction();
 
-			if (tm.TimerUp(currentAction.Name) && _energy >= (int) (-1 * currentAction.Attack.EnergyRecoilModifier * currentAction.Attack.BaseDamage))
+			int attackCost = (int) (-1 * currentAction.Attack.EnergyRecoilModifier * currentAction.Attack.BaseDamage);
+			int potentialEnergy = GetEnergy() - attackCost;
+			if (tm.TimerUp(currentAction.Name) && potentialEnergy >= 0)
 			{
 				currentAction.InitiateAttack(bc);
 				
