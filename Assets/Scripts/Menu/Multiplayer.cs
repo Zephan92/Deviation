@@ -5,12 +5,12 @@ using UnityEngine.SceneManagement;
 namespace Assets.Scripts.Menu
 {
 	//this is the main menu utilties
-    public class Main : MonoBehaviour
+    public class Multiplayer : MonoBehaviour
     {
 		//this function loads the multiplayer exchange scene
-        public void Multiplayer()
+        public void MultiplayerExchange()
         {
-            SceneManager.LoadScene("MultiplayerMenu");
+            SceneManager.LoadScene("MultiplayerExchange");
         }
     }
 }

@@ -12,16 +12,19 @@ namespace Assets.Scripts.Exchange
 
 		public void Awake()
 		{
-			if (_mainPlayer == null)
-			{
-				var mPlayer = GameObject.FindGameObjectWithTag("MainPlayer");
-				_mainPlayer = mPlayer.GetComponent<Player>();
-			}
-
 			if (ec  == null)
 			{
 				var ecObject = GameObject.FindGameObjectWithTag("ExchangeController");
 				ec = ecObject.GetComponent<ExchangeController>();
+			}
+		}
+
+		public void Start()
+		{
+			if (_mainPlayer == null)
+			{
+				var mPlayer = GameObject.FindGameObjectWithTag("MainPlayer");
+				_mainPlayer = mPlayer.GetComponent<Player>();
 			}
 		}
 

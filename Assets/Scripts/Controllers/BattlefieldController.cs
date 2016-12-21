@@ -1,6 +1,7 @@
 ﻿using Assets.Scripts.Enum;
 using Assets.Scripts.Exchange;
 using Assets.Scripts.Interface;
+using Assets.Scripts.Library;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -12,25 +13,24 @@ namespace Assets.Scripts.Controllers
 	{
 		public GameObject MainPlayerObject;
 		public Player[] Players;
-		
 
 		private bool[,,] _battlefields;
 
 		public void Awake()
 		{
+			InitializeBattlefields(ExchangeController.NumberOfPlayers, 0);
+			AssignBattlefields();
+
+			Players = FindObjectsOfType<Player>();
+
 			if (MainPlayerObject == null)
 			{
 				MainPlayerObject = GameObject.FindGameObjectWithTag("MainPlayer");
 			}
-
-			Players = FindObjectsOfType<Player>();
-
-			InitializeBattlefields(ExchangeController.NumberOfPlayers);
-			AssignBattlefields();
 		}
 
 		//this method initializes the battlefields
-		private void InitializeBattlefields(int numBattlefields)
+		private void InitializeBattlefields(int numBattlefields, int mainPlayerFieldNumber)
 		{
 			if (_battlefields == null)
 			{
@@ -41,19 +41,84 @@ namespace Assets.Scripts.Controllers
 			{
 				Debug.LogWarning("Trying to initialize Battlefields, but Battlefields is already initialized.");
 			}
+
+			for (int i = 0; i < numBattlefields; i++)
+			{
+				if(mainPlayerFieldNumber == i)
+					CreateBattlefield((Battlefield) i, true);
+				else
+					CreateBattlefield((Battlefield) i, false);
+			}
+		}
+
+		private GameObject CreateBattlefield(Battlefield startField, bool mainPlayer)
+		{
+			GameObject battlefield = (GameObject)Instantiate(Resources.Load("Battlefield"), Vector3.zero, new Quaternion(0, 0, 0, 0));
+			Transform[] battlefields = battlefield.GetComponentsInChildren<Transform>();
+			foreach (Transform child in battlefields)
+			{
+				UpdateBattlefield(child.gameObject, startField, mainPlayer);
+			}
 			
+			float x = 0, y = 0, z = 0;
+
+			if ((int) startField <= 1)
+			{
+				x = -5f;
+			}
+			else if ((int) startField > 1 && (int) startField < 4)
+			{
+				x = 0f;
+			}
+			else if ((int) startField >= 4)
+			{
+				x = 5f;
+			}
+
+			y = 0;
+			z = ((int) startField) % 2 == 0 ? -2.5f : 2.5f;
+
+			battlefield.transform.position = new Vector3(x,y,z);
+			return battlefield;
+		}
+
+		private void UpdateBattlefield(GameObject go, Battlefield startField, bool mainPlayer)
+		{
+			if (go.name.Equals("Player"))
+			{
+				if (mainPlayer)
+				{
+					go.tag = "MainPlayer";
+					GameObject camera = GameObject.FindGameObjectWithTag("MainCamera");
+					camera.transform.position = new Vector3(go.transform.position.x, camera.transform.position.y, camera.transform.position.z);
+				}
+				Player player = go.AddComponent<Player>();
+				player.SetPlayer(startField, 0, 0, KitLibrary.KitLibraryTable["InitialKit"], 0.01f, 100, 100);
+			}
+			else if (go.name.Equals("Grid"))
+			{
+				GridManager grid = go.AddComponent<GridManager>();
+				grid.ThisBattlefield = startField;
+			}
 		}
 
 		//sets the specified battlefield state of a particular cell
 		public void SetBattlefieldState(Battlefield field, int row, int column, bool state)
 		{
-			if (field == Battlefield.One)
+			if (_battlefields != null)
 			{
-				_battlefields[0, row, column] = state;
+				if (field == Battlefield.One)
+				{
+					_battlefields[0, row, column] = state;
+				}
+				else if (field == Battlefield.Two)
+				{
+					_battlefields[1, row, column] = state;
+				}
 			}
-			else if (field == Battlefield.Two)
+			else
 			{
-				_battlefields[1, row, column] = state;
+				Debug.Log("Battlefields not set yet");
 			}
 		}
 
@@ -78,21 +143,16 @@ namespace Assets.Scripts.Controllers
 				return false;
 			}
 
-			bool state = false;
-			if (field == Battlefield.One)
+			if (_battlefields != null)
 			{
-				state = _battlefields[0, row, column];
-			}
-			else if (field == Battlefield.Two)
-			{
-				state = _battlefields[1, row, column];
+				return _battlefields[(int) field, row, column];
 			}
 			else
 			{
-				Debug.LogError("The battlefield inputed has not been implemented yet. Battlefield was: " + field);
+				Debug.LogError("Battlefields doesn't exist yet");
 			}
-
-			return state;
+			
+			return false;
 		}
 
 		//assign battlefields to players

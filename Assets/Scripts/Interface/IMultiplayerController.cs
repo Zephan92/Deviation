@@ -2,6 +2,6 @@
 {
     public interface IMultiplayerController
     {
-        void StartMultiplayerInstance();
+        void StartMultiplayerExchangeInstance();
     }
 }

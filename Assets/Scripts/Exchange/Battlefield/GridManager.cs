@@ -21,6 +21,11 @@ namespace Assets.Scripts.Exchange
 			}
 		}
 
+		void SetBattlefield(Battlefield battlefield)
+		{
+			ThisBattlefield = battlefield;
+		}
+
 		void Update()
 		{
 			RefreshBattlefield();

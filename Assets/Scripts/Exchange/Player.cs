@@ -31,7 +31,9 @@ namespace Assets.Scripts.Exchange
 		private ExchangeController ec;
 		private TimerManager tm;
 
-		public Player(Battlefield startField, int startRow, int startColumn, Kit kit, float energyRate, int maxHealth, int maxEnergy)
+		private Player[] _enemies;
+
+		public void SetPlayer(Battlefield startField, int startRow, int startColumn, Kit kit, float energyRate, int maxHealth, int maxEnergy)
 		{
 			CurrentBattlefield = startField;
 			UpdateLocation(startRow, startColumn);
@@ -41,6 +43,11 @@ namespace Assets.Scripts.Exchange
 			_maxEnergy = maxEnergy;
 			ResetHealth();
 			ResetEnergy();
+		}
+
+		public void SetEnemies(Player[] enemies)
+		{
+			_enemies = enemies;
 		}
 
 		public void Awake()
@@ -68,11 +75,7 @@ namespace Assets.Scripts.Exchange
 				tm = tmObject.GetComponent<TimerManager>();
 				CreateTimersForKitActions();
 			}
-			_energyRate = 0.01f;
-			_maxHealth = 100;
-			_maxEnergy = 100;
-			ResetHealth();
-			ResetEnergy();
+
 			//bc.SetBattlefieldState(CurrentBattlefield, ConvertToArrayNumber(CurrentRow), ConvertToArrayNumber(CurrentColumn), true);
 		}
 

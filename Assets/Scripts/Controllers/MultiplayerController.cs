@@ -1,11 +1,14 @@
 ﻿using Assets.Scripts.Interface;
+using UnityEngine;
 
 namespace Assets.Scripts.Controllers
 {
-    public class MultiplayerController : IMultiplayerController
+    public class MultiplayerController : MonoBehaviour, IMultiplayerController
     {
+		public int NumberOfPlayers;
+
 		//instantiates a new multiplayer instance
-        public void StartMultiplayerInstance()
+        public void StartMultiplayerExchangeInstance()
         {
             
         }

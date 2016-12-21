@@ -14,11 +14,11 @@ namespace Assets.Scripts.Controllers
 	public class ExchangeController : MonoBehaviour, IExchangeController
 	{
 		//Public Static Variables
-		public static int NumberOfPlayers = 2;
+		public static int NumberOfPlayers = 6;
 
 		//Unity Objects
 		public GameObject MainPlayerObject;
-		public GameObject[] PlayerObjects;
+		public Player[] Players;
 
 		//Current state
 		public ExchangeState ExchangeState;
@@ -59,7 +59,7 @@ namespace Assets.Scripts.Controllers
 				_mainPlayer = MainPlayerObject.GetComponent<Player>();
 			}
 
-			PlayerObjects = GameObject.FindGameObjectsWithTag("Player");
+			Players = FindObjectsOfType<Player>();
 
 			_displays = GameObject.FindGameObjectsWithTag("Display");
 
@@ -119,7 +119,7 @@ namespace Assets.Scripts.Controllers
 		//check to see if the battle is over
 		private void CheckBattleEnd()
 		{
-			if (_mainPlayer.GetHealth() <= 0 || PlayerObjects[0].GetComponent<Player>().GetHealth() <= 0)
+			if (_mainPlayer.GetHealth() <= 0 || Players[1].GetHealth() <= 0)
 			{
 				npc.StopDecisionMaker();
 				ExchangeState = ExchangeState.End;
@@ -158,6 +158,11 @@ namespace Assets.Scripts.Controllers
         {
             SceneManager.LoadScene("MainMenu");
         }
+
+		private void BackToMultiplayerMenu()
+		{
+			SceneManager.LoadScene("MultiplayerMenu");
+		}
 
 		//returns the specified display
 		private GameObject GetDisplayObject(string displayName)
@@ -282,10 +287,10 @@ namespace Assets.Scripts.Controllers
 			text.text = _mainPlayer.GetEnergy().ToString();
 
 			text = GetTextFromPanelUIGroup(ExchangeControls, "Enemy1EnergyText");
-			text.text = PlayerObjects[0].GetComponent<Player>().GetEnergy().ToString();
+			text.text = Players[1].GetEnergy().ToString();
 
 			text = GetTextFromPanelUIGroup(ExchangeControls, "Enemy1HealthText");
-			text.text = PlayerObjects[0].GetComponent<Player>().GetHealth().ToString();
+			text.text = Players[1].GetHealth().ToString();
 		}
 
 		//updates the button color

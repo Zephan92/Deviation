@@ -7,7 +7,7 @@ namespace Assets.Scripts.Exchange
 	public class NonPlayerCharacterController : MonoBehaviour
 	{
 		private IEnumerator _coroutine;
-		private Player _npcPlayer;
+		private Player[] _npcPlayers;
 		private ExchangeController ec;
 
 		public void Awake()
@@ -17,11 +17,13 @@ namespace Assets.Scripts.Exchange
 				var ecObject = GameObject.FindGameObjectWithTag("ExchangeController");
 				ec = ecObject.GetComponent<ExchangeController>();
 			}
+		}
 
-			if (_npcPlayer == null)
+		public void Start()
+		{
+			if (_npcPlayers == null)
 			{
-				var _npcObject = GameObject.FindGameObjectsWithTag("Player");
-				_npcPlayer = _npcObject[0].GetComponent<Player>();
+				_npcPlayers = FindObjectsOfType<Player>();
 			}
 		}
 
@@ -68,51 +70,51 @@ namespace Assets.Scripts.Exchange
 		//cycle battlefield counter clockwise
 		private void CycleBattlefieldCC()
 		{
-			_npcPlayer.CycleBattlefieldCC();
+			_npcPlayers[0].CycleBattlefieldCC();
 		}
 
 		//cycle battlefield clockwise
 		private void CycleBattlefieldCW()
 		{
-			_npcPlayer.CycleBattlefieldCW();
+			_npcPlayers[0].CycleBattlefieldCW();
 		}
 
 		//primary action
 		private void PrimaryAction()
 		{
-			_npcPlayer.PrimaryAction();
+			_npcPlayers[0].PrimaryAction();
 			ec.UpdateExchangeControlsDisplay();
 		}
 
 		//primary module
 		private void PrimaryModule()
 		{
-			_npcPlayer.PrimaryModule();
+			_npcPlayers[0].PrimaryModule();
 			ec.UpdateExchangeControlsDisplay();
 		}
 
 		//cycle action left
 		private void CycleActionLeft()
 		{
-			_npcPlayer.EquipedKit.GetCurrentModule().CycleActionLeft();
+			_npcPlayers[0].EquipedKit.GetCurrentModule().CycleActionLeft();
 		}
 
 		//cycle action right
 		private void CycleActionRight()
 		{
-			_npcPlayer.EquipedKit.GetCurrentModule().CycleActionRight();
+			_npcPlayers[0].EquipedKit.GetCurrentModule().CycleActionRight();
 		}
 
 		//cycle module left
 		private void CycleModuleLeft()
 		{
-			_npcPlayer.EquipedKit.CycleModuleLeft();
+			_npcPlayers[0].EquipedKit.CycleModuleLeft();
 		}
 
 		//cycle module right
 		private void CycleModuleRight()
 		{
-			_npcPlayer.EquipedKit.CycleModuleRight();
+			_npcPlayers[0].EquipedKit.CycleModuleRight();
 		}
 	}
 }
