@@ -1,31 +1,31 @@
 ﻿using System.Collections.Generic;
-using System;
 using UnityEngine;
+using Assets.Scripts.Interface.DTO;
 
 namespace Assets.Scripts.Library
 {
-	public class Kit
+	public class Kit : IKit
 	{
 		//Kit Name
-		public string Name;
+		public string Name { get; set; }
 
 		//Current Module Count
-		public int ModuleCount;
+		public int ModuleCount { get; set; }
 
 		//Max Number of Modules this Kit can have
-		private int _maxModules;
+		public int MaxModules { get; set; }
 
 		//List of Modules in this kit
-		private LinkedList<Module> _modules;
+		private LinkedList<IModule> _modules;
 
 		//Current Module
-		private LinkedListNode<Module> _currentModule;
+		private LinkedListNode<IModule> _currentModule;
 
 		public Kit(string name, string[] moduleNames,  int maxModules)
 		{
 			Name = name;
-			_maxModules = maxModules;
-			_modules = new LinkedList<Module>();
+			MaxModules = maxModules;
+			_modules = new LinkedList<IModule>();
 			ModuleCount = 0;
 
 			//for each module named, find corresponding module in the Module Library Table
@@ -46,8 +46,10 @@ namespace Assets.Scripts.Library
 		}
 
 		//adds a module to the linked list
-		private void SetModule(Module module)
+		private void SetModule(IModule module)
 		{
+			module.ParentKit = this;
+
 			if (_modules.First != null)
 			{
 				_modules.AddAfter(_modules.Last, module);
@@ -60,13 +62,13 @@ namespace Assets.Scripts.Library
 		}
 
 		//return the current module
-		public Module GetCurrentModule()
+		public IModule GetCurrentModule()
 		{
 			return _currentModule.Value;
 		}
 
 		//returns the previous module
-		public Module GetLeftModule()
+		public IModule GetLeftModule()
 		{
 			if (_currentModule.Previous != null)
 			{
@@ -79,7 +81,7 @@ namespace Assets.Scripts.Library
 		}
 
 		//returns the next module
-		public Module GetRightModule()
+		public IModule GetRightModule()
 		{
 			if (_currentModule.Next != null)
 			{

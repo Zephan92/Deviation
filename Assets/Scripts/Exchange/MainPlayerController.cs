@@ -142,28 +142,28 @@ namespace Assets.Scripts.Exchange
 		//cycle action left
 		private void CycleActionLeft()
 		{
-			_mainPlayer.EquipedKit.GetCurrentModule().CycleActionLeft();
+			_mainPlayer.GetCurrentModule().CycleActionLeft();
 			ec.UpdateExchangeControlsDisplay();
 		}
 
 		//cycle action right
 		private void CycleActionRight()
 		{
-			_mainPlayer.EquipedKit.GetCurrentModule().CycleActionRight();
+			_mainPlayer.GetCurrentModule().CycleActionRight();
 			ec.UpdateExchangeControlsDisplay();
 		}
 
 		//cycle module left
 		private void CycleModuleLeft()
 		{
-			_mainPlayer.EquipedKit.CycleModuleLeft();
+			_mainPlayer.CycleModuleLeft();
 			ec.UpdateExchangeControlsDisplay();
 		}
 
 		//cycle module right
 		private void CycleModuleRight()
 		{
-			_mainPlayer.EquipedKit.CycleModuleRight();
+			_mainPlayer.CycleModuleRight();
 			ec.UpdateExchangeControlsDisplay();
 		}
 	}

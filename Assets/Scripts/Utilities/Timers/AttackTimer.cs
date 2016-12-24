@@ -1,8 +1,5 @@
-﻿using Assets.Scripts.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
+using Assets.Scripts.Interface;
 
 namespace Assets.Scripts.Utilities.Timers
 {
@@ -12,6 +9,7 @@ namespace Assets.Scripts.Utilities.Timers
 		private float _cooldown;
 		private float _remainingCooldown;
 		private bool _timerUp;
+		private bool _timerPaused;
 
 		public ActionTimer(float Cooldown)
 		{
@@ -25,6 +23,11 @@ namespace Assets.Scripts.Utilities.Timers
 			return _timerUp;
 		}
 
+		public bool TimerPaused()
+		{
+			return _timerPaused;
+		}
+
 		//returns remaining cooldown for the timer
 		public float GetRemainingCountdown()
 		{
@@ -34,10 +37,14 @@ namespace Assets.Scripts.Utilities.Timers
 		//updates the remaininig time and if the timer is done, it sets _timerUp to true
 		public void UpdateCountdown(float delta)
 		{
+			if (_timerPaused)
+			{
+				return;
+			}
+
 			if (!_timerUp && _remainingCooldown <= 0)
 			{
-				_timerUp = true;
-				_remainingCooldown = 0;
+				StopCooldown();
 			}
 			else if (!_timerUp)
 			{
@@ -60,6 +67,22 @@ namespace Assets.Scripts.Utilities.Timers
 		{
 			_timerUp = false;
 			_remainingCooldown = _cooldown;
+		}
+
+		public void StopCooldown()
+		{
+			_timerUp = true;
+			_remainingCooldown = 0;
+		}
+
+		public void PauseCooldown()
+		{
+			_timerPaused = true;
+		}
+
+		public void UnpauseCooldown()
+		{
+			_timerPaused = false;
 		}
 	}
 }

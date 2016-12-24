@@ -2,13 +2,14 @@
 using Assets.Scripts.Interface;
 using UnityEngine;
 using Assets.Scripts.Controllers;
+using Assets.Scripts.Interface.DTO;
 
 namespace Assets.Scripts.Exchange
 {
 	public class ProjectileOnHit : MonoBehaviour, IExchangeAttack
 	{
-		private Attack Attack;
-		private ExchangeController ec;
+		private IAttack Attack;
+		private IExchangeController ec;
 
 		void Awake()
 		{
@@ -51,7 +52,7 @@ namespace Assets.Scripts.Exchange
 			}
 		}
 
-		public void SetAttack(Attack attack)
+		public void SetAttack(IAttack attack)
 		{
 			Attack = attack;
 		}

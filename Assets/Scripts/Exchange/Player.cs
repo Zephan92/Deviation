@@ -1,53 +1,47 @@
-﻿using Assets.Scripts.Interface;
-using System;
-using UnityEngine;
+﻿using UnityEngine;
 using Assets.Scripts.Enum;
 using Assets.Scripts.Controllers;
 using Assets.Scripts.Library;
-using System.Collections;
 using Assets.Scripts.Utilities;
+using Assets.Scripts.Interface;
+using Assets.Scripts.Interface.DTO;
+using Assets.Scripts.Interface.Exchange;
 
 namespace Assets.Scripts.Exchange
 {
-	public class Player : MonoBehaviour, IExchangeObject
-	{		
-		public Battlefield CurrentBattlefield = Battlefield.One;
-		public int CurrentColumn = 0;
-		public int CurrentRow = 0;
+	public class Player : MonoBehaviour, IExchangeObject, IPlayer
+	{
+		public Transform Transform { get { return transform; } }
+		private Battlefield _battlefield;
+		public IKit EquipedKit { get; set; }
+		private int _health, _minHealth, _maxHealth;
+		private int _energy, _minEnergy, _maxEnergy;
+		private float _energyRate;
+		private IPlayer[] _enemies;
 
-		//player specific variables
-		public Kit EquipedKit;
-
-		private int _health = 100;
-		private int _maxHealth = 100;
-		private int _energy = 100;
-		private int _maxEnergy = 100;
-		private float _restoreEnergy = 0.0f;
-		private float _energyRate = 0.01f;
-
+		private int _currentColumn, _currentRow;
 		private MovingDetails _movingDetails;
+		private float _restoreEnergy;
 
-		private BattlefieldController bc;
-		private ExchangeController ec;
-		private TimerManager tm;
+		private IBattlefieldController bc;
+		private IExchangeController ec;
+		private ITimerManager tm;
 
-		private Player[] _enemies;
-
-		public void SetPlayer(Battlefield startField, int startRow, int startColumn, Kit kit, float energyRate, int maxHealth, int maxEnergy)
+		public void SetPlayer(Battlefield startField, IKit kit, float energyRate, int maxHealth, int maxEnergy, int minHealth, int minEnergy)
 		{
-			CurrentBattlefield = startField;
-			UpdateLocation(startRow, startColumn);
+			_battlefield = startField;
 			EquipedKit = kit;
 			_energyRate = energyRate;
+			_minHealth = minHealth;
+			_minEnergy = minEnergy;
 			_maxHealth = maxHealth;
 			_maxEnergy = maxEnergy;
+
+			_restoreEnergy = 0;
 			ResetHealth();
 			ResetEnergy();
-		}
-
-		public void SetEnemies(Player[] enemies)
-		{
-			_enemies = enemies;
+			UpdateLocation(0, 0);
+			CreateTimersForKitActions();
 		}
 
 		public void Awake()
@@ -64,19 +58,13 @@ namespace Assets.Scripts.Exchange
 				ec = ecObject.GetComponent<ExchangeController>();
 			}
 
-			if (EquipedKit == null)
-			{
-				EquipedKit = KitLibrary.KitLibraryTable["InitialKit"];
-			}
-
 			if (tm == null)
 			{
 				var tmObject = GameObject.FindGameObjectWithTag("ExchangeController");
 				tm = tmObject.GetComponent<TimerManager>();
-				CreateTimersForKitActions();
 			}
 
-			//bc.SetBattlefieldState(CurrentBattlefield, ConvertToArrayNumber(CurrentRow), ConvertToArrayNumber(CurrentColumn), true);
+			//bc.SetBattlefieldState(CurrentBattlefield, ConvertToArrayNumber(_currentRow), ConvertToArrayNumber(_currentColumn), true);
 		}
 
 		public void Update()
@@ -85,6 +73,89 @@ namespace Assets.Scripts.Exchange
 			RestoreEnergy();
 		}
 
+		//Getters and Setters
+		public void SetBattlefieldController(IBattlefieldController controller)
+		{
+			bc = controller;
+		}
+
+		public void SetExchangeController(IExchangeController controller)
+		{
+			ec = controller;
+		}
+
+		public int GetHealth()
+		{
+			return _health;
+		}
+
+		public int GetEnergy()
+		{
+			return _energy;
+		}
+
+		public float GetEnergyRate()
+		{
+			return _energyRate;
+		}
+
+		public int GetMaxHealth()
+		{
+			return _maxHealth;
+		}
+
+		public int GetMaxEnergy()
+		{
+			return _maxEnergy;
+		}
+
+		public int GetMinHealth()
+		{
+			return _minHealth;
+		}
+
+		public int GetMinEnergy()
+		{
+			return _minEnergy;
+		}
+
+
+		public IModule GetCurrentModule()
+		{
+			return EquipedKit.GetCurrentModule();
+		}
+
+		public IAction GetCurrentAction()
+		{
+			return EquipedKit.GetCurrentModule().GetCurrentAction();
+		}
+
+		public Battlefield GetBattlefield()
+		{
+			return _battlefield;
+		}
+
+		public void SetTimerManager(ITimerManager manager)
+		{
+			tm = manager;
+		}
+
+		public void SetEnemies(IPlayer[] enemies)
+		{
+			_enemies = enemies;
+		}
+
+		public int GetCurrentColumn()
+		{
+			return _currentColumn;
+		}
+
+		public int GetCurrentRow()
+		{
+			return _currentRow;
+		}
+
+
 		//restores energy
 		public void RestoreEnergy()
 		{
@@ -92,8 +163,6 @@ namespace Assets.Scripts.Exchange
 			if (_restoreEnergy > 1)
 			{
 				AddEnergy(1);
-				if (_energy > _maxEnergy)
-					_energy = _maxEnergy;
 				_restoreEnergy = 0.0f;
 				ec.UpdateExchangeControlsDisplay();
 			}
@@ -111,58 +180,45 @@ namespace Assets.Scripts.Exchange
 			_energy = _maxEnergy;
 		}
 
-		//returns current health
-		public int GetHealth()
-		{
-			return _health;
-		}
-
-		//returns current energy
-		public int GetEnergy()
-		{
-			return _energy;
-		}
-
 		//sets health
-		public void SetHealth(int health)
+		public void SetHealth(int set)
 		{
-			_health = health;
-			if (_health > _maxHealth)
-				_health = _maxHealth;
-			else if (_health < 0)
-				_health = 0;
+			_health = AddStatWithinBoundary(set, 0, _minHealth, _maxHealth);
 		}
 
 		//sets energy
-		public void SetEnergy(int energy)
+		public void SetEnergy(int set)
 		{
-			_energy = energy;
-			if (_energy > _maxEnergy)
-				_energy = _maxEnergy;
-			else if (_energy < 0)
-				_energy = 0;
+			_energy = AddStatWithinBoundary(set, 0, _minEnergy, _maxEnergy);
 		}
 
 		//adds specified health
-		public void AddHealth(int health)
+		public void AddHealth(int add)
 		{
-			_health += health;
-
-			if (_health > _maxHealth)
-				_health = _maxHealth;
-			else if (_health < 0)
-				_health = 0;
+			_health = AddStatWithinBoundary(_health, add, _minHealth, _maxHealth);
 		}
 
 		//adds specified energy
-		public void AddEnergy(int energy)
+		public void AddEnergy(int add)
 		{
-			_energy += energy;
+			_energy = AddStatWithinBoundary(_energy, add, _minEnergy, _maxEnergy);
+		}
 
-			if (_energy > _maxEnergy)
-				_energy = _maxEnergy;
-			else if (_energy < 0)
-				_energy = 0;
+		private int AddStatWithinBoundary(int current, int add, int statMin, int statMax)
+		{
+			int retVal = current + add;
+
+			if (retVal > statMax)
+			{
+				retVal = statMax;
+
+			}
+			else if (retVal < statMin)
+			{
+				retVal = statMin;
+			}
+
+			return retVal;
 		}
 
 		//moves the player over time
@@ -177,35 +233,35 @@ namespace Assets.Scripts.Exchange
 			switch (direction)
 			{
 				case Direction.Right:
-					if (force || !bc.GetBattlefieldState(CurrentBattlefield, ConvertToArrayNumber(CurrentRow), ConvertToArrayNumber(CurrentColumn + 1)))
+					if (force || !bc.GetBattlefieldState(_battlefield, ConvertToArrayNumber(_currentRow), ConvertToArrayNumber(_currentColumn + 1)))
 					{
-						destPoint = CurrentColumn + 1;
+						destPoint = _currentColumn + 1;
 						if (destPoint <= 2)
-							_movingDetails = new MovingDetails(new Vector3(destPoint, 0, CurrentRow), direction);
+							_movingDetails = new MovingDetails(new Vector3(destPoint, 0, _currentRow), direction);
 					}
 					break;
 				case Direction.Left:
-					if (force || !bc.GetBattlefieldState(CurrentBattlefield, ConvertToArrayNumber(CurrentRow), ConvertToArrayNumber(CurrentColumn - 1)))
+					if (force || !bc.GetBattlefieldState(_battlefield, ConvertToArrayNumber(_currentRow), ConvertToArrayNumber(_currentColumn - 1)))
 					{
-						destPoint = CurrentColumn - 1;
+						destPoint = _currentColumn - 1;
 						if (destPoint >= -2)
-							_movingDetails = new MovingDetails(new Vector3(destPoint, 0, CurrentRow), direction);
+							_movingDetails = new MovingDetails(new Vector3(destPoint, 0, _currentRow), direction);
 					}
 					break;
 				case Direction.Up:
-					if (force || !bc.GetBattlefieldState(CurrentBattlefield, ConvertToArrayNumber(CurrentRow + 1), ConvertToArrayNumber(CurrentColumn)))
+					if (force || !bc.GetBattlefieldState(_battlefield, ConvertToArrayNumber(_currentRow + 1), ConvertToArrayNumber(_currentColumn)))
 					{
-						destPoint = CurrentRow + 1;
+						destPoint = _currentRow + 1;
 						if (destPoint <= 2)
-							_movingDetails = new MovingDetails(new Vector3(CurrentColumn, 0, destPoint), direction);
+							_movingDetails = new MovingDetails(new Vector3(_currentColumn, 0, destPoint), direction);
 					}
 					break;
 				case Direction.Down:
-					if (force || !bc.GetBattlefieldState(CurrentBattlefield, ConvertToArrayNumber(CurrentRow - 1), ConvertToArrayNumber(CurrentColumn)))
+					if (force || !bc.GetBattlefieldState(_battlefield, ConvertToArrayNumber(_currentRow - 1), ConvertToArrayNumber(_currentColumn)))
 					{
-						destPoint = CurrentRow - 1;
+						destPoint = _currentRow - 1;
 						if (destPoint >= -2)
-							_movingDetails = new MovingDetails(new Vector3(CurrentColumn, 0, destPoint), direction);
+							_movingDetails = new MovingDetails(new Vector3(_currentColumn, 0, destPoint), direction);
 					}
 					break;
 			}
@@ -221,11 +277,11 @@ namespace Assets.Scripts.Exchange
 		//uses the current action
 		public void PrimaryAction()
 		{
-			Library.Action currentAction = EquipedKit.GetCurrentModule().GetCurrentAction();
+			IAction currentAction = EquipedKit.GetCurrentModule().GetCurrentAction();
 
-			int attackCost = (int) (-1 * currentAction.Attack.EnergyRecoilModifier * currentAction.Attack.BaseDamage);
-			int potentialEnergy = GetEnergy() - attackCost;
-			if (tm.TimerUp(currentAction.Name) && potentialEnergy >= 0)
+			int attackCost = (int) (currentAction.Attack.EnergyRecoilModifier * currentAction.Attack.BaseDamage);
+			int potentialEnergy = GetEnergy() + attackCost;
+			if (tm.TimerUp(currentAction.Name) && potentialEnergy >= _minEnergy)
 			{
 				currentAction.InitiateAttack(bc);
 				
@@ -283,12 +339,12 @@ namespace Assets.Scripts.Exchange
 		//create a timer for each action in each module
 		private void CreateTimersForKitActions()
 		{
-			Kit kit = EquipedKit;
-			Module currentModule = EquipedKit.GetCurrentModule();
+			IKit kit = EquipedKit;
+			IModule currentModule = EquipedKit.GetCurrentModule();
 
 			for (int i = 0; i < kit.ModuleCount; i++)
 			{
-				Library.Action currentAction = currentModule.GetCurrentAction();
+				IAction currentAction = currentModule.GetCurrentAction();
 				for (int j = 0; j < currentModule.ActionCount; j++)
 				{
 					tm.AddAttackTimer(currentAction.Name, currentAction.Cooldown);
@@ -315,10 +371,10 @@ namespace Assets.Scripts.Exchange
 		//update current location of the player
 		private void UpdateLocation(int row, int column)
 		{
-			if (!bc.GetBattlefieldState(CurrentBattlefield, ConvertToArrayNumber(column), ConvertToArrayNumber(row)))
+			if (!bc.GetBattlefieldState(_battlefield, ConvertToArrayNumber(column), ConvertToArrayNumber(row)))
 			{
-				CurrentColumn = column;
-				CurrentRow = row;
+				_currentColumn = column;
+				_currentRow = row;
 			}
 		}
 
@@ -339,10 +395,10 @@ namespace Assets.Scripts.Exchange
 					case Direction.Up:
 						if (transform.localPosition.z >= _movingDetails.Destination.z)
 						{
-							bc.SetBattlefieldState(CurrentBattlefield, ConvertToArrayNumber(CurrentRow), ConvertToArrayNumber(CurrentColumn), false);
-							CurrentRow += 1;
-							bc.SetBattlefieldState(CurrentBattlefield, ConvertToArrayNumber(CurrentRow), ConvertToArrayNumber(CurrentColumn), true);
-							UpdateTransform(CurrentRow, CurrentColumn);
+							bc.SetBattlefieldState(_battlefield, ConvertToArrayNumber(_currentRow), ConvertToArrayNumber(_currentColumn), false);
+							_currentRow += 1;
+							bc.SetBattlefieldState(_battlefield, ConvertToArrayNumber(_currentRow), ConvertToArrayNumber(_currentColumn), true);
+							UpdateTransform(_currentRow, _currentColumn);
 							_movingDetails = null;
 						}
 						else
@@ -353,10 +409,10 @@ namespace Assets.Scripts.Exchange
 					case Direction.Right:
 						if (transform.localPosition.x >= _movingDetails.Destination.x)
 						{
-							bc.SetBattlefieldState(CurrentBattlefield, ConvertToArrayNumber(CurrentRow), ConvertToArrayNumber(CurrentColumn), false);
-							CurrentColumn += 1;
-							bc.SetBattlefieldState(CurrentBattlefield, ConvertToArrayNumber(CurrentRow), ConvertToArrayNumber(CurrentColumn), true);
-							UpdateTransform(CurrentRow, CurrentColumn);
+							bc.SetBattlefieldState(_battlefield, ConvertToArrayNumber(_currentRow), ConvertToArrayNumber(_currentColumn), false);
+							_currentColumn += 1;
+							bc.SetBattlefieldState(_battlefield, ConvertToArrayNumber(_currentRow), ConvertToArrayNumber(_currentColumn), true);
+							UpdateTransform(_currentRow, _currentColumn);
 							_movingDetails = null;
 						}
 						else
@@ -367,10 +423,10 @@ namespace Assets.Scripts.Exchange
 					case Direction.Left:
 						if (transform.localPosition.x <= _movingDetails.Destination.x)
 						{
-							bc.SetBattlefieldState(CurrentBattlefield, ConvertToArrayNumber(CurrentRow), ConvertToArrayNumber(CurrentColumn), false);
-							CurrentColumn -= 1;
-							bc.SetBattlefieldState(CurrentBattlefield, ConvertToArrayNumber(CurrentRow), ConvertToArrayNumber(CurrentColumn), true);
-							UpdateTransform(CurrentRow, CurrentColumn);
+							bc.SetBattlefieldState(_battlefield, ConvertToArrayNumber(_currentRow), ConvertToArrayNumber(_currentColumn), false);
+							_currentColumn -= 1;
+							bc.SetBattlefieldState(_battlefield, ConvertToArrayNumber(_currentRow), ConvertToArrayNumber(_currentColumn), true);
+							UpdateTransform(_currentRow, _currentColumn);
 							_movingDetails = null;
 						}
 						else
@@ -381,10 +437,10 @@ namespace Assets.Scripts.Exchange
 					case Direction.Down:
 						if (transform.localPosition.z <= _movingDetails.Destination.z)
 						{
-							bc.SetBattlefieldState(CurrentBattlefield, ConvertToArrayNumber(CurrentRow), ConvertToArrayNumber(CurrentColumn), false);
-							CurrentRow -= 1;
-							bc.SetBattlefieldState(CurrentBattlefield, ConvertToArrayNumber(CurrentRow), ConvertToArrayNumber(CurrentColumn), true);
-							UpdateTransform(CurrentRow, CurrentColumn);
+							bc.SetBattlefieldState(_battlefield, ConvertToArrayNumber(_currentRow), ConvertToArrayNumber(_currentColumn), false);
+							_currentRow -= 1;
+							bc.SetBattlefieldState(_battlefield, ConvertToArrayNumber(_currentRow), ConvertToArrayNumber(_currentColumn), true);
+							UpdateTransform(_currentRow, _currentColumn);
 							_movingDetails = null;
 						}
 						else

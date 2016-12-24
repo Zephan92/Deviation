@@ -1,6 +1,8 @@
 ﻿using Assets.Scripts.Enum;
 using Assets.Scripts.Exchange;
 using Assets.Scripts.Interface;
+using Assets.Scripts.Interface.DTO;
+using Assets.Scripts.Interface.Exchange;
 using Assets.Scripts.Library;
 using System;
 using System.Collections;
@@ -9,17 +11,25 @@ using UnityEngine;
 namespace Assets.Scripts.Controllers
 {
 	//this is a controller for the battlefield
-	public class BattlefieldController : MonoBehaviour
+	public class BattlefieldController : MonoBehaviour, IBattlefieldController
 	{
-		public Player[] Players;
+		private IPlayer[] _players;
 
 		private bool[,,] _battlefields;
 
+		private IExchangeController ec;
+
 		public void Awake()
 		{
-			InitializeBattlefields(ExchangeController.NumberOfPlayers, (int) ExchangeController.MainPlayerFieldNumber);
+			if (ec == null)
+			{
+				var ecObject = GameObject.FindGameObjectWithTag("ExchangeController");
+				ec = ecObject.GetComponent<ExchangeController>();
+			}
 
-			Players = FindObjectsOfType<Player>();
+			InitializeBattlefields(ec.NumberOfPlayers, (int) ec.MainPlayerFieldNumber);
+
+			_players = FindObjectsOfType<Player>();
 		}
 
 		//this method initializes the battlefields
@@ -81,13 +91,18 @@ namespace Assets.Scripts.Controllers
 					go.tag = "MainPlayer";
 				}
 				Player player = go.AddComponent<Player>();
-				player.SetPlayer(startField, 0, 0, KitLibrary.KitLibraryTable["InitialKit"], 0.01f, 100, 100);
+				player.SetPlayer(startField, KitLibrary.KitLibraryTable["InitialKit"], 0.01f, 100, 100, 0 ,0);
 			}
 			else if (go.name.Equals("Grid"))
 			{
 				GridManager grid = go.AddComponent<GridManager>();
 				grid.ThisBattlefield = startField;
 			}
+		}
+
+		public IPlayer[] GetPlayers()
+		{
+			return _players;
 		}
 
 		//sets the specified battlefield state of a particular cell
@@ -142,13 +157,13 @@ namespace Assets.Scripts.Controllers
 		}
 
 		//spawn object after timeout
-		public void SpawnAfterTimeout(float timeout, float deletionTimeout, string resourceName, Attack attack, Type attackType, Vector3 zone, Quaternion rotation)
+		public void SpawnAfterTimeout(float timeout, float deletionTimeout, string resourceName, IAttack attack, Type attackType, Vector3 zone, Quaternion rotation)
 		{
 			StartCoroutine(SpawnAfterTimeoutCoroutine(timeout, deletionTimeout, resourceName, attack, attackType, zone, rotation));
 		}
 
 		//spawn a specified object
-		public void Spawn(float deletionTimeout, string resourceName, Attack attack, Type attackType, Vector3 zone, Quaternion rotation)
+		public void Spawn(float deletionTimeout, string resourceName, IAttack attack, Type attackType, Vector3 zone, Quaternion rotation)
 		{
 			GameObject go = (GameObject)Instantiate(Resources.Load(resourceName), zone, rotation);
 			
@@ -170,10 +185,15 @@ namespace Assets.Scripts.Controllers
 		}
 
 		//coroutine to spawn an object after a timeout
-		private IEnumerator SpawnAfterTimeoutCoroutine(float timeout, float deletionTimeout, string resourceName, Attack attack, Type attackType, Vector3 zone, Quaternion rotation)
+		private IEnumerator SpawnAfterTimeoutCoroutine(float timeout, float deletionTimeout, string resourceName, IAttack attack, Type attackType, Vector3 zone, Quaternion rotation)
 		{
 			yield return new WaitForSeconds(timeout);
 			Spawn(deletionTimeout, resourceName, attack, attackType, zone, rotation);
+		}
+
+		public IPlayer GetPlayer(int playerNumber)
+		{
+			return _players[playerNumber];
 		}
 	}
 }

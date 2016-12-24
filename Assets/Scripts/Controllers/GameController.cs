@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using Assets.Scripts.Interfaces;
+using Assets.Scripts.Interface;
 using System.Runtime.Serialization.Formatters.Binary;
 using Assets.Scripts.External;
 using System.IO;

@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
-using Assets.Scripts.Interfaces;
+using Assets.Scripts.Interface;
 using Assets.Scripts.Enum;
 using Assets.Scripts.Exchange;
 using System;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Assets.Scripts.Utilities;
 
 namespace Assets.Scripts.Controllers
 {
@@ -14,8 +15,8 @@ namespace Assets.Scripts.Controllers
 	public class ExchangeController : MonoBehaviour, IExchangeController
 	{
 		//Public Static Variables
-		public static int NumberOfPlayers = 2;
-		public static Battlefield MainPlayerFieldNumber = Battlefield.One;
+		public int NumberOfPlayers { get { return 2; } }
+		public Battlefield MainPlayerFieldNumber { get { return Battlefield.One; } }
 
 		//Unity Objects
 		public GameObject MainPlayerObject;
@@ -37,6 +38,7 @@ namespace Assets.Scripts.Controllers
 		//controllers
 		private MainPlayerController mp;
 		private NonPlayerCharacterController npc;
+		private ITimerManager tm;
 
 		void Awake()
 		{
@@ -53,6 +55,8 @@ namespace Assets.Scripts.Controllers
 				var npcObject = GameObject.FindGameObjectWithTag("NonPlayerCharacterController");
 				npc = npcObject.GetComponent<NonPlayerCharacterController>();
 			}
+
+			tm = GetComponent<TimerManager>();
 			
 			_displays = GameObject.FindGameObjectsWithTag("Display");
 
@@ -87,12 +91,14 @@ namespace Assets.Scripts.Controllers
 						ToggleDisplay("ExchangeControls", _ExchangeControlsDisplayIsEnabled);
 						_ExchangeControlsDisplayIsEnabled = true;
 						UpdateExchangeControlsDisplay();
+						npc.StartDecisionMaker();
 					}
 					ExchangeState = ExchangeState.Battle;
                     break;
                 case ExchangeState.Battle:
                     mp.CheckInput();
-					npc.StartDecisionMaker();
+					tm.UpdateCountdowns();
+					
 					CheckBattleEnd();
                     break;
                 case ExchangeState.End:
@@ -254,29 +260,29 @@ namespace Assets.Scripts.Controllers
 		{
 			var ExchangeControls = GetDisplayObject("ExchangeControls");
 			var button = GetButtonFromUIGroup(ExchangeControls, "CurrentModule");
-			UpdateButtonColor(button, _mainPlayer.EquipedKit.GetCurrentModule().ModuleTexture);
-			UpdateButtonText(button, _mainPlayer.EquipedKit.GetCurrentModule().Name);
+			UpdateButtonColor(button, _mainPlayer.GetCurrentModule().ModuleTexture);
+			UpdateButtonText(button, _mainPlayer.GetCurrentModule().Name);
 
 			button = GetButtonFromUIGroup(ExchangeControls, "NextModule");
-			UpdateButtonColor(button, _mainPlayer.EquipedKit.GetRightModule().ModuleTexture);
-			UpdateButtonText(button, _mainPlayer.EquipedKit.GetRightModule().Name);
+			UpdateButtonColor(button, _mainPlayer.GetCurrentModule().GetRightModule().ModuleTexture);
+			UpdateButtonText(button, _mainPlayer.GetCurrentModule().GetRightModule().Name);
 
 			button = GetButtonFromUIGroup(ExchangeControls, "PreviousModule");
-			UpdateButtonColor(button, _mainPlayer.EquipedKit.GetLeftModule().ModuleTexture);
+			UpdateButtonColor(button, _mainPlayer.GetCurrentModule().GetLeftModule().ModuleTexture);
 			UpdateButtonText(button, "");
 
 			button = GetButtonFromUIGroup(ExchangeControls, "CurrentAction");
-			UpdateButtonColor(button, _mainPlayer.EquipedKit.GetCurrentModule().GetCurrentAction().ActionTexture);
-			UpdateButtonText(button, _mainPlayer.EquipedKit.GetCurrentModule().GetCurrentAction().Name + ": " +
-				(int) (-1 * _mainPlayer.EquipedKit.GetCurrentModule().GetCurrentAction().Attack.EnergyRecoilModifier 
-				* _mainPlayer.EquipedKit.GetCurrentModule().GetCurrentAction().Attack.BaseDamage));
+			UpdateButtonColor(button, _mainPlayer.GetCurrentModule().GetCurrentAction().ActionTexture);
+			UpdateButtonText(button, _mainPlayer.GetCurrentModule().GetCurrentAction().Name + ": " +
+				(int) (-1 * _mainPlayer.GetCurrentModule().GetCurrentAction().Attack.EnergyRecoilModifier 
+				* _mainPlayer.GetCurrentModule().GetCurrentAction().Attack.BaseDamage));
 
 			button = GetButtonFromUIGroup(ExchangeControls, "NextAction");
-			UpdateButtonColor(button, _mainPlayer.EquipedKit.GetCurrentModule().GetRightAction().ActionTexture);
-			UpdateButtonText(button, _mainPlayer.EquipedKit.GetCurrentModule().GetRightAction().Name);
+			UpdateButtonColor(button, _mainPlayer.GetCurrentModule().GetRightAction().ActionTexture);
+			UpdateButtonText(button, _mainPlayer.GetCurrentModule().GetRightAction().Name);
 
 			button = GetButtonFromUIGroup(ExchangeControls, "PreviousAction");
-			UpdateButtonColor(button, _mainPlayer.EquipedKit.GetCurrentModule().GetLeftAction().ActionTexture);
+			UpdateButtonColor(button, _mainPlayer.GetCurrentModule().GetLeftAction().ActionTexture);
 			UpdateButtonText(button, "");
 
 			var text = GetTextFromPanelUIGroup(ExchangeControls, "HealthText");

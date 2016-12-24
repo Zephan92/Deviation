@@ -4,18 +4,19 @@ using Assets.Scripts.Controllers;
 using Assets.Scripts.Enum;
 using Assets.Scripts.Interface;
 using UnityEngine;
+using Assets.Scripts.Interface.DTO;
 
 namespace Assets.Scripts.Exchange
 {
 	public class WallPush : MonoBehaviour, IExchangeAttack
 	{
-		private ExchangeController ec;
-		private BattlefieldController bc;
+		private IExchangeController ec;
+		private IBattlefieldController bc;
 		private MovingDetails _movingDetails;
 		public int CurrentColumn = 0;
 		public int CurrentRow = 0;
 
-		private Attack Attack;
+		private IAttack Attack;
 
 		public void Awake()
 		{
@@ -69,7 +70,7 @@ namespace Assets.Scripts.Exchange
 				Attack.SetDefender(player);
 				Attack.InitiateDrain();
 				ec.UpdateExchangeControlsDisplay();
-				if (player.CurrentColumn == -2)
+				if (player.GetCurrentColumn() == -2)
 				{
 					player.MoveObject(Direction.Right, 2, true);
 				}
@@ -77,7 +78,7 @@ namespace Assets.Scripts.Exchange
 				{
 					player.MoveObject(Direction.Right, 1, true);
 				}
-				bc.SetBattlefieldState(player.CurrentBattlefield, ConvertToArrayNumber(player.CurrentRow), ConvertToArrayNumber(player.CurrentColumn), true);
+				bc.SetBattlefieldState(player.GetBattlefield(), ConvertToArrayNumber(player.GetCurrentRow()), ConvertToArrayNumber(player.GetCurrentColumn()), true);
 			}
 		}
 
@@ -92,7 +93,7 @@ namespace Assets.Scripts.Exchange
 			return input - 2;
 		}
 
-		public void SetAttack(Attack attack)
+		public void SetAttack(IAttack attack)
 		{
 			Attack = attack;
 		}

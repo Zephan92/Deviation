@@ -1,27 +1,33 @@
 ﻿using Assets.Scripts.Controllers;
 using Assets.Scripts.Exchange;
+using Assets.Scripts.Interface;
+using Assets.Scripts.Interface.DTO;
 using UnityEngine;
 
 namespace Assets.Scripts.Library
 {
-	public class Action
+	public class Action : IAction
 	{
 		//Action Name
-		public string Name;
+		public string Name { get; set; }
 
 		//Action Attack: Used for calculating health/energy
-		public Attack Attack;
+		public IAttack Attack { get; set; }
 
 		//This is used the ui texture for the action in the 
-		public Color ActionTexture;
+		public Color ActionTexture { get; set; }
 
 		//This is how long after an action is used before it can be used again
-		public float Cooldown;
+		public float Cooldown { get; set; }
+
+		public IModule ParentModule { get; set; }
 
 		//this is the primary action method run when this action is used
-		public System.Action<BattlefieldController, Attack> PrimaryAction;
+		public System.Action<IBattlefieldController, IAttack> PrimaryAction;
 
-		public Action(string name, Attack attack, Color attackTexture, string primaryActionName, float cooldown)
+
+
+		public Action(string name, IAttack attack, Color attackTexture, string primaryActionName, float cooldown)
 		{
 			Name = name;
 			Attack = attack;
@@ -42,9 +48,19 @@ namespace Assets.Scripts.Library
 		}
 
 		//when this method is called, it runs the primary action and passes in the Attack and Battlefield Controller for use in that method
-		public void InitiateAttack(BattlefieldController bc)
+		public void InitiateAttack(IBattlefieldController bc)
 		{
 			PrimaryAction(bc, Attack);
+		}
+
+		public IAction GetRightAction()
+		{
+			return ParentModule.GetRightAction();
+		}
+
+		public IAction GetLeftAction()
+		{
+			return ParentModule.GetLeftAction();
 		}
 	}
 }

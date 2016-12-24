@@ -96,13 +96,13 @@ namespace Assets.Scripts.Exchange
 		//cycle action left
 		private void CycleActionLeft()
 		{
-			_npcPlayers[0].EquipedKit.GetCurrentModule().CycleActionLeft();
+			_npcPlayers[0].GetCurrentModule().CycleActionLeft();
 		}
 
 		//cycle action right
 		private void CycleActionRight()
 		{
-			_npcPlayers[0].EquipedKit.GetCurrentModule().CycleActionRight();
+			_npcPlayers[0].GetCurrentModule().CycleActionRight();
 		}
 
 		//cycle module left

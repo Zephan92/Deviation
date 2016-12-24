@@ -9,8 +9,8 @@ using UnityEngine;
 namespace Assets.Scripts.Utilities
 {
 	//this class holds a dictionary of timers and timer utilities
-	public class TimerManager : MonoBehaviour
-	{	 
+	public class TimerManager : MonoBehaviour, ITimerManager
+	{
 		private Dictionary<string, IUnityTimer> _timerLibary = new Dictionary<string, IUnityTimer>();
 
 		//instantiates a new Attack timer and adds it to the timer library
@@ -38,13 +38,71 @@ namespace Assets.Scripts.Utilities
 				throw new Exception("Timer - " + TimerName + ": Does not exist.");
 		}
 
+		public void StopTimer(string TimerName)
+		{
+			if (_timerLibary.ContainsKey(TimerName))
+				_timerLibary[TimerName].StopCooldown();
+			else
+				Debug.LogError("Timer - " + TimerName + ": Does not exist.");
+		}
+
+		public void StopTimers()
+		{
+			foreach (IUnityTimer timer in _timerLibary.Values)
+			{
+				timer.StopCooldown();
+			}
+		}
+
+		public void PauseTimer(string TimerName)
+		{
+			if (_timerLibary.ContainsKey(TimerName))
+				_timerLibary[TimerName].PauseCooldown();
+			else
+				Debug.LogError("Timer - " + TimerName + ": Does not exist.");
+		}
+
+
+		public void PauseTimers()
+		{
+			foreach (IUnityTimer timer in _timerLibary.Values)
+			{
+				timer.PauseCooldown();
+			}
+		}
+
+		public void UnpauseTimer(string TimerName)
+		{
+			if (_timerLibary.ContainsKey(TimerName))
+				_timerLibary[TimerName].UnpauseCooldown();
+			else
+				Debug.LogError("Timer - " + TimerName + ": Does not exist.");
+		}
+
+
+		public void UnpauseTimers()
+		{
+			foreach (IUnityTimer timer in _timerLibary.Values)
+			{
+				timer.UnpauseCooldown();
+			}
+		}
+
 		//restarts a specified timer
 		public void RestartTimer(string TimerName)
 		{
 			if (_timerLibary.ContainsKey(TimerName))
 				_timerLibary[TimerName].RestartCooldown();
 			else
-				throw new Exception("Timer - " + TimerName + ": Does not exist.");
+				Debug.LogError("Timer - " + TimerName + ": Does not exist.");
+		}
+
+		public void RestartTimers()
+		{
+			foreach (IUnityTimer timer in _timerLibary.Values)
+			{
+				timer.RestartCooldown();
+			}
 		}
 
 		//starts a specified timer
@@ -53,10 +111,10 @@ namespace Assets.Scripts.Utilities
 			if (_timerLibary.ContainsKey(TimerName))
 				_timerLibary[TimerName].StartCooldown();
 			else
-				throw new Exception("Timer - " + TimerName + ": Does not exist.");
+				Debug.LogError("Timer - " + TimerName + ": Does not exist.");
 		}
 
-		public void Update()
+		public void UpdateCountdowns()
 		{
 			//for each timer, update the remaining time
 			foreach (IUnityTimer timer in _timerLibary.Values)

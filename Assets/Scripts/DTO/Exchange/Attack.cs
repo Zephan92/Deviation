@@ -1,29 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Assets.Scripts.Interface.DTO;
+using Assets.Scripts.Interface.Exchange;
+using System;
 
 namespace Assets.Scripts.Exchange
 {
-	public struct Attack
+	public struct Attack : IAttack
 	{
 		//this is the attack initiator of the attack, recoil applies to them
-		public Player Attacker;
+		public IPlayer Attacker { get; set; }
 
 		//this is the defender of the attack, drain applies to them
-		public Player Defender;
+		public IPlayer Defender { get; set; }
 
 		//this is the base damage of the attack
-		public int BaseDamage;
+		public int BaseDamage { get; set; }
 
 		//these modifiers apply to the basedamage and only affect the attacker
-		public float HealthRecoilModifier;
-		public float EnergyRecoilModifier;
+		public float HealthRecoilModifier { get; set; }
+		public float EnergyRecoilModifier { get; set; }
 
 		//these modifiers apply to the basedamage and only affect the defender
-		public float HealthDrainModifier;
-		public float EnergyDrainModifier;
-		
+		public float HealthDrainModifier { get; set; }
+		public float EnergyDrainModifier { get; set; }
+
 		public Attack( int baseDamage = 0, float healthDrainModifier = -1.0f, float energyDrainModifier = 0.0f, float healthRecoilModifier = 0.0f, float energyRecoilModifier = -1.0f)
 		{
 			Attacker = null;
@@ -36,19 +35,19 @@ namespace Assets.Scripts.Exchange
 		}
 
 		//sets the attacker
-		public void SetAttacker(Player attacker)
+		public void SetAttacker(IPlayer attacker)
 		{
 			Attacker = attacker;
 		}
 
 		//sets the defender
-		public void SetDefender(Player defender)
+		public void SetDefender(IPlayer defender)
 		{
 			Defender = defender;
 		}
 
 		//this is an attack that hits applies the attack to both the attacker and defender
-		public void InitiateAttack(Player attacker = null, Player defender = null)
+		public void InitiateAttack(IPlayer attacker = null, IPlayer defender = null)
 		{
 			if (attacker != null)
 			{
@@ -69,8 +68,8 @@ namespace Assets.Scripts.Exchange
 		{
 			if (Attacker != null)
 			{
-				UpdateEnergy(Attacker, EnergyRecoilModifier);
-				UpdateHealth(Attacker, HealthRecoilModifier);
+				UpdateEnergy(Attacker, GetDamage(EnergyRecoilModifier));
+				UpdateHealth(Attacker, GetDamage(HealthRecoilModifier));
 			}
 			else
 			{
@@ -83,8 +82,8 @@ namespace Assets.Scripts.Exchange
 		{
 			if (Defender != null)
 			{
-				UpdateEnergy(Defender, EnergyDrainModifier);
-				UpdateHealth(Defender, HealthDrainModifier);
+				UpdateEnergy(Defender, GetDamage(EnergyDrainModifier));
+				UpdateHealth(Defender, GetDamage(HealthDrainModifier));
 			}
 			else
 			{
@@ -93,15 +92,20 @@ namespace Assets.Scripts.Exchange
 		}
 
 		//this helper function adds energy to the target
-		private void UpdateEnergy(Player target, float modifier)
+		private void UpdateEnergy(IPlayer target, int damage)
 		{
-			target.AddEnergy((int) (modifier * BaseDamage));
+			target.AddEnergy(damage);
 		}
 
 		//this helper function adds health to the target
-		private void UpdateHealth(Player target, float modifier)
+		private void UpdateHealth(IPlayer target, int damage)
 		{
-			target.AddHealth((int) (modifier * BaseDamage));
+			target.AddHealth(damage);
+		}
+
+		public int GetDamage(float modifier)
+		{
+			return (int) (modifier * BaseDamage);
 		}
 	}
 }
