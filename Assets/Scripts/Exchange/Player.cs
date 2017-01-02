@@ -6,6 +6,7 @@ using Assets.Scripts.Utilities;
 using Assets.Scripts.Interface;
 using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Interface.Exchange;
+using Assets.Scripts.Exchange.NPC;
 
 namespace Assets.Scripts.Exchange
 {
@@ -27,6 +28,7 @@ namespace Assets.Scripts.Exchange
 		private IBattlefieldController bc;
 		private IExchangeController ec;
 		private ITimerManager tm;
+		private NonPlayerCharacterController npc;
 
 		public void SetPlayer(bool isMainPlayer, Battlefield startField, IKit kit, float energyRate, int maxHealth, int maxEnergy, int minHealth, int minEnergy)
 		{
@@ -51,23 +53,28 @@ namespace Assets.Scripts.Exchange
 		{
 			if (bc == null)
 			{
-				var bcObject = GameObject.FindGameObjectWithTag("BattlefieldController");
-				bc = bcObject.GetComponent<BattlefieldController>();
+				bc = FindObjectOfType<BattlefieldController>();
+
 			}
 
 			if (ec == null)
 			{
-				var ecObject = GameObject.FindGameObjectWithTag("ExchangeController");
-				ec = ecObject.GetComponent<ExchangeController>();
+				ec = FindObjectOfType<ExchangeController>();
+
 			}
 
 			if (tm == null)
 			{
-				var tmObject = GameObject.FindGameObjectWithTag("ExchangeController");
-				tm = tmObject.GetComponent<TimerManager>();
+				tm = FindObjectOfType<TimerManager>();
+
 			}
 
-			//bc.SetBattlefieldState(CurrentBattlefield, ConvertToArrayNumber(_currentRow), ConvertToArrayNumber(_currentColumn), true);
+			if (npc == null)
+			{
+				npc = FindObjectOfType<NonPlayerCharacterController>();
+			}
+
+			bc.SetBattlefieldState(_battlefield, ConvertToArrayNumber(_currentRow), ConvertToArrayNumber(_currentColumn), true);
 		}
 
 		public void Update()
@@ -158,6 +165,21 @@ namespace Assets.Scripts.Exchange
 			return _currentRow;
 		}
 
+		private bool CheckIsNPC(IPlayer target)
+		{
+			foreach (IPlayer player in npc.NPCPlayers)
+			{
+				if (target.Equals(player))
+					return true;
+			}
+			
+			return false;
+		}
+
+		private void AddDecision(IPlayer target, Decision decision, int add)
+		{
+			npc.State.DecisionAdd(decision, add);
+		}
 
 		//restores energy
 		public void RestoreEnergy()
@@ -199,12 +221,20 @@ namespace Assets.Scripts.Exchange
 		public void AddHealth(int add)
 		{
 			_health = AddStatWithinBoundary(_health, add, _minHealth, _maxHealth);
+			if (add > 0 && CheckIsNPC(Enemies[0]))
+			{
+				AddDecision(Enemies[0], Decision.Action, 5);
+			}
 		}
 
 		//adds specified energy
 		public void AddEnergy(int add)
 		{
 			_energy = AddStatWithinBoundary(_energy, add, _minEnergy, _maxEnergy);
+			if (add > 0 && CheckIsNPC(Enemies[0]))
+			{
+				AddDecision(Enemies[0], Decision.Action, 5);
+			}
 		}
 
 		private int AddStatWithinBoundary(int current, int add, int statMin, int statMax)
@@ -233,6 +263,7 @@ namespace Assets.Scripts.Exchange
 			}
 			int destPoint;
 
+			bool success = false;
 			switch (direction)
 			{
 				case Direction.Right:
@@ -242,7 +273,7 @@ namespace Assets.Scripts.Exchange
 						if (destPoint <= 2)
 						{
 							_movingDetails = new MovingDetails(new Vector3(destPoint, 0, _currentRow), direction);
-							return true;
+							success = true;
 						}
 					}
 					break;
@@ -253,7 +284,7 @@ namespace Assets.Scripts.Exchange
 						if (destPoint >= -2)
 						{
 							_movingDetails = new MovingDetails(new Vector3(destPoint, 0, _currentRow), direction);
-							return true;
+							success = true;
 						}
 					}
 					break;
@@ -264,7 +295,7 @@ namespace Assets.Scripts.Exchange
 						if (destPoint <= 2)
 						{
 							_movingDetails = new MovingDetails(new Vector3(_currentColumn, 0, destPoint), direction);
-							return true;
+							success = true;
 						}
 					}
 					break;
@@ -275,12 +306,18 @@ namespace Assets.Scripts.Exchange
 						if (destPoint >= -2)
 						{
 							_movingDetails = new MovingDetails(new Vector3(_currentColumn, 0, destPoint), direction);
-							return true;
+							success = true;
 						}
 					}
 					break;
 			}
-			return false;
+
+			if (CheckIsNPC(Enemies[0]))
+			{
+				AddDecision(Enemies[0], Decision.Move, 35);
+				AddDecision(Enemies[0], Decision.Action, 5);
+			}
+			return success;
 		}
 
 		//moves the player instantly
@@ -293,6 +330,7 @@ namespace Assets.Scripts.Exchange
 		//uses the current action
 		public bool PrimaryAction()
 		{
+			bool success = false;
 			IAction currentAction = EquipedKit.GetCurrentModule().GetCurrentAction();
 
 			int attackCost = (int) (currentAction.Attack.EnergyRecoilModifier * currentAction.Attack.BaseDamage);
@@ -302,19 +340,28 @@ namespace Assets.Scripts.Exchange
 				currentAction.InitiateAttack(bc);
 				
 				tm.StartTimer(currentAction.Name);
-				return true;
+				success = true;
 			}
-			else
+
+			if (CheckIsNPC(Enemies[0]))
 			{
-				//Debug.Log("Cooldown Timer: " + tm.GetRemainingCooldown(currentAction.Name));
-				return false;
+				AddDecision(Enemies[0], Decision.Move, 25);
+				AddDecision(Enemies[0], Decision.Action, 5);
 			}
+			return success;
 		}
 
 		//uses the current module ultimate
-		public void PrimaryModule()
+		public bool PrimaryModule()
 		{
-			Debug.Log("CurrentModule");
+			bool success = false;
+			success = true;
+			if (CheckIsNPC(Enemies[0]))
+			{
+				AddDecision(Enemies[0], Decision.Move, 25);
+				AddDecision(Enemies[0], Decision.Action, 5);
+			}
+			return success;
 		}
 
 		//Cycle Action Left

@@ -44,7 +44,7 @@ namespace Assets.Scripts.Interface.Exchange
 		bool MoveObject(Direction direction, int distance, bool force = false);
 		void MoveObject_Instant(int row, int column);
 		bool PrimaryAction();
-		void PrimaryModule();
+		bool PrimaryModule();
 		void CycleActionLeft();
 		void CycleActionRight();
 		void CycleModuleLeft();

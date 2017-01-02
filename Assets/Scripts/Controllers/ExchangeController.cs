@@ -9,6 +9,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Assets.Scripts.Utilities;
 using Assets.Scripts.Interface.Exchange;
+using Assets.Scripts.Exchange.NPC;
 
 namespace Assets.Scripts.Controllers
 {
@@ -131,7 +132,7 @@ namespace Assets.Scripts.Controllers
 		//check to see if the battle is over
 		private void CheckBattleEnd()
 		{
-			if (_mainPlayer.GetHealth() <= 0 || Players[1].GetHealth() <= 0)
+			if (_mainPlayer.GetHealth() <= 0 || Players[0].GetHealth() <= 0)
 			{
 				npc.StopDecisionMaker();
 				ExchangeState = ExchangeState.End;
