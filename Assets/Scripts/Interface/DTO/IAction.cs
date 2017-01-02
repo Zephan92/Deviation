@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Assets.Scripts.Interface.Exchange;
 using UnityEngine;
 
 namespace Assets.Scripts.Interface.DTO
@@ -13,6 +10,7 @@ namespace Assets.Scripts.Interface.DTO
 		Color ActionTexture { get; set; }
 		float Cooldown { get; set; }
 		IModule ParentModule { get; set; }
+		string PrimaryActionName { get; set; }
 
 		void InitiateAttack(IBattlefieldController bc);
 

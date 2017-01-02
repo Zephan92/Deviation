@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Assets.Scripts.Interface;
 using UnityEngine;
+using Assets.Scripts.Interface.Exchange;
 
 namespace Assets.Editor.DTO
 {
@@ -18,6 +19,7 @@ namespace Assets.Editor.DTO
 			Attack = attack;
 			Cooldown = cooldown;
 			ActionTexture = attackTexture;
+			PrimaryActionName = primaryActionName;
 		}
 
 		public Color ActionTexture
@@ -34,6 +36,13 @@ namespace Assets.Editor.DTO
 
 		public IModule ParentModule
 		{ get; set; }
+
+		public IPlayer Player
+		{ get; set; }
+
+		public string PrimaryActionName
+		{ get; set; }
+
 
 		public IAction GetLeftAction()
 		{

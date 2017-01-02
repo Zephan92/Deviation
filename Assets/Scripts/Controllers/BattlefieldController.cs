@@ -30,6 +30,12 @@ namespace Assets.Scripts.Controllers
 			InitializeBattlefields(ec.NumberOfPlayers, (int) ec.MainPlayerFieldNumber);
 
 			_players = FindObjectsOfType<Player>();
+			foreach (IPlayer player in _players)
+			{
+				player.SetEnemies(GetEnemies(player));
+			}
+			
+
 		}
 
 		//this method initializes the battlefields
@@ -91,13 +97,28 @@ namespace Assets.Scripts.Controllers
 					go.tag = "MainPlayer";
 				}
 				Player player = go.AddComponent<Player>();
-				player.SetPlayer(startField, KitLibrary.KitLibraryTable["InitialKit"], 0.01f, 100, 100, 0 ,0);
+				player.SetPlayer(mainPlayer, startField, KitLibrary.GetKitInstance("InitialKit"), 0.01f, 100, 100, 0 ,0);
 			}
 			else if (go.name.Equals("Grid"))
 			{
 				GridManager grid = go.AddComponent<GridManager>();
 				grid.ThisBattlefield = startField;
 			}
+		}
+
+		private IPlayer[] GetEnemies(IPlayer target)
+		{
+			IPlayer[] enemies = new IPlayer[_players.Length - 1];
+			int counter = 0;
+			foreach(IPlayer player in _players)
+			{
+				if (!player.Equals(target))
+				{
+					enemies[counter] = player;
+					counter++;
+				}
+			}
+			return enemies;
 		}
 
 		public IPlayer[] GetPlayers()

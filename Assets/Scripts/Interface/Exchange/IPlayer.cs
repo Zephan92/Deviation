@@ -10,12 +10,15 @@ namespace Assets.Scripts.Interface.Exchange
 {
 	public interface IPlayer
 	{
+		bool IsMainPlayer { get; set; }
+
 		void SetBattlefieldController(IBattlefieldController controller);
 		void SetExchangeController(IExchangeController controller);
 		void SetTimerManager(ITimerManager manager);
 		IKit EquipedKit { get; set; }
+		IPlayer[] Enemies { get; set; }
 
-		void SetPlayer(Battlefield startField, IKit kit, float energyRate, int maxHealth, int maxEnergy, int minHealth, int minEnergy);
+		void SetPlayer(bool isMainPlayer, Battlefield startField, IKit kit, float energyRate, int maxHealth, int maxEnergy, int minHealth, int minEnergy);
 		Transform Transform { get; }
 		int GetHealth();
 		int GetEnergy();
@@ -38,9 +41,9 @@ namespace Assets.Scripts.Interface.Exchange
 		void SetEnergy(int set);
 		void AddHealth(int add);
 		void AddEnergy(int add);
-		void MoveObject(Direction direction, int distance, bool force = false);
+		bool MoveObject(Direction direction, int distance, bool force = false);
 		void MoveObject_Instant(int row, int column);
-		void PrimaryAction();
+		bool PrimaryAction();
 		void PrimaryModule();
 		void CycleActionLeft();
 		void CycleActionRight();

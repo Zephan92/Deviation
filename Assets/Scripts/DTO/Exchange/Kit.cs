@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using Assets.Scripts.Interface.DTO;
+using Assets.Scripts.Interface.Exchange;
+using System;
 
 namespace Assets.Scripts.Library
 {
@@ -15,6 +17,10 @@ namespace Assets.Scripts.Library
 		//Max Number of Modules this Kit can have
 		public int MaxModules { get; set; }
 
+		public IPlayer Player { get; set; }
+
+		public string[] ModuleNames { get; set; }
+
 		//List of Modules in this kit
 		private LinkedList<IModule> _modules;
 
@@ -27,19 +33,19 @@ namespace Assets.Scripts.Library
 			MaxModules = maxModules;
 			_modules = new LinkedList<IModule>();
 			ModuleCount = 0;
-
+			ModuleNames = moduleNames;
 			//for each module named, find corresponding module in the Module Library Table
 			foreach (string moduleName in moduleNames)
 			{
 				ModuleCount++;
 				if (ModuleLibrary.ModuleLibraryTable.ContainsKey(moduleName))
 				{
-					SetModule(ModuleLibrary.ModuleLibraryTable[moduleName]);
+					SetModule(ModuleLibrary.GetModuleInstance(moduleName));
 				}
 				else
 				{
 					//otherwise module hasn't been implemented yet, use generic
-					SetModule(ModuleLibrary.ModuleLibraryTable["default"]);
+					SetModule(ModuleLibrary.GetModuleInstance("default"));
 					Debug.LogError(name + " - Kit: The \"" + moduleName + "\" Module was not in the Module Dictionary");
 				}
 			}

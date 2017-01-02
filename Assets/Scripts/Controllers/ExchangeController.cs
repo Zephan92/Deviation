@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Assets.Scripts.Utilities;
+using Assets.Scripts.Interface.Exchange;
 
 namespace Assets.Scripts.Controllers
 {
@@ -20,13 +21,13 @@ namespace Assets.Scripts.Controllers
 
 		//Unity Objects
 		public GameObject MainPlayerObject;
-		public Player[] Players;
+		public IPlayer[] Players;
 
 		//Current state
 		public ExchangeState ExchangeState;
 
 		//Private Variables
-		private Player _mainPlayer;
+		private IPlayer _mainPlayer;
 		private GameObject[] _displays;
 
 		//bools
@@ -66,7 +67,13 @@ namespace Assets.Scripts.Controllers
 		public void Start()
 		{
 			Players = FindObjectsOfType<Player>();
-			_mainPlayer = Players[(int) MainPlayerFieldNumber];
+			foreach (IPlayer player in Players)
+			{
+				if (player.IsMainPlayer)
+				{
+					_mainPlayer = player;
+				}
+			}
 		}
 
 		void Update()
@@ -292,10 +299,10 @@ namespace Assets.Scripts.Controllers
 			text.text = _mainPlayer.GetEnergy().ToString();
 
 			text = GetTextFromPanelUIGroup(ExchangeControls, "Enemy1EnergyText");
-			text.text = Players[1].GetEnergy().ToString();
+			text.text = Players[0].GetEnergy().ToString();
 
 			text = GetTextFromPanelUIGroup(ExchangeControls, "Enemy1HealthText");
-			text.text = Players[1].GetHealth().ToString();
+			text.text = Players[0].GetHealth().ToString();
 		}
 
 		//updates the button color

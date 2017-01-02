@@ -19,6 +19,7 @@ namespace Assets.Editor.DTO
 			ModuleTexture = moduleTexture;
 			MaxActions = maxActions;
 			CurrentAction = action;
+			ActionNames = actionNames;
 		}
 
 		//Module Name
@@ -38,6 +39,9 @@ namespace Assets.Editor.DTO
 
 		//this is the max number of actions allowed on this module
 		public int MaxActions { get; set; }
+
+		public string[] ActionNames
+		{ get; set; }
 
 		public void CycleActionLeft()
 		{

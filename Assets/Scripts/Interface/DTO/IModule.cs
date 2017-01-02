@@ -12,7 +12,9 @@ namespace Assets.Scripts.Interface.DTO
 		string Name { get; set; }
 		ModuleType Type { get; set; }
 		Color ModuleTexture { get; set; }
+		string[] ActionNames { get; set; }
 		int ActionCount { get; set; }
+		int MaxActions { get; set; }
 		IKit ParentKit { get; set; }
 		
 		IModule GetRightModule();

@@ -2,6 +2,7 @@
 using Assets.Scripts.Exchange;
 using Assets.Scripts.Interface;
 using Assets.Scripts.Interface.DTO;
+using Assets.Scripts.Interface.Exchange;
 using UnityEngine;
 
 namespace Assets.Scripts.Library
@@ -22,17 +23,18 @@ namespace Assets.Scripts.Library
 
 		public IModule ParentModule { get; set; }
 
+		public string PrimaryActionName { get; set; }
+
 		//this is the primary action method run when this action is used
-		public System.Action<IBattlefieldController, IAttack> PrimaryAction;
+		public System.Action<IBattlefieldController, IAttack, IPlayer> PrimaryAction;
 
-
-
-		public Action(string name, IAttack attack, Color attackTexture, string primaryActionName, float cooldown)
+		public Action(string name, IAttack attack, Color actionTexture, string primaryActionName, float cooldown)
 		{
 			Name = name;
 			Attack = attack;
 			Cooldown = cooldown;
-			ActionTexture = attackTexture;
+			ActionTexture = actionTexture;
+			PrimaryActionName = primaryActionName;
 
 			if(ActionMethodLibrary.ActionMethodLibraryTable.ContainsKey(primaryActionName))
 			{
@@ -50,7 +52,7 @@ namespace Assets.Scripts.Library
 		//when this method is called, it runs the primary action and passes in the Attack and Battlefield Controller for use in that method
 		public void InitiateAttack(IBattlefieldController bc)
 		{
-			PrimaryAction(bc, Attack);
+			PrimaryAction(bc, Attack, ParentModule.ParentKit.Player);
 		}
 
 		public IAction GetRightAction()

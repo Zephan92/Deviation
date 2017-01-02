@@ -67,7 +67,7 @@ namespace Assets.Editor.Exchange
 			_sut.SetBattlefieldController(_battlefieldController);
 			_sut.SetExchangeController(_exchangeController);
 			_sut.SetTimerManager(_timerManager);
-			_sut.SetPlayer(_startField, _kit, _energyRate, _maxHealth, _maxEnergy, _minHealth, _minEnergy);
+			_sut.SetPlayer(true, _startField, _kit, _energyRate, _maxHealth, _maxEnergy, _minHealth, _minEnergy);
 		}
 
 		[Test]
@@ -80,7 +80,7 @@ namespace Assets.Editor.Exchange
 			player.SetTimerManager(_timerManager);
 
 			//test
-			player.SetPlayer(_startField, _kit, _energyRate, _maxHealth, _maxEnergy, _minHealth, _minEnergy);
+			player.SetPlayer(true, _startField, _kit, _energyRate, _maxHealth, _maxEnergy, _minHealth, _minEnergy);
 
 			//assert
 			Assert.AreEqual(_startField, player.GetBattlefield());
@@ -190,24 +190,29 @@ namespace Assets.Editor.Exchange
 			Assert.AreEqual(_sut.GetMinHealth(), _sut.GetHealth());
 		}
 
-		[Test]
-		public void MoveObjectTest()
-		{
-			//need to test
-			Direction direction = Direction.Right;
-			int distance = 2;
-			_sut.MoveObject(direction, distance);
-		}
+		//[Test]
+		//public void MoveObjectTest()
+		//{
+		//	//need to test
+		//	Direction direction = Direction.Right;
+		//	int distance = 2;
+		//	int column = _sut.GetCurrentColumn();
+		//	int row = _sut.GetCurrentRow();
+		//	_sut.MoveObject(direction, distance);
+		//	Assert.AreEqual(column + 2, _sut.GetCurrentColumn());
+		//	Assert.AreEqual(row, _sut.GetCurrentRow());
+		//}
 
-		[Test]
-		public void MoveObject_InstantTest()
-		{
-			//need to test
-			int column = 2;
-			int row = 1;
+		//[Test]
+		//public void MoveObject_InstantTest()
+		//{
+		//	int column = 2;
+		//	int row = 1;
 
-			_sut.MoveObject_Instant(row, column);
-		}
+		//	_sut.MoveObject_Instant(row, column);
+		//	Assert.AreEqual(column, _sut.GetCurrentColumn());
+		//	Assert.AreEqual(row, _sut.GetCurrentRow());
+		//}
 
 		[Test]
 		public void PrimaryActionTest()
@@ -215,14 +220,17 @@ namespace Assets.Editor.Exchange
 			int energyRecoil = (int)(_sut.GetCurrentAction().Attack.EnergyRecoilModifier * _sut.GetCurrentAction().Attack.BaseDamage);
 			_sut.PrimaryAction();
 			Assert.IsTrue(_action.InitiateAttackCalled);
+			Assert.LessOrEqual(_sut.GetMaxEnergy(),_sut.GetEnergy());
 		}
 
 		[Test]
 		public void PrimaryActionTestNoEnergy()
 		{
-			_sut.SetEnergy(0);
+			_sut.SetEnergy(_sut.GetMinEnergy());
 			_sut.PrimaryAction();
 			Assert.IsFalse(_action.InitiateAttackCalled);
+			Assert.AreEqual(_sut.GetMinEnergy(), _sut.GetEnergy());
+
 		}
 
 		[Test]
@@ -231,6 +239,7 @@ namespace Assets.Editor.Exchange
 			_timerManager.RestartTimer("default");
 			_sut.PrimaryAction();
 			Assert.IsFalse(_action.InitiateAttackCalled);
+			Assert.AreEqual(_sut.GetMaxEnergy(), _sut.GetEnergy());
 		}
 
 		[Test]
@@ -241,6 +250,8 @@ namespace Assets.Editor.Exchange
 			_timerManager.StopTimer("default");
 			_sut.PrimaryAction();
 			Assert.IsTrue(_action.InitiateAttackCalled);
+			Assert.LessOrEqual(_sut.GetMaxEnergy(), _sut.GetEnergy());
+
 		}
 
 		[Test]

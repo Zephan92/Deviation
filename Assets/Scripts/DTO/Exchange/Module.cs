@@ -3,6 +3,7 @@ using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Library;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class Module : IModule
 {
@@ -24,6 +25,8 @@ public class Module : IModule
 	//this is the max number of actions allowed on this module
 	public int MaxActions { get; set; }
 
+	public string[] ActionNames { get; set; }
+
 	//this is the list of actions on this module
 	private LinkedList<IAction> _actions;
 
@@ -36,6 +39,7 @@ public class Module : IModule
 		Type = type;
 		ModuleTexture = moduleTexture;
 		MaxActions = maxActions;
+		ActionNames = actionNames;
 		_actions = new LinkedList<IAction>();
 		ActionCount = 0;
 		
@@ -45,12 +49,13 @@ public class Module : IModule
 			ActionCount++;
 			if (ActionLibrary.ActionLibraryTable.ContainsKey(actionName))
 			{
-				SetAction(ActionLibrary.ActionLibraryTable[actionName]);
+				SetAction(ActionLibrary.GetActionInstance(actionName));
 			}
 			else
 			{
 				//if not found, use generic
-				SetAction(ActionLibrary.ActionLibraryTable["default"]);
+				SetAction(ActionLibrary.GetActionInstance("default"));
+
 				Debug.LogError(name + " - Module: The \"" + actionName + "\" Action was not in the Action Dictionary");
 			}
 		}

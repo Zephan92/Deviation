@@ -1,20 +1,21 @@
 ﻿using Assets.Scripts.Interface.DTO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Assets.Scripts.Interface.Exchange;
 
 namespace Assets.Editor.DTO
 {
 	public class KitStub : IKit
 	{
 		private IModule CurrentModule;
+		public IPlayer Player { get; set; }
+		public string[] ModuleNames { get; set; }
+
 
 		public KitStub(IModule module, string name, string[] moduleNames, int maxModules)
 		{
 			CurrentModule = module;
 			Name = name;
 			MaxModules = maxModules;
+			ModuleNames = moduleNames;
 		}
 
 		public string Name { get; set; }

@@ -11,13 +11,14 @@ namespace Assets.Scripts.Exchange
 {
 	public class Player : MonoBehaviour, IExchangeObject, IPlayer
 	{
+		public bool IsMainPlayer { get; set; }
 		public Transform Transform { get { return transform; } }
 		private Battlefield _battlefield;
 		public IKit EquipedKit { get; set; }
 		private int _health, _minHealth, _maxHealth;
 		private int _energy, _minEnergy, _maxEnergy;
 		private float _energyRate;
-		private IPlayer[] _enemies;
+		public IPlayer[] Enemies { get; set; }
 
 		private int _currentColumn, _currentRow;
 		private MovingDetails _movingDetails;
@@ -27,10 +28,12 @@ namespace Assets.Scripts.Exchange
 		private IExchangeController ec;
 		private ITimerManager tm;
 
-		public void SetPlayer(Battlefield startField, IKit kit, float energyRate, int maxHealth, int maxEnergy, int minHealth, int minEnergy)
+		public void SetPlayer(bool isMainPlayer, Battlefield startField, IKit kit, float energyRate, int maxHealth, int maxEnergy, int minHealth, int minEnergy)
 		{
+			IsMainPlayer = isMainPlayer;
 			_battlefield = startField;
 			EquipedKit = kit;
+			kit.Player = this;
 			_energyRate = energyRate;
 			_minHealth = minHealth;
 			_minEnergy = minEnergy;
@@ -142,7 +145,7 @@ namespace Assets.Scripts.Exchange
 
 		public void SetEnemies(IPlayer[] enemies)
 		{
-			_enemies = enemies;
+			Enemies = enemies;
 		}
 
 		public int GetCurrentColumn()
@@ -222,11 +225,11 @@ namespace Assets.Scripts.Exchange
 		}
 
 		//moves the player over time
-		public void MoveObject(Direction direction, int distance, bool force = false)
+		public bool MoveObject(Direction direction, int distance, bool force = false)
 		{
 			if (_movingDetails != null)
 			{
-				return;
+				return false;
 			}
 			int destPoint;
 
@@ -237,7 +240,10 @@ namespace Assets.Scripts.Exchange
 					{
 						destPoint = _currentColumn + 1;
 						if (destPoint <= 2)
+						{
 							_movingDetails = new MovingDetails(new Vector3(destPoint, 0, _currentRow), direction);
+							return true;
+						}
 					}
 					break;
 				case Direction.Left:
@@ -245,7 +251,10 @@ namespace Assets.Scripts.Exchange
 					{
 						destPoint = _currentColumn - 1;
 						if (destPoint >= -2)
+						{
 							_movingDetails = new MovingDetails(new Vector3(destPoint, 0, _currentRow), direction);
+							return true;
+						}
 					}
 					break;
 				case Direction.Up:
@@ -253,7 +262,10 @@ namespace Assets.Scripts.Exchange
 					{
 						destPoint = _currentRow + 1;
 						if (destPoint <= 2)
+						{
 							_movingDetails = new MovingDetails(new Vector3(_currentColumn, 0, destPoint), direction);
+							return true;
+						}
 					}
 					break;
 				case Direction.Down:
@@ -261,10 +273,14 @@ namespace Assets.Scripts.Exchange
 					{
 						destPoint = _currentRow - 1;
 						if (destPoint >= -2)
+						{
 							_movingDetails = new MovingDetails(new Vector3(_currentColumn, 0, destPoint), direction);
+							return true;
+						}
 					}
 					break;
 			}
+			return false;
 		}
 
 		//moves the player instantly
@@ -275,7 +291,7 @@ namespace Assets.Scripts.Exchange
 		}
 
 		//uses the current action
-		public void PrimaryAction()
+		public bool PrimaryAction()
 		{
 			IAction currentAction = EquipedKit.GetCurrentModule().GetCurrentAction();
 
@@ -286,10 +302,12 @@ namespace Assets.Scripts.Exchange
 				currentAction.InitiateAttack(bc);
 				
 				tm.StartTimer(currentAction.Name);
+				return true;
 			}
 			else
 			{
 				//Debug.Log("Cooldown Timer: " + tm.GetRemainingCooldown(currentAction.Name));
+				return false;
 			}
 		}
 
