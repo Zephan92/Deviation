@@ -71,22 +71,6 @@ namespace Assets.Scripts.Exchange
 			RestoreEnergy();
 		}
 
-		private bool CheckIsNPC(IPlayer target)
-		{
-			foreach (IPlayer player in NPCController.NPCPlayers)
-			{
-				if (target.Equals(player))
-					return true;
-			}
-			
-			return false;
-		}
-
-		private void AddDecision(IPlayer target, Decision decision, int add)
-		{
-			NPCController.State.DecisionAdd(decision, add);
-		}
-
 		//restores energy
 		public void RestoreEnergy()
 		{
@@ -143,22 +127,6 @@ namespace Assets.Scripts.Exchange
 			}
 		}
 
-		private int AddStatWithinBoundary(int current, int add, int statMin, int statMax)
-		{
-			int retVal = current + add;
-
-			if (retVal > statMax)
-			{
-				retVal = statMax;
-
-			}
-			else if (retVal < statMin)
-			{
-				retVal = statMin;
-			}
-
-			return retVal;
-		}
 
 		//moves the player over time
 		public bool MoveObject(Direction direction, int distance, bool force = false)
@@ -239,12 +207,12 @@ namespace Assets.Scripts.Exchange
 			bool success = false;
 			IAction currentAction = EquipedKit.GetCurrentModule().GetCurrentAction();
 
-			int attackCost = (int) (currentAction.Attack.EnergyRecoilModifier * currentAction.Attack.BaseDamage);
+			int attackCost = (int)(currentAction.Attack.EnergyRecoilModifier * currentAction.Attack.BaseDamage);
 			int potentialEnergy = Energy + attackCost;
 			if (TimerManager.TimerUp(currentAction.Name) && potentialEnergy >= MinEnergy)
 			{
 				currentAction.InitiateAttack(BattlefieldController);
-				
+
 				TimerManager.StartTimer(currentAction.Name);
 				success = true;
 			}
@@ -272,41 +240,87 @@ namespace Assets.Scripts.Exchange
 		}
 
 		//Cycle Action Left
-		public void CycleActionLeft()
+		public bool CycleActionLeft()
 		{
 			EquipedKit.GetCurrentModule().CycleActionLeft();
+			return true;
 		}
 
 		//Cycle Action Right
-		public void CycleActionRight()
+		public bool CycleActionRight()
 		{
 			EquipedKit.GetCurrentModule().CycleActionRight();
+			return true;
 		}
 
 		//Cycle Module Left
-		public void CycleModuleLeft()
+		public bool CycleModuleLeft()
 		{
 			EquipedKit.CycleModuleLeft();
+			return true;
 		}
 
 		//Cycle Module Right
-		public void CycleModuleRight()
+		public bool CycleModuleRight()
 		{
 			EquipedKit.CycleModuleRight();
+			return true;
 		}
 
 
 		//Cycles the Battlefield counter clockwise
-		public void CycleBattlefieldCC()
+		public bool CycleBattlefieldCC()
 		{
-			
+			return true;
 		}
 
 		//cycles the battlefiled clockwise
-		public void CycleBattlefieldCW()
+		public bool CycleBattlefieldCW()
 		{
-			
+			return true;
 		}
+
+
+
+
+
+
+
+
+
+		private bool CheckIsNPC(IPlayer target)
+		{
+			foreach (IPlayer player in NPCController.NPCPlayers)
+			{
+				if (target.Equals(player))
+					return true;
+			}
+
+			return false;
+		}
+
+		private void AddDecision(IPlayer target, Decision decision, int add)
+		{
+			NPCController.State.DecisionAdd(decision, add);
+		}
+
+		private int AddStatWithinBoundary(int current, int add, int statMin, int statMax)
+		{
+			int retVal = current + add;
+
+			if (retVal > statMax)
+			{
+				retVal = statMax;
+
+			}
+			else if (retVal < statMin)
+			{
+				retVal = statMin;
+			}
+
+			return retVal;
+		}
+
 
 		//create a timer for each action in each module
 		private void CreateTimersForKitActions()

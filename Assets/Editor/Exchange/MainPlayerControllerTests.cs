@@ -31,7 +31,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void CheckInput_NoInput()
+		public void TestCheckInput_NoInput()
 		{
 			_sut.CheckInput();
 
@@ -39,7 +39,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void CheckInput_Up()
+		public void TestCheckInput_Up()
 		{
 			_input.IsUpPressed().Returns(true);
 
@@ -49,7 +49,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void CheckInput_Down()
+		public void TestCheckInput_Down()
 		{
 			_input.IsDownPressed().Returns(true);
 
@@ -59,7 +59,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void CheckInput_Left()
+		public void TestCheckInput_Left()
 		{
 			_input.IsLeftPressed().Returns(true);
 
@@ -69,7 +69,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void CheckInput_Right()
+		public void TestCheckInput_Right()
 		{
 			_input.IsRightPressed().Returns(true);
 
@@ -79,7 +79,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void CheckInput_CycleActionLeft()
+		public void TestCheckInput_CycleActionLeft()
 		{
 			_input.IsCycleActionLeftPressed().Returns(true);
 			_player.CurrentModule.Returns(_module);
@@ -91,7 +91,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void CheckInput_Action()
+		public void TestCheckInput_Action()
 		{
 			_input.IsActionPressed().Returns(true);
 
@@ -103,7 +103,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void CheckInput_CycleActionRight()
+		public void TestCheckInput_CycleActionRight()
 		{
 			_input.IsCycleActionRightPressed().Returns(true);
 			_player.CurrentModule.Returns(_module);
@@ -115,7 +115,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void CheckInput_CycleModuleLeft()
+		public void TestCheckInput_CycleModuleLeft()
 		{
 			_input.IsCycleModuleLeftPressed().Returns(true);
 
@@ -126,7 +126,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void CheckInput_Module()
+		public void TestCheckInput_Module()
 		{
 			_input.IsModulePressed().Returns(true);
 
@@ -138,7 +138,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void CheckInput_CycleModuleRight()
+		public void TestCheckInput_CycleModuleRight()
 		{
 			_input.IsCycleModuleRightPressed().Returns(true);
 
@@ -149,7 +149,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void CheckInput_Pause()
+		public void TestCheckInput_Pause()
 		{
 			_input.IsPausePressed().Returns(true);
 			_exchangeController.ExchangeState.Returns(ExchangeState.Battle);

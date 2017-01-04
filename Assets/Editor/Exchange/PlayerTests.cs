@@ -1,9 +1,7 @@
 ﻿using NUnit.Framework;
 using Assets.Scripts.Exchange;
 using Assets.Scripts.Enum;
-using Assets.Scripts.Library;
 using Assets.Scripts.Interface;
-using Assets.Scripts.Utilities;
 using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Interface.Exchange;
 using NSubstitute;
@@ -88,7 +86,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void SetPlayerTests()
+		public void TestSetPlayer()
 		{
 			//Arrange
 			Player player = new Player();
@@ -115,7 +113,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void RestoreEnergyTests()
+		public void TestRestoreEnergy()
 		{
 			//Arrange
 			int energyStart = _sut.MaxEnergy / 2;
@@ -131,7 +129,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void ResetHealthTests()
+		public void TestResetHealth()
 		{
 			_sut.ResetHealth();
 
@@ -139,7 +137,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void ResetEnergyTest()
+		public void TestResetEnergy()
 		{
 			_sut.ResetEnergy();
 
@@ -147,7 +145,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void SetHealthTest()
+		public void TestSetHealth()
 		{
 			int health = 35;
 
@@ -157,7 +155,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void SetEnergyTest()
+		public void TestSetEnergy()
 		{
 			int energy = 42;
 
@@ -167,7 +165,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void AddHealthTest()
+		public void TestAddHealth()
 		{
 			int health = -63;
 
@@ -177,7 +175,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void AddEnergyTest()
+		public void TestAddEnergy()
 		{
 			int energy = -47;
 
@@ -187,7 +185,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void AddStatWithinBoundaryTestNothing()
+		public void TestAddStatWithinBoundary_ZeroHealth()
 		{
 			int health = 0;
 
@@ -197,7 +195,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void AddStatWithinBoundaryTestFull()
+		public void TestAddStatWithinBoundary_FullHealth()
 		{
 			int health = -(_sut.MaxHealth - _sut.MinHealth);
 
@@ -207,7 +205,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void AddStatWithinBoundaryTestMoreThanMax()
+		public void TestAddStatWithinBoundary_MoreThanMax()
 		{
 			int health = 50;
 
@@ -217,7 +215,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void AddStatWithinBoundaryTestLessThanMin()
+		public void TestAddStatWithinBoundary_LessThanMin()
 		{
 			int health = -150;
 
@@ -228,7 +226,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		//[Test]
-		//public void MoveObjectTest()
+		//public void TestMoveObject()
 		//{
 		//	//need to test
 		//	Direction direction = Direction.Right;
@@ -241,7 +239,7 @@ namespace Assets.Editor.Exchange
 		//}
 
 		//[Test]
-		//public void MoveObject_InstantTest()
+		//public void TestMoveObject_Instant()
 		//{
 		//	int column = 2;
 		//	int row = 1;
@@ -252,7 +250,7 @@ namespace Assets.Editor.Exchange
 		//}
 
 		[Test]
-		public void PrimaryActionTest()
+		public void TestPrimaryAction()
 		{
 			int energyRecoil = (int)(_sut.CurrentAction.Attack.EnergyRecoilModifier * _sut.CurrentAction.Attack.BaseDamage);
 
@@ -263,7 +261,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void PrimaryActionTestNoEnergy()
+		public void TestPrimaryAction_MinEnergy()
 		{
 			_sut.SetEnergy(_sut.MinEnergy);
 
@@ -275,7 +273,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void PrimaryActionTestTimerNotReady()
+		public void TestPrimaryAction_TimerNotReady()
 		{
 			_timerManager.TimerUp(_action.Name).Returns(false);
 
@@ -286,7 +284,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void PrimaryActionTestTimerReady()
+		public void TestPrimaryAction_TimerReady()
 		{
 			_timerManager.StartTimer("default");
 			_sut.PrimaryAction();
@@ -300,14 +298,14 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void PrimaryModuleTest()
+		public void TestPrimaryModule()
 		{
 			_sut.PrimaryModule();
 			//does nothing right now
 		}
 
 		[Test]
-		public void CycleActionLeftTest()
+		public void TestCycleActionLeft()
 		{
 			IAction action = _sut.CurrentAction.GetLeftAction();
 
@@ -318,7 +316,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void CycleActionRightTest()
+		public void TestCycleActionRight()
 		{
 			IAction action = _sut.CurrentAction.GetRightAction();
 
@@ -329,7 +327,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void CycleModuleLeftTest()
+		public void TestCycleModuleLeft()
 		{
 			IModule action = _sut.CurrentModule.GetLeftModule();
 
@@ -340,7 +338,7 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void CycleModuleRightTest()
+		public void TestCycleModuleRight()
 		{
 			IModule module = _sut.CurrentModule.GetRightModule();
 
@@ -351,14 +349,14 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void CycleBattlefieldCCTest()
+		public void TestCycleBattlefieldCC()
 		{
 			_sut.CycleBattlefieldCW();
 			//does nothing right now
 		}
 
 		[Test]
-		public void CycleBattlefieldCWTest()
+		public void TestCycleBattlefieldCW()
 		{
 			_sut.CycleBattlefieldCW();
 			//does nothing right now

@@ -63,105 +63,58 @@ namespace Assets.Scripts.Exchange
 		//check for user action
 		private void CheckForUserAction()
 		{
+			bool success = false;
 			if (Input.IsCycleActionLeftPressed())
 			{
-				CycleActionLeft();
+				success = MainPlayer.CycleActionLeft();
 			}
 			else if (Input.IsActionPressed())
 			{
-				PrimaryAction();
-				ClickPrimaryAction();
+				success = MainPlayer.PrimaryAction();
+				ExchangeController.ClickOnButton("ExchangeControls", "CurrentAction");
 			}
 			else if (Input.IsCycleActionRightPressed())
 			{
-				CycleActionRight();
+				success = MainPlayer.CycleActionRight();
 			}
 			else if (Input.IsCycleModuleLeftPressed())
 			{
-				CycleModuleLeft();
+				success = MainPlayer.CycleModuleLeft();
 			}
 			else if (Input.IsModulePressed())
 			{
-				PrimaryModule();
-				ClickPrimaryModule();
+				success = MainPlayer.PrimaryModule();
+				ExchangeController.ClickOnButton("ExchangeControls", "CurrentModule");
 			}
 			else if (Input.IsCycleModuleRightPressed())
 			{
-				CycleModuleRight();
+				success = MainPlayer.CycleModuleRight();
 			}
 			else if (Input.IsPausePressed())
 			{
 				if (ExchangeController.ExchangeState == ExchangeState.Battle)
 					ExchangeController.ChangeStateToPause();
 			}
+
+			if (success)
+			{
+				ExchangeController.UpdateExchangeControlsDisplay();
+			}
 		}
 
-		//click on primary module button
-		private void ClickPrimaryModule()
-		{
-			ExchangeController.ClickOnButton("ExchangeControls", "CurrentModule");
-		}
+		////cycle battlefield counter clockwise
+		//private void CycleBattlefieldCC()
+		//{
+		//	MainPlayer.CycleBattlefieldCC();
+		//	ExchangeController.UpdateExchangeControlsDisplay();
+		//}
 
-		//click on primary action button
-		private void ClickPrimaryAction()
-		{
-			ExchangeController.ClickOnButton("ExchangeControls", "CurrentAction");
-		}
+		////cycle battlefield clockwise
+		//private void CycleBattlefieldCW()
+		//{
+		//	MainPlayer.CycleBattlefieldCW();
+		//	ExchangeController.UpdateExchangeControlsDisplay();
+		//}
 
-		//cycle battlefield counter clockwise
-		private void CycleBattlefieldCC()
-		{
-			MainPlayer.CycleBattlefieldCC();
-			ExchangeController.UpdateExchangeControlsDisplay();
-		}
-
-		//cycle battlefield clockwise
-		private void CycleBattlefieldCW()
-		{
-			MainPlayer.CycleBattlefieldCW();
-			ExchangeController.UpdateExchangeControlsDisplay();
-		}
-
-		//primary action
-		private void PrimaryAction()
-		{
-			MainPlayer.PrimaryAction();
-			ExchangeController.UpdateExchangeControlsDisplay();
-		}
-
-		//primary module
-		private void PrimaryModule()
-		{
-			MainPlayer.PrimaryModule();
-			ExchangeController.UpdateExchangeControlsDisplay();
-		}
-
-		//cycle action left
-		private void CycleActionLeft()
-		{
-			MainPlayer.CurrentModule.CycleActionLeft();
-			ExchangeController.UpdateExchangeControlsDisplay();
-		}
-
-		//cycle action right
-		private void CycleActionRight()
-		{
-			MainPlayer.CurrentModule.CycleActionRight();
-			ExchangeController.UpdateExchangeControlsDisplay();
-		}
-
-		//cycle module left
-		private void CycleModuleLeft()
-		{
-			MainPlayer.CycleModuleLeft();
-			ExchangeController.UpdateExchangeControlsDisplay();
-		}
-
-		//cycle module right
-		private void CycleModuleRight()
-		{
-			MainPlayer.CycleModuleRight();
-			ExchangeController.UpdateExchangeControlsDisplay();
-		}
 	}
 }

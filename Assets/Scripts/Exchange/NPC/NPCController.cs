@@ -2,6 +2,7 @@
 using Assets.Scripts.Enum;
 using Assets.Scripts.Interface;
 using Assets.Scripts.Interface.Exchange;
+using Assets.Scripts.Utilities;
 using System.Collections;
 using UnityEngine;
 
@@ -12,76 +13,55 @@ namespace Assets.Scripts.Exchange.NPC
 	{
 		public IPlayer[] NPCPlayers { get; set; }
 		public NPCDecisionState State { get; set; }
+		public ICoroutineManager CoroutineManager {get; set;}
+		public IExchangeController ExchangeController { get; set; }
 
 		private IEnumerator _coroutine;
-		private IExchangeController ec;
 
 		public void Awake()
 		{
-			ec = FindObjectOfType<ExchangeController>();
+			ExchangeController = FindObjectOfType<ExchangeController>();
 			State = new NPCDecisionState(100);
+			CoroutineManager = FindObjectOfType<CoroutineManager>();
 		}
 
 		public void Start()
 		{
-			if (NPCPlayers == null)
-			{
-				IPlayer[] _players = FindObjectsOfType<Player>();
-				NPCPlayers = new IPlayer[_players.Length - 1];
-				int counter = 0;
-				foreach (IPlayer player in _players)
-				{
-					if (!player.IsMainPlayer)
-					{
-						NPCPlayers[counter] = player;
-						counter++;
-					}
-				}
-			}
+			FindNPCs();
 		}
 
 		public void StartDecisionMaker()
 		{
-			if (_coroutine == null)
-			{
-				_coroutine = DecisionMakerCoroutine();
-				StartCoroutine(_coroutine);
-			}
+			CoroutineManager.StartCoroutineThread_WhileLoop(MakeDecision, 0.1f, ref _coroutine);
 		}
 
 		public void PauseDecisionMaker()
 		{
-			
-			StopCoroutine(_coroutine);
+			CoroutineManager.PauseCoroutineThread(ref _coroutine);
 		}
 
 		public void UnpauseDecisionMaker()
 		{
-			StartCoroutine(_coroutine);
+			CoroutineManager.UnpauseCoroutineThread(ref _coroutine);
 		}
 
 		public void StopDecisionMaker()
 		{
-			StopCoroutine(_coroutine);
-			_coroutine = null;
+			CoroutineManager.StopCoroutineThread(ref _coroutine);
 		}
 
-		private IEnumerator DecisionMakerCoroutine()
+		public void MakeDecision()
 		{
-			for (int i = 0;;i++)
-			{
-				ActionDecision();
-				MoveDecision();
-				ModuleDecision();
-				CycleModuleDecision();
-				CycleActionDecision();
+			ActionDecision();
+			MoveDecision();
+			ModuleDecision();
+			CycleModuleDecision();
+			CycleActionDecision();
 
-				if (NPCPlayers[0].MaxHealth / 3 > NPCPlayers[0].Health)
-				{
-					State.DecisionAdd(Decision.Action, 1);
-					State.DecisionAdd(Decision.Move, 2);
-				}
-				yield return new WaitForSeconds(0.1f);
+			if (NPCPlayers[0].MaxHealth / 3 > NPCPlayers[0].Health)
+			{
+				State.DecisionAdd(Decision.Action, 1);
+				State.DecisionAdd(Decision.Move, 2);
 			}
 		}
 
@@ -220,7 +200,7 @@ namespace Assets.Scripts.Exchange.NPC
 			bool success = npcPlayer.PrimaryAction();
 			if (success)
 			{
-				ec.UpdateExchangeControlsDisplay();
+				ExchangeController.UpdateExchangeControlsDisplay();
 			}
 
 			return success;
@@ -230,7 +210,12 @@ namespace Assets.Scripts.Exchange.NPC
 		private bool PrimaryModule(IPlayer npcPlayer)
 		{
 			bool success = npcPlayer.PrimaryModule();
-			ec.UpdateExchangeControlsDisplay();
+
+			if (success)
+			{
+				ExchangeController.UpdateExchangeControlsDisplay();
+			}
+
 			return success;
 		}
 
@@ -256,6 +241,24 @@ namespace Assets.Scripts.Exchange.NPC
 		private void CycleModuleRight(IPlayer npcPlayer)
 		{
 			npcPlayer.EquipedKit.CycleModuleRight();
+		}
+
+		private void FindNPCs()
+		{
+			if (NPCPlayers == null)
+			{
+				IPlayer[] _players = FindObjectsOfType<Player>();
+				NPCPlayers = new IPlayer[_players.Length - 1];
+				int counter = 0;
+				foreach (IPlayer player in _players)
+				{
+					if (!player.IsMainPlayer)
+					{
+						NPCPlayers[counter] = player;
+						counter++;
+					}
+				}
+			}
 		}
 	}
 }
