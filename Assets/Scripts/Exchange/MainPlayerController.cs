@@ -1,31 +1,28 @@
 ﻿using Assets.Scripts.Controllers;
 using Assets.Scripts.Enum;
-
+using Assets.Scripts.Interface;
+using Assets.Scripts.Interface.Exchange;
+using Assets.Scripts.Utilities;
 using UnityEngine;
 
 namespace Assets.Scripts.Exchange
 {
-	class MainPlayerController : MonoBehaviour
+	public class MainPlayerController : MonoBehaviour, IMainPlayerController
 	{
-		private Player _mainPlayer;
-		private ExchangeController ec;
+		public IInput Input { get; set; }
+		public IPlayer MainPlayer { get; set; }
+		public IExchangeController ExchangeController { get; set; }
 
 		public void Awake()
 		{
-			if (ec  == null)
-			{
-				var ecObject = GameObject.FindGameObjectWithTag("ExchangeController");
-				ec = ecObject.GetComponent<ExchangeController>();
-			}
+			Input = new InputWrapper();
+			ExchangeController = FindObjectOfType<ExchangeController>();
 		}
 
 		public void Start()
 		{
-			if (_mainPlayer == null)
-			{
-				var mPlayer = GameObject.FindGameObjectWithTag("MainPlayer");
-				_mainPlayer = mPlayer.GetComponent<Player>();
-			}
+			var mPlayer = GameObject.FindGameObjectWithTag("MainPlayer");
+			MainPlayer = mPlayer.GetComponent<Player>();
 		}
 
 		//check user input
@@ -40,131 +37,131 @@ namespace Assets.Scripts.Exchange
 		{
 			Direction dir = Direction.None;
 
-			if (Input.GetKeyDown(KeyCode.W))
+			if (Input.IsUpPressed())
 			{
 				dir = Direction.Up;
 			}
-			else if (Input.GetKeyDown(KeyCode.S))
+			else if (Input.IsDownPressed())
 			{
 				dir = Direction.Down;
 			}
-			else if (Input.GetKeyDown(KeyCode.A))
+			else if (Input.IsLeftPressed())
 			{
 				dir = Direction.Left;
 			}
-			else if (Input.GetKeyDown(KeyCode.D))
+			else if (Input.IsRightPressed())
 			{
 				dir = Direction.Right;
 			}
 
 			if (dir != Direction.None)
 			{
-				_mainPlayer.MoveObject(dir, 1);
+				MainPlayer.MoveObject(dir, 1);
 			}
 		}
 		
 		//check for user action
 		private void CheckForUserAction()
 		{
-			if (Input.GetKeyDown(KeyCode.U))
+			if (Input.IsCycleActionLeftPressed())
 			{
 				CycleActionLeft();
 			}
-			else if (Input.GetKeyDown(KeyCode.I))
+			else if (Input.IsActionPressed())
 			{
 				PrimaryAction();
 				ClickPrimaryAction();
 			}
-			else if (Input.GetKeyDown(KeyCode.O))
+			else if (Input.IsCycleActionRightPressed())
 			{
 				CycleActionRight();
 			}
-			else if (Input.GetKeyDown(KeyCode.J))
+			else if (Input.IsCycleModuleLeftPressed())
 			{
 				CycleModuleLeft();
 			}
-			else if (Input.GetKeyDown(KeyCode.K))
+			else if (Input.IsModulePressed())
 			{
 				PrimaryModule();
 				ClickPrimaryModule();
 			}
-			else if (Input.GetKeyDown(KeyCode.L))
+			else if (Input.IsCycleModuleRightPressed())
 			{
 				CycleModuleRight();
 			}
-			else if (Input.GetKeyUp(KeyCode.Escape))
+			else if (Input.IsPausePressed())
 			{
-				if (ec.ExchangeState == ExchangeState.Battle)
-					ec.ChangeStateToPause();
+				if (ExchangeController.ExchangeState == ExchangeState.Battle)
+					ExchangeController.ChangeStateToPause();
 			}
 		}
 
 		//click on primary module button
 		private void ClickPrimaryModule()
 		{
-			ec.ClickOnButton("ExchangeControls", "CurrentModule");
+			ExchangeController.ClickOnButton("ExchangeControls", "CurrentModule");
 		}
 
 		//click on primary action button
 		private void ClickPrimaryAction()
 		{
-			ec.ClickOnButton("ExchangeControls", "CurrentAction");
+			ExchangeController.ClickOnButton("ExchangeControls", "CurrentAction");
 		}
 
 		//cycle battlefield counter clockwise
 		private void CycleBattlefieldCC()
 		{
-			_mainPlayer.CycleBattlefieldCC();
-			ec.UpdateExchangeControlsDisplay();
+			MainPlayer.CycleBattlefieldCC();
+			ExchangeController.UpdateExchangeControlsDisplay();
 		}
 
 		//cycle battlefield clockwise
 		private void CycleBattlefieldCW()
 		{
-			_mainPlayer.CycleBattlefieldCW();
-			ec.UpdateExchangeControlsDisplay();
+			MainPlayer.CycleBattlefieldCW();
+			ExchangeController.UpdateExchangeControlsDisplay();
 		}
 
 		//primary action
 		private void PrimaryAction()
 		{
-			_mainPlayer.PrimaryAction();
-			ec.UpdateExchangeControlsDisplay();
+			MainPlayer.PrimaryAction();
+			ExchangeController.UpdateExchangeControlsDisplay();
 		}
 
 		//primary module
 		private void PrimaryModule()
 		{
-			_mainPlayer.PrimaryModule();
-			ec.UpdateExchangeControlsDisplay();
+			MainPlayer.PrimaryModule();
+			ExchangeController.UpdateExchangeControlsDisplay();
 		}
 
 		//cycle action left
 		private void CycleActionLeft()
 		{
-			_mainPlayer.GetCurrentModule().CycleActionLeft();
-			ec.UpdateExchangeControlsDisplay();
+			MainPlayer.CurrentModule.CycleActionLeft();
+			ExchangeController.UpdateExchangeControlsDisplay();
 		}
 
 		//cycle action right
 		private void CycleActionRight()
 		{
-			_mainPlayer.GetCurrentModule().CycleActionRight();
-			ec.UpdateExchangeControlsDisplay();
+			MainPlayer.CurrentModule.CycleActionRight();
+			ExchangeController.UpdateExchangeControlsDisplay();
 		}
 
 		//cycle module left
 		private void CycleModuleLeft()
 		{
-			_mainPlayer.CycleModuleLeft();
-			ec.UpdateExchangeControlsDisplay();
+			MainPlayer.CycleModuleLeft();
+			ExchangeController.UpdateExchangeControlsDisplay();
 		}
 
 		//cycle module right
 		private void CycleModuleRight()
 		{
-			_mainPlayer.CycleModuleRight();
-			ec.UpdateExchangeControlsDisplay();
+			MainPlayer.CycleModuleRight();
+			ExchangeController.UpdateExchangeControlsDisplay();
 		}
 	}
 }

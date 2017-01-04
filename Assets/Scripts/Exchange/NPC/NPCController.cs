@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Controllers;
 using Assets.Scripts.Enum;
+using Assets.Scripts.Interface;
 using Assets.Scripts.Interface.Exchange;
 using System.Collections;
 using UnityEngine;
@@ -7,22 +8,18 @@ using UnityEngine;
 namespace Assets.Scripts.Exchange.NPC
 {
 
-	public class NonPlayerCharacterController : MonoBehaviour
+	public class NPCController : MonoBehaviour, INPCController
 	{
-		private IEnumerator _coroutine;
 		public IPlayer[] NPCPlayers { get; set; }
-		private ExchangeController ec;
-		public NPCDecisionState State;
+		public NPCDecisionState State { get; set; }
+
+		private IEnumerator _coroutine;
+		private IExchangeController ec;
 
 		public void Awake()
 		{
-			if (ec == null)
-			{
-				var ecObject = GameObject.FindGameObjectWithTag("ExchangeController");
-				ec = ecObject.GetComponent<ExchangeController>();
-			}
+			ec = FindObjectOfType<ExchangeController>();
 			State = new NPCDecisionState(100);
-
 		}
 
 		public void Start()
@@ -56,12 +53,10 @@ namespace Assets.Scripts.Exchange.NPC
 		{
 			
 			StopCoroutine(_coroutine);
-			Debug.Log("Paused Decision Maker");
 		}
 
 		public void UnpauseDecisionMaker()
 		{
-			Debug.Log("Unpausing Decision Maker");
 			StartCoroutine(_coroutine);
 		}
 
@@ -69,12 +64,10 @@ namespace Assets.Scripts.Exchange.NPC
 		{
 			StopCoroutine(_coroutine);
 			_coroutine = null;
-			Debug.Log("Stopped Decision Maker Thread");
 		}
 
-		public IEnumerator DecisionMakerCoroutine()
+		private IEnumerator DecisionMakerCoroutine()
 		{
-			Debug.Log("Starting Decision Maker Thread");
 			for (int i = 0;;i++)
 			{
 				ActionDecision();
@@ -83,11 +76,10 @@ namespace Assets.Scripts.Exchange.NPC
 				CycleModuleDecision();
 				CycleActionDecision();
 
-				if (NPCPlayers[0].GetMaxHealth() / 3 > NPCPlayers[0].GetHealth())
+				if (NPCPlayers[0].MaxHealth / 3 > NPCPlayers[0].Health)
 				{
 					State.DecisionAdd(Decision.Action, 1);
 					State.DecisionAdd(Decision.Move, 2);
-
 				}
 				yield return new WaitForSeconds(0.1f);
 			}
@@ -245,13 +237,13 @@ namespace Assets.Scripts.Exchange.NPC
 		//cycle action left
 		private void CycleActionLeft(IPlayer npcPlayer)
 		{
-			npcPlayer.GetCurrentModule().CycleActionLeft();
+			npcPlayer.CurrentModule.CycleActionLeft();
 		}
 
 		//cycle action right
 		private void CycleActionRight(IPlayer npcPlayer)
 		{
-			npcPlayer.GetCurrentModule().CycleActionRight();
+			npcPlayer.CurrentModule.CycleActionRight();
 		}
 
 		//cycle module left

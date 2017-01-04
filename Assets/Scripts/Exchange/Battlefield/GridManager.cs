@@ -13,12 +13,7 @@ namespace Assets.Scripts.Exchange
 		void Awake()
 		{
 			_gridSpheres = GetComponentsInChildren<Transform>();
-
-			if (bc == null)
-			{
-				var bcObject = GameObject.FindGameObjectWithTag("BattlefieldController");
-				bc = bcObject.GetComponent<BattlefieldController>();
-			}
+			bc = FindObjectOfType<BattlefieldController>();
 		}
 
 		void SetBattlefield(Battlefield battlefield)

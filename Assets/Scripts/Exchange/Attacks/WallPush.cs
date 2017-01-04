@@ -22,18 +22,8 @@ namespace Assets.Scripts.Exchange
 		{
 			//start moving wall toward center
 			_movingDetails = new MovingDetails(new Vector3(transform.position.x + 2, 0, transform.position.z),Direction.Right);
-
-			if (bc == null)
-			{
-				var bcObject = GameObject.FindGameObjectWithTag("BattlefieldController");
-				bc = bcObject.GetComponent<BattlefieldController>();
-			}
-
-			if (ec == null)
-			{
-				var ecObject = GameObject.FindGameObjectWithTag("ExchangeController");
-				ec = ecObject.GetComponent<ExchangeController>();
-			}
+			bc = FindObjectOfType<BattlefieldController>();
+			ec = FindObjectOfType<ExchangeController>();
 
 			CurrentColumn = (int) transform.localPosition.x;
 			CurrentRow = (int) transform.localPosition.z;
@@ -70,7 +60,7 @@ namespace Assets.Scripts.Exchange
 				Attack.SetDefender(player);
 				Attack.InitiateDrain();
 				ec.UpdateExchangeControlsDisplay();
-				if (player.GetCurrentColumn() == -2)
+				if (player.CurrentColumn == -2)
 				{
 					player.MoveObject(Direction.Right, 2, true);
 				}
@@ -78,7 +68,7 @@ namespace Assets.Scripts.Exchange
 				{
 					player.MoveObject(Direction.Right, 1, true);
 				}
-				bc.SetBattlefieldState(player.GetBattlefield(), ConvertToArrayNumber(player.GetCurrentRow()), ConvertToArrayNumber(player.GetCurrentColumn()), true);
+				bc.SetBattlefieldState(player.Battlefield, ConvertToArrayNumber(player.CurrentRow), ConvertToArrayNumber(player.CurrentColumn), true);
 			}
 		}
 

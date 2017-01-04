@@ -11,29 +11,27 @@ namespace Assets.Scripts.Interface.Exchange
 	public interface IPlayer
 	{
 		bool IsMainPlayer { get; set; }
-
-		void SetBattlefieldController(IBattlefieldController controller);
-		void SetExchangeController(IExchangeController controller);
-		void SetTimerManager(ITimerManager manager);
+		Transform Transform { get;  }
+		Battlefield Battlefield { get; set; }
 		IKit EquipedKit { get; set; }
+		int Health { get; set; }
+		int MinHealth { get; set; }
+		int MaxHealth { get; set; }
+		int Energy { get; set; }
+		int MinEnergy { get; set; }
+		int MaxEnergy { get; set; }
+		float EnergyRate { get; set; }
 		IPlayer[] Enemies { get; set; }
+		IBattlefieldController BattlefieldController { get; set; }
+		IExchangeController ExchangeController { get; set; }
+		ITimerManager TimerManager { get; set; }
+		INPCController NPCController { get; set; }
+		int CurrentColumn { get; set; }
+		int CurrentRow { get; set; }
+		IModule CurrentModule { get; set; }
+		IAction CurrentAction { get; set; }
 
 		void SetPlayer(bool isMainPlayer, Battlefield startField, IKit kit, float energyRate, int maxHealth, int maxEnergy, int minHealth, int minEnergy);
-		Transform Transform { get; }
-		int GetHealth();
-		int GetEnergy();
-		float GetEnergyRate();
-		int GetMaxHealth();
-		int GetMaxEnergy();
-		int GetMinHealth();
-		int GetMinEnergy();
-		IModule GetCurrentModule();
-		IAction GetCurrentAction();
-		Battlefield GetBattlefield();
-		void SetEnemies(IPlayer[] enemies);
-		int GetCurrentColumn();
-		int GetCurrentRow();
-
 		void RestoreEnergy();
 		void ResetHealth();
 		void ResetEnergy();

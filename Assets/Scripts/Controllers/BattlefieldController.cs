@@ -13,29 +13,23 @@ namespace Assets.Scripts.Controllers
 	//this is a controller for the battlefield
 	public class BattlefieldController : MonoBehaviour, IBattlefieldController
 	{
-		private IPlayer[] _players;
+		public IPlayer[] Players { get; set; }
 
 		private bool[,,] _battlefields;
-
 		private IExchangeController ec;
 
 		public void Awake()
 		{
-			if (ec == null)
-			{
-				var ecObject = GameObject.FindGameObjectWithTag("ExchangeController");
-				ec = ecObject.GetComponent<ExchangeController>();
-			}
+			ec = FindObjectOfType<ExchangeController>();
 
 			InitializeBattlefields(ec.NumberOfPlayers, (int) ec.MainPlayerFieldNumber);
 
-			_players = FindObjectsOfType<Player>();
-			foreach (IPlayer player in _players)
-			{
-				player.SetEnemies(GetEnemies(player));
-			}
-			
+			Players = FindObjectsOfType<Player>();
 
+			foreach (IPlayer player in Players)
+			{
+				player.Enemies = FindEnemies(player);
+			}
 		}
 
 		//this method initializes the battlefields
@@ -59,7 +53,7 @@ namespace Assets.Scripts.Controllers
 
 		private GameObject CreateBattlefield(Battlefield startField, bool mainPlayer)
 		{
-			GameObject battlefield = (GameObject)Instantiate(Resources.Load("Battlefield"), Vector3.zero, new Quaternion(0, 0, 0, 0));
+			GameObject battlefield = Instantiate(Resources.Load("Battlefield"), Vector3.zero, new Quaternion(0, 0, 0, 0)) as GameObject;
 			Transform[] battlefields = battlefield.GetComponentsInChildren<Transform>();
 			foreach (Transform child in battlefields)
 			{
@@ -106,11 +100,11 @@ namespace Assets.Scripts.Controllers
 			}
 		}
 
-		private IPlayer[] GetEnemies(IPlayer target)
+		private IPlayer[] FindEnemies(IPlayer target)
 		{
-			IPlayer[] enemies = new IPlayer[_players.Length - 1];
+			IPlayer[] enemies = new IPlayer[Players.Length - 1];
 			int counter = 0;
-			foreach(IPlayer player in _players)
+			foreach(IPlayer player in Players)
 			{
 				if (!player.Equals(target))
 				{
@@ -119,11 +113,6 @@ namespace Assets.Scripts.Controllers
 				}
 			}
 			return enemies;
-		}
-
-		public IPlayer[] GetPlayers()
-		{
-			return _players;
 		}
 
 		//sets the specified battlefield state of a particular cell
@@ -214,7 +203,7 @@ namespace Assets.Scripts.Controllers
 
 		public IPlayer GetPlayer(int playerNumber)
 		{
-			return _players[playerNumber];
+			return Players[playerNumber];
 		}
 	}
 }

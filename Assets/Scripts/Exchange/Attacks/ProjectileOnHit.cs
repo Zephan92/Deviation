@@ -25,11 +25,7 @@ namespace Assets.Scripts.Exchange
 				GetComponent<Rigidbody>().velocity = 2 * new Vector3(0, 0, 15);
 			}
 
-			if (ec == null)
-			{
-				var ecObject = GameObject.FindGameObjectWithTag("ExchangeController");
-				ec = ecObject.GetComponent<ExchangeController>();
-			}
+			ec = FindObjectOfType<ExchangeController>();
 		}
 
 		public void OnTriggerEnter(Collider other)

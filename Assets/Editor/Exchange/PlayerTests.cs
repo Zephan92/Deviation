@@ -3,13 +3,10 @@ using Assets.Scripts.Exchange;
 using Assets.Scripts.Enum;
 using Assets.Scripts.Library;
 using Assets.Scripts.Interface;
-using Assets.Editor.Controllers;
 using Assets.Scripts.Utilities;
 using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Interface.Exchange;
-using Assets.Editor.DTO;
-using UnityEngine;
-using System.Threading;
+using NSubstitute;
 
 namespace Assets.Editor.Exchange
 {
@@ -19,10 +16,11 @@ namespace Assets.Editor.Exchange
 		private IBattlefieldController _battlefieldController;
 		private IExchangeController _exchangeController;
 		private ITimerManager _timerManager;
-		private AttackStub _attack;
-		private ActionStub _action;
-		private ModuleStub _module;
-		private KitStub _kit;
+		private INPCController _npcController;
+		private IKit _kit;
+		private IModule _module;
+		private IAction _action;
+		private IAttack _attack;
 
 		//stub variables
 		private Battlefield _startField;
@@ -55,139 +53,178 @@ namespace Assets.Editor.Exchange
 			_currentRow = 0;
 
 			_players = new IPlayer[4];
-			_players.Initialize();
-			_attack = new AttackStub(30, -1, 0, 0, -1);
-			_action = new ActionStub("default", _attack, Color.gray, "", 0.5f);
-			_module = new ModuleStub(_action,"default",new string[] {},ModuleType.Default,Color.black, 1);
-			_kit = new KitStub(_module,"dummmmm",new string[] { },1);
-			_battlefieldController = new BattlefieldControllerStub(true, _players);
-			_exchangeController = new ExchangeControllerStub();
-			_timerManager = new TimerManager();
+			for(int i = 0; i < _players.Length; i++)
+			{
+				_players[i] = new Player();
+			}
+
+			_attack = Substitute.For<IAttack>();
+			_attack.EnergyRecoilModifier.Returns(-1);
+			_attack.BaseDamage.Returns(35);
+
+			_action = Substitute.For<IAction>();
+			_action.Attack.Returns(_attack);
+
+			_module = Substitute.For<IModule>();
+			_module.GetCurrentAction().Returns(_action);
+
+			_kit = Substitute.For<IKit>();
+			_kit.GetCurrentModule().Returns(_module);
+
+			_battlefieldController = Substitute.For<IBattlefieldController>();
+			_exchangeController = Substitute.For<IExchangeController>();
+			_npcController = Substitute.For<INPCController>();
+
+			_timerManager = Substitute.For<ITimerManager>();
+			_timerManager.TimerUp(_action.Name).Returns(true);
+
 			_sut = new Player();
-			_sut.SetBattlefieldController(_battlefieldController);
-			_sut.SetExchangeController(_exchangeController);
-			_sut.SetTimerManager(_timerManager);
+			_sut.BattlefieldController = _battlefieldController;
+			_sut.ExchangeController = _exchangeController;
+			_sut.TimerManager = _timerManager;
+			_sut.Enemies = _players;
+			_sut.NPCController = _npcController;
 			_sut.SetPlayer(true, _startField, _kit, _energyRate, _maxHealth, _maxEnergy, _minHealth, _minEnergy);
 		}
 
 		[Test]
 		public void SetPlayerTests()
 		{
-			//set
+			//Arrange
 			Player player = new Player();
-			player.SetBattlefieldController(_battlefieldController);
-			player.SetExchangeController(_exchangeController);
-			player.SetTimerManager(_timerManager);
+			player.BattlefieldController = _battlefieldController;
+			player.ExchangeController = _exchangeController;
+			player.TimerManager = _timerManager;
+			player.Enemies = _players;
 
-			//test
+			//Act
 			player.SetPlayer(true, _startField, _kit, _energyRate, _maxHealth, _maxEnergy, _minHealth, _minEnergy);
 
-			//assert
-			Assert.AreEqual(_startField, player.GetBattlefield());
+			//Assert
+			Assert.AreEqual(_startField, player.Battlefield);
 			Assert.AreEqual(_kit, player.EquipedKit);
-			Assert.AreEqual(_energyRate, player.GetEnergyRate());
-			Assert.AreEqual(_minHealth, player.GetMinHealth());
-			Assert.AreEqual(_minEnergy, player.GetMinEnergy());
-			Assert.AreEqual(_maxHealth, player.GetMaxHealth());
-			Assert.AreEqual(_maxEnergy, player.GetMaxEnergy());
-			Assert.AreEqual(_maxHealth, player.GetHealth());
-			Assert.AreEqual(_maxEnergy, player.GetEnergy());
-			Assert.AreEqual(_currentColumn, player.GetCurrentColumn());
-			Assert.AreEqual(_currentRow, player.GetCurrentRow());
-
+			Assert.AreEqual(_energyRate, player.EnergyRate);
+			Assert.AreEqual(_minHealth, player.MinHealth);
+			Assert.AreEqual(_minEnergy, player.MinEnergy);
+			Assert.AreEqual(_maxHealth, player.MaxHealth);
+			Assert.AreEqual(_maxEnergy, player.MaxEnergy);
+			Assert.AreEqual(_maxHealth, player.Health);
+			Assert.AreEqual(_maxEnergy, player.Energy);
+			Assert.AreEqual(_currentColumn, player.CurrentColumn);
+			Assert.AreEqual(_currentRow, player.CurrentRow);
 		}
 
 		[Test]
 		public void RestoreEnergyTests()
 		{
-			//setup
-			int energyStart = _sut.GetMaxEnergy() / 2;
+			//Arrange
+			int energyStart = _sut.MaxEnergy / 2;
 			_sut.SetEnergy(energyStart);
 
+			//Act
 			//Test: Run 100+ Frames, gain 1 energy
 			for (int i = 0; i < 120; i++)
 				_sut.RestoreEnergy();
 
 			//Assert
-			Assert.AreEqual(energyStart + 1, _sut.GetEnergy());
+			Assert.AreEqual(energyStart + 1, _sut.Energy);
 		}
 
 		[Test]
 		public void ResetHealthTests()
 		{
 			_sut.ResetHealth();
-			Assert.AreEqual(_maxHealth, _sut.GetHealth());
+
+			Assert.AreEqual(_maxHealth, _sut.Health);
 		}
 
 		[Test]
 		public void ResetEnergyTest()
 		{
 			_sut.ResetEnergy();
-			Assert.AreEqual(_maxEnergy, _sut.GetEnergy());
+
+			Assert.AreEqual(_maxEnergy, _sut.Energy);
 		}
 
 		[Test]
 		public void SetHealthTest()
 		{
 			int health = 35;
+
 			_sut.SetHealth(health);
-			Assert.AreEqual(health, _sut.GetHealth());
+
+			Assert.AreEqual(health, _sut.Health);
 		}
 
 		[Test]
 		public void SetEnergyTest()
 		{
 			int energy = 42;
+
 			_sut.SetEnergy(energy);
-			Assert.AreEqual(energy, _sut.GetEnergy());
+
+			Assert.AreEqual(energy, _sut.Energy);
 		}
 
 		[Test]
 		public void AddHealthTest()
 		{
 			int health = -63;
+
 			_sut.AddHealth(health);
-			Assert.AreEqual(_sut.GetMaxHealth() + health, _sut.GetHealth());
+
+			Assert.AreEqual(_sut.MaxHealth + health, _sut.Health);
 		}
 
 		[Test]
 		public void AddEnergyTest()
 		{
 			int energy = -47;
+
 			_sut.AddEnergy(energy);
-			Assert.AreEqual(_sut.GetMaxEnergy() + energy, _sut.GetEnergy());
+
+			Assert.AreEqual(_sut.MaxEnergy + energy, _sut.Energy);
 		}
 
 		[Test]
 		public void AddStatWithinBoundaryTestNothing()
 		{
 			int health = 0;
+
 			_sut.AddHealth(health);
-			Assert.AreEqual(_sut.GetMaxHealth(), _sut.GetHealth());
+
+			Assert.AreEqual(_sut.MaxHealth, _sut.Health);
 		}
 
 		[Test]
 		public void AddStatWithinBoundaryTestFull()
 		{
-			int health = -(_sut.GetMaxHealth() - _sut.GetMinHealth());
+			int health = -(_sut.MaxHealth - _sut.MinHealth);
+
 			_sut.AddHealth(health);
-			Assert.AreEqual(_sut.GetMinHealth(), _sut.GetHealth());
+
+			Assert.AreEqual(_sut.MinHealth, _sut.Health);
 		}
 
 		[Test]
 		public void AddStatWithinBoundaryTestMoreThanMax()
 		{
 			int health = 50;
+
 			_sut.AddHealth(health);
-			Assert.AreEqual(_sut.GetMaxHealth(), _sut.GetHealth());
+
+			Assert.AreEqual(_sut.MaxHealth, _sut.Health);
 		}
 
 		[Test]
 		public void AddStatWithinBoundaryTestLessThanMin()
 		{
 			int health = -150;
+
 			_sut.AddHealth(health);
-			Assert.AreEqual(_sut.GetMinHealth(), _sut.GetHealth());
+
+
+			Assert.AreEqual(_sut.MinHealth, _sut.Health);
 		}
 
 		//[Test]
@@ -217,29 +254,35 @@ namespace Assets.Editor.Exchange
 		[Test]
 		public void PrimaryActionTest()
 		{
-			int energyRecoil = (int)(_sut.GetCurrentAction().Attack.EnergyRecoilModifier * _sut.GetCurrentAction().Attack.BaseDamage);
+			int energyRecoil = (int)(_sut.CurrentAction.Attack.EnergyRecoilModifier * _sut.CurrentAction.Attack.BaseDamage);
+
 			_sut.PrimaryAction();
-			Assert.IsTrue(_action.InitiateAttackCalled);
-			Assert.LessOrEqual(_sut.GetMaxEnergy(),_sut.GetEnergy());
+
+			_action.Received().InitiateAttack(_battlefieldController);
+			Assert.LessOrEqual(_sut.MaxEnergy,_sut.Energy);
 		}
 
 		[Test]
 		public void PrimaryActionTestNoEnergy()
 		{
-			_sut.SetEnergy(_sut.GetMinEnergy());
+			_sut.SetEnergy(_sut.MinEnergy);
+
 			_sut.PrimaryAction();
-			Assert.IsFalse(_action.InitiateAttackCalled);
-			Assert.AreEqual(_sut.GetMinEnergy(), _sut.GetEnergy());
+
+			_action.DidNotReceive().InitiateAttack(_battlefieldController);
+			Assert.AreEqual(_sut.MinEnergy, _sut.Energy);
 
 		}
 
 		[Test]
 		public void PrimaryActionTestTimerNotReady()
 		{
-			_timerManager.RestartTimer("default");
+			_timerManager.TimerUp(_action.Name).Returns(false);
+
 			_sut.PrimaryAction();
-			Assert.IsFalse(_action.InitiateAttackCalled);
-			Assert.AreEqual(_sut.GetMaxEnergy(), _sut.GetEnergy());
+
+			_action.DidNotReceive().InitiateAttack(_battlefieldController);
+			Assert.AreEqual(_sut.MaxEnergy, _sut.Energy);
 		}
 
 		[Test]
@@ -248,9 +291,11 @@ namespace Assets.Editor.Exchange
 			_timerManager.StartTimer("default");
 			_sut.PrimaryAction();
 			_timerManager.StopTimer("default");
+
 			_sut.PrimaryAction();
-			Assert.IsTrue(_action.InitiateAttackCalled);
-			Assert.LessOrEqual(_sut.GetMaxEnergy(), _sut.GetEnergy());
+
+			_action.Received().InitiateAttack(_battlefieldController);
+			Assert.LessOrEqual(_sut.MaxEnergy, _sut.Energy);
 
 		}
 
@@ -264,33 +309,45 @@ namespace Assets.Editor.Exchange
 		[Test]
 		public void CycleActionLeftTest()
 		{
-			IAction action = _sut.GetCurrentAction().GetLeftAction();
+			IAction action = _sut.CurrentAction.GetLeftAction();
+
 			_sut.CycleActionLeft();
-			Assert.AreEqual(action.Name, _sut.GetCurrentAction().Name);
+
+			_module.Received().CycleActionLeft();
+			Assert.AreEqual(action.Name, _sut.CurrentAction.Name);
 		}
 
 		[Test]
 		public void CycleActionRightTest()
 		{
-			IAction action = _sut.GetCurrentAction().GetRightAction();
+			IAction action = _sut.CurrentAction.GetRightAction();
+
 			_sut.CycleActionRight();
-			Assert.AreEqual(action.Name, _sut.GetCurrentAction().Name);
+
+			_module.Received().CycleActionRight();
+			Assert.AreEqual(action.Name, _sut.CurrentAction.Name);
 		}
 
 		[Test]
 		public void CycleModuleLeftTest()
 		{
-			IModule action = _sut.GetCurrentModule().GetLeftModule();
+			IModule action = _sut.CurrentModule.GetLeftModule();
+
 			_sut.CycleModuleLeft();
-			Assert.AreEqual(action.Name, _sut.GetCurrentModule().Name);
+
+			_kit.Received().CycleModuleLeft();
+			Assert.AreEqual(action.Name, _sut.CurrentModule.Name);
 		}
 
 		[Test]
 		public void CycleModuleRightTest()
 		{
-			IModule module = _sut.GetCurrentModule().GetRightModule();
+			IModule module = _sut.CurrentModule.GetRightModule();
+
 			_sut.CycleModuleRight();
-			Assert.AreEqual(module.Name, _sut.GetCurrentModule().Name);
+
+			_kit.Received().CycleModuleRight();
+			Assert.AreEqual(module.Name, _sut.CurrentModule.Name);
 		}
 
 		[Test]

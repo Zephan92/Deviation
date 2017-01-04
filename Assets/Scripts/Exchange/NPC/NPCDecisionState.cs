@@ -1,15 +1,7 @@
-﻿namespace Assets.Scripts.Exchange.NPC
-{
-	public enum Decision
-	{
-		DecisionSpeed = 0,
-		Move = 1,
-		Module = 2,
-		Action = 3,
-		CycleAction = 4,
-		CycleModule = 5,
-	}
+﻿using Assets.Scripts.Enum;
 
+namespace Assets.Scripts.Exchange.NPC
+{ 
 	public class NPCDecisionState
 	{
 		public int[] DecisionState;

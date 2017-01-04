@@ -21,11 +21,11 @@ namespace Assets.Scripts.Controllers
 		public Battlefield MainPlayerFieldNumber { get { return Battlefield.One; } }
 
 		//Unity Objects
-		public GameObject MainPlayerObject;
-		public IPlayer[] Players;
+		public GameObject MainPlayerObject { get; set; }
+		public IPlayer[] Players { get; set; }
 
 		//Current state
-		public ExchangeState ExchangeState;
+		public ExchangeState ExchangeState { get; set; }
 
 		//Private Variables
 		private IPlayer _mainPlayer;
@@ -39,25 +39,15 @@ namespace Assets.Scripts.Controllers
 
 		//controllers
 		private MainPlayerController mp;
-		private NonPlayerCharacterController npc;
+		private NPCController npc;
 		private ITimerManager tm;
 
 		void Awake()
 		{
 			ExchangeState = ExchangeState.Setup;
 
-			if (mp == null)
-			{
-				var mpObject = GameObject.FindGameObjectWithTag("MainPlayerController");
-				mp = mpObject.GetComponent<MainPlayerController>();
-			}
-
-			if (npc == null)
-			{
-				var npcObject = GameObject.FindGameObjectWithTag("NonPlayerCharacterController");
-				npc = npcObject.GetComponent<NonPlayerCharacterController>();
-			}
-
+			npc = FindObjectOfType<NPCController>();
+			mp = FindObjectOfType<MainPlayerController>();
 			tm = GetComponent<TimerManager>();
 			
 			_displays = GameObject.FindGameObjectsWithTag("Display");
@@ -132,7 +122,7 @@ namespace Assets.Scripts.Controllers
 		//check to see if the battle is over
 		private void CheckBattleEnd()
 		{
-			if (_mainPlayer.GetHealth() <= 0 || Players[0].GetHealth() <= 0)
+			if (_mainPlayer.Health <= 0 || Players[0].Health <= 0)
 			{
 				npc.StopDecisionMaker();
 				ExchangeState = ExchangeState.End;
@@ -268,42 +258,42 @@ namespace Assets.Scripts.Controllers
 		{
 			var ExchangeControls = GetDisplayObject("ExchangeControls");
 			var button = GetButtonFromUIGroup(ExchangeControls, "CurrentModule");
-			UpdateButtonColor(button, _mainPlayer.GetCurrentModule().ModuleTexture);
-			UpdateButtonText(button, _mainPlayer.GetCurrentModule().Name);
+			UpdateButtonColor(button, _mainPlayer.CurrentModule.ModuleTexture);
+			UpdateButtonText(button, _mainPlayer.CurrentModule.Name);
 
 			button = GetButtonFromUIGroup(ExchangeControls, "NextModule");
-			UpdateButtonColor(button, _mainPlayer.GetCurrentModule().GetRightModule().ModuleTexture);
-			UpdateButtonText(button, _mainPlayer.GetCurrentModule().GetRightModule().Name);
+			UpdateButtonColor(button, _mainPlayer.CurrentModule.GetRightModule().ModuleTexture);
+			UpdateButtonText(button, _mainPlayer.CurrentModule.GetRightModule().Name);
 
 			button = GetButtonFromUIGroup(ExchangeControls, "PreviousModule");
-			UpdateButtonColor(button, _mainPlayer.GetCurrentModule().GetLeftModule().ModuleTexture);
+			UpdateButtonColor(button, _mainPlayer.CurrentModule.GetLeftModule().ModuleTexture);
 			UpdateButtonText(button, "");
 
 			button = GetButtonFromUIGroup(ExchangeControls, "CurrentAction");
-			UpdateButtonColor(button, _mainPlayer.GetCurrentModule().GetCurrentAction().ActionTexture);
-			UpdateButtonText(button, _mainPlayer.GetCurrentModule().GetCurrentAction().Name + ": " +
-				(int) (-1 * _mainPlayer.GetCurrentModule().GetCurrentAction().Attack.EnergyRecoilModifier 
-				* _mainPlayer.GetCurrentModule().GetCurrentAction().Attack.BaseDamage));
+			UpdateButtonColor(button, _mainPlayer.CurrentModule.GetCurrentAction().ActionTexture);
+			UpdateButtonText(button, _mainPlayer.CurrentModule.GetCurrentAction().Name + ": " +
+				(int) (-1 * _mainPlayer.CurrentModule.GetCurrentAction().Attack.EnergyRecoilModifier 
+				* _mainPlayer.CurrentModule.GetCurrentAction().Attack.BaseDamage));
 
 			button = GetButtonFromUIGroup(ExchangeControls, "NextAction");
-			UpdateButtonColor(button, _mainPlayer.GetCurrentModule().GetRightAction().ActionTexture);
-			UpdateButtonText(button, _mainPlayer.GetCurrentModule().GetRightAction().Name);
+			UpdateButtonColor(button, _mainPlayer.CurrentModule.GetRightAction().ActionTexture);
+			UpdateButtonText(button, _mainPlayer.CurrentModule.GetRightAction().Name);
 
 			button = GetButtonFromUIGroup(ExchangeControls, "PreviousAction");
-			UpdateButtonColor(button, _mainPlayer.GetCurrentModule().GetLeftAction().ActionTexture);
+			UpdateButtonColor(button, _mainPlayer.CurrentModule.GetLeftAction().ActionTexture);
 			UpdateButtonText(button, "");
 
 			var text = GetTextFromPanelUIGroup(ExchangeControls, "HealthText");
-			text.text = _mainPlayer.GetHealth().ToString();
+			text.text = _mainPlayer.Health.ToString();
 
 			text = GetTextFromPanelUIGroup(ExchangeControls, "EnergyText");
-			text.text = _mainPlayer.GetEnergy().ToString();
+			text.text = _mainPlayer.Energy.ToString();
 
 			text = GetTextFromPanelUIGroup(ExchangeControls, "Enemy1EnergyText");
-			text.text = Players[0].GetEnergy().ToString();
+			text.text = Players[0].Energy.ToString();
 
 			text = GetTextFromPanelUIGroup(ExchangeControls, "Enemy1HealthText");
-			text.text = Players[0].GetHealth().ToString();
+			text.text = Players[0].Health.ToString();
 		}
 
 		//updates the button color
