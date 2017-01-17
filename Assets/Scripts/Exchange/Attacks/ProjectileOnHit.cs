@@ -8,7 +8,7 @@ namespace Assets.Scripts.Exchange
 {
 	public class ProjectileOnHit : MonoBehaviour, IExchangeAttack
 	{
-		private IAttack Attack;
+		private IAttack _attack;
 		private IExchangeController ec;
 
 		void Awake()
@@ -33,8 +33,8 @@ namespace Assets.Scripts.Exchange
 			//if this objects hit a player attack it
 			if (other.tag.Equals("Player") || other.tag.Equals("MainPlayer"))
 			{
-				Attack.SetDefender(other.GetComponent<Player>());
-				Attack.InitiateDrain();
+				_attack.SetDefender(other.GetComponent<Player>());
+				_attack.InitiateDrain();
 				ec.UpdateExchangeControlsDisplay();
 				Destroy(gameObject);
 			}
@@ -50,7 +50,7 @@ namespace Assets.Scripts.Exchange
 
 		public void SetAttack(IAttack attack)
 		{
-			Attack = attack;
+			_attack = attack;
 		}
 	}
 }
