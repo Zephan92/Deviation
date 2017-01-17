@@ -44,6 +44,8 @@ namespace Assets.Editor.Exchange
 
 		[Test]
 		public void TestMakeDecision()
-		{ }
+		{
+			_sut.MakeDecision();
+		}
 	}
 }

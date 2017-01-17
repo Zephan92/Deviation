@@ -83,10 +83,11 @@ namespace Assets.Editor.Exchange
 		{
 			_input.IsCycleActionLeftPressed().Returns(true);
 			_player.CurrentModule.Returns(_module);
+			_player.CycleActionLeft().Returns(true);
 
 			_sut.CheckInput();
 
-			_module.Received().CycleActionLeft();
+			_player.Received().CycleActionLeft();
 			_exchangeController.Received().UpdateExchangeControlsDisplay();
 		}
 
@@ -94,6 +95,7 @@ namespace Assets.Editor.Exchange
 		public void TestCheckInput_Action()
 		{
 			_input.IsActionPressed().Returns(true);
+			_player.PrimaryAction().Returns(true);
 
 			_sut.CheckInput();
 
@@ -107,10 +109,11 @@ namespace Assets.Editor.Exchange
 		{
 			_input.IsCycleActionRightPressed().Returns(true);
 			_player.CurrentModule.Returns(_module);
+			_player.CycleActionRight().Returns(true);
 
 			_sut.CheckInput();
 
-			_module.Received().CycleActionRight();
+			_player.Received().CycleActionRight();
 			_exchangeController.Received().UpdateExchangeControlsDisplay();
 		}
 
@@ -118,6 +121,7 @@ namespace Assets.Editor.Exchange
 		public void TestCheckInput_CycleModuleLeft()
 		{
 			_input.IsCycleModuleLeftPressed().Returns(true);
+			_player.CycleModuleLeft().Returns(true);
 
 			_sut.CheckInput();
 
@@ -129,6 +133,7 @@ namespace Assets.Editor.Exchange
 		public void TestCheckInput_Module()
 		{
 			_input.IsModulePressed().Returns(true);
+			_player.PrimaryModule().Returns(true);
 
 			_sut.CheckInput();
 
@@ -141,6 +146,7 @@ namespace Assets.Editor.Exchange
 		public void TestCheckInput_CycleModuleRight()
 		{
 			_input.IsCycleModuleRightPressed().Returns(true);
+			_player.CycleModuleRight().Returns(true);
 
 			_sut.CheckInput();
 
