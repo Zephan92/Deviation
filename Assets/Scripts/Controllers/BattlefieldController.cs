@@ -1,9 +1,11 @@
 ﻿using Assets.Scripts.Enum;
 using Assets.Scripts.Exchange;
+using Assets.Scripts.Exchange.Attacks;
 using Assets.Scripts.Interface;
 using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Interface.Exchange;
 using Assets.Scripts.Library;
+using Assets.Scripts.Utilities;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -17,6 +19,8 @@ namespace Assets.Scripts.Controllers
 
 		private bool[,,] _battlefields;
 		private IExchangeController ec;
+		public ICoroutineManager CoroutineManager { get; set; }
+		private IEnumerator _coroutine;
 
 		public void Awake()
 		{
@@ -30,89 +34,8 @@ namespace Assets.Scripts.Controllers
 			{
 				player.Enemies = FindEnemies(player);
 			}
-		}
 
-		//this method initializes the battlefields
-		private void InitializeBattlefields(int numBattlefields, int mainPlayerFieldNumber)
-		{
-			_battlefields = new bool[numBattlefields, 5, 5];
-			_battlefields.Initialize();
-			
-			for (int i = 0; i < numBattlefields; i++)
-			{
-				if(mainPlayerFieldNumber == i)
-				{
-					CreateBattlefield((Battlefield) i, true);
-				}
-				else
-				{
-					CreateBattlefield((Battlefield)i, false);
-				}		
-			}
-		}
-
-		private GameObject CreateBattlefield(Battlefield startField, bool mainPlayer)
-		{
-			GameObject battlefield = Instantiate(Resources.Load("Battlefield"), Vector3.zero, new Quaternion(0, 0, 0, 0)) as GameObject;
-			Transform[] battlefields = battlefield.GetComponentsInChildren<Transform>();
-			foreach (Transform child in battlefields)
-			{
-				UpdateBattlefield(child.gameObject, startField, mainPlayer);
-			}
-			
-			float x = 0, y = 0, z = 0;
-
-			if ((int) startField <= 1)
-			{
-				x = -5f;
-			}
-			else if ((int) startField > 1 && (int) startField < 4)
-			{
-				x = 0f;
-			}
-			else if ((int) startField >= 4)
-			{
-				x = 5f;
-			}
-
-			y = 0;
-			z = ((int) startField) % 2 == 0 ? -2.5f : 2.5f;
-
-			battlefield.transform.position = new Vector3(x,y,z);
-			return battlefield;
-		}
-
-		private void UpdateBattlefield(GameObject go, Battlefield startField, bool mainPlayer)
-		{
-			if (go.name.Equals("Player"))
-			{
-				if (mainPlayer)
-				{
-					go.tag = "MainPlayer";
-				}
-				Player player = go.AddComponent<Player>();
-				player.SetPlayer(mainPlayer, startField, KitLibrary.GetKitInstance("InitialKit"), 0.01f, 100, 100, 0 ,0);
-			}
-			else if (go.name.Equals("Grid"))
-			{
-				GridManager grid = go.AddComponent<GridManager>();
-				grid.ThisBattlefield = startField;
-			}
-		}
-
-		private IPlayer[] FindEnemies(IPlayer target)
-		{
-			IPlayer[] enemies = new IPlayer[Players.Length - 1];
-			int counter = 0;
-			foreach(IPlayer player in Players)
-			{
-				if (!player.Equals(target))
-				{
-					enemies[counter] = player;
-					counter++;
-				}
-			}
-			return enemies;
+			CoroutineManager = FindObjectOfType<CoroutineManager>();
 		}
 
 		//sets the specified battlefield state of a particular cell
@@ -124,14 +47,8 @@ namespace Assets.Scripts.Controllers
 		//sets the specifed battlefield state of a particular cell after a period of time
 		public void SetBattlefieldStateAfterTimout(float timeout, Battlefield field, int row, int column, bool state)
 		{
-			StartCoroutine(SetBattlefieldStateAfterTimoutCoroutine(timeout, field, row,  column, state));
-		}
-
-		//coroutine for battlefield state
-		private IEnumerator SetBattlefieldStateAfterTimoutCoroutine(float timeout, Battlefield field, int row, int column, bool state)
-		{
-			yield return new WaitForSeconds(timeout);
-			SetBattlefieldState(field, row, column, state);
+			object[] parameters = { field, row, column, state };
+			CoroutineManager.StartCoroutineThread_AfterTimout(SetBattlefieldStateMethod, parameters, timeout, ref _coroutine);
 		}
 		
 		//returns the battlefield state from the specified battlefield cell
@@ -163,47 +80,197 @@ namespace Assets.Scripts.Controllers
 		//delete objects after timeout
 		public void DeleteAfterTimeout(float timeout, GameObject[] battlefieldObjects)
 		{
-			StartCoroutine(DeleteAfterTimeoutCoroutine(timeout, battlefieldObjects));
+			object[] parameters = { battlefieldObjects };
+			CoroutineManager.StartCoroutineThread_AfterTimout(DeleteAfterTimeoutMethod, parameters, timeout, ref _coroutine);
 		}
 
-		//spawn object after timeout
-		public void SpawnAfterTimeout(float timeout, float deletionTimeout, string resourceName, IAttack attack, Type attackType, Vector3 zone, Quaternion rotation)
+		public void Spawn(float deletionTimeout, string resourceName, Vector3 zone, Quaternion rotation)
 		{
-			StartCoroutine(SpawnAfterTimeoutCoroutine(timeout, deletionTimeout, resourceName, attack, attackType, zone, rotation));
-		}
-
-		//spawn a specified object
-		public void Spawn(float deletionTimeout, string resourceName, IAttack attack, Type attackType, Vector3 zone, Quaternion rotation)
-		{
-			GameObject go = (GameObject)Instantiate(Resources.Load(resourceName), zone, rotation);
-			
-			IExchangeAttack attackScript = go.GetComponent(attackType) as IExchangeAttack;
-			if (attackScript == null)
-				attackScript = go.GetComponentInChildren(attackType) as IExchangeAttack;
-			attackScript.SetAttack(attack);
+			GameObject go = (GameObject) Instantiate(Resources.Load(resourceName), zone, rotation);
 			DeleteAfterTimeout(deletionTimeout, go);
 		}
 
-		//coroutine to delete specified objects
-		private IEnumerator DeleteAfterTimeoutCoroutine(float timeout, GameObject[] battlefieldObjects)
+		//spawn object after timeout
+		public void SpawnAfterTimeout(float timeout, float deletionTimeout, string resourceName, Vector3 zone, Quaternion rotation)
 		{
-			yield return new WaitForSeconds(timeout);
-			foreach (GameObject battlefieldObject in battlefieldObjects)
+			object[] parameters = { deletionTimeout, resourceName, zone, rotation };
+			CoroutineManager.StartCoroutineThread_AfterTimout(SpawnAfterTimeoutMethod, parameters, timeout, ref _coroutine);
+		}
+
+		//spawn a specified object
+		public void SpawnProjectile(float deletionTimeout, string resourceName, Vector3 zone, Quaternion rotation, IAttack attack, Action<Collider, GameObject, IAttack> onTriggerAction = null, Action<GameObject> onStartAction = null, Action<GameObject> updateAction = null)
+		{
+			GameObject go = (GameObject) Instantiate(Resources.Load(resourceName), zone, rotation);
+
+			IProjectile projectile = go.AddComponent<Projectile>();
+
+			projectile.SetAttack(attack);
+
+			if (onTriggerAction != null)
+			{
+				projectile.SetOnTriggerEnter(onTriggerAction);
+			}
+			else
+			{
+				projectile.SetOnTriggerEnter(delegate(Collider other, GameObject projectileGO,IAttack atk) { });
+			}
+
+			if (onStartAction != null)
+			{
+				projectile.SetStart(onStartAction);
+			}
+			else
+			{
+				projectile.SetStart(delegate (GameObject projectileGO) { });
+			}
+
+			if (updateAction != null)
+			{
+				projectile.SetUpdate(updateAction);
+			}
+			else
+			{
+				projectile.SetUpdate(delegate (GameObject projectileGO) { });
+			}
+
+			DeleteAfterTimeout(deletionTimeout, go);
+		}
+
+		public void SpawnProjectileAfterTimeout(float timeout, float deletionTimeout, string resourceName, Vector3 zone, Quaternion rotation, IAttack attack, Action<Collider, GameObject, IAttack> onTriggerAction = null, Action<GameObject> onStartAction = null, Action<GameObject> updateAction = null)
+		{
+			object[] parameters = { deletionTimeout, resourceName, zone, rotation, attack, onTriggerAction, onStartAction, updateAction};
+			CoroutineManager.StartCoroutineThread_AfterTimout(SpawnProjectileAfterTimeoutMethod, parameters, timeout, ref _coroutine);
+		}
+
+		public IPlayer GetPlayer(int playerNumber)
+		{
+			return Players[playerNumber];
+		}
+
+		//coroutine for battlefield state
+		private void SetBattlefieldStateMethod(object[] parameters)
+		{
+			SetBattlefieldState(
+				field: (Battlefield)parameters[0],
+				row: (int)parameters[1],
+				column: (int)parameters[2],
+				state: (bool)parameters[3]);
+		}
+
+		//coroutine to delete specified objects
+		private void DeleteAfterTimeoutMethod(object[] parameters)
+		{
+			foreach (GameObject battlefieldObject in (GameObject []) parameters[0])
 			{
 				Destroy(battlefieldObject);
 			}
 		}
 
 		//coroutine to spawn an object after a timeout
-		private IEnumerator SpawnAfterTimeoutCoroutine(float timeout, float deletionTimeout, string resourceName, IAttack attack, Type attackType, Vector3 zone, Quaternion rotation)
+		private void SpawnAfterTimeoutMethod(object[] parameters)
 		{
-			yield return new WaitForSeconds(timeout);
-			Spawn(deletionTimeout, resourceName, attack, attackType, zone, rotation);
+			Spawn(
+				deletionTimeout: (float) parameters[0], 
+				resourceName: (string) parameters[1], 
+				zone: (Vector3) parameters[2], 
+				rotation: (Quaternion) parameters[3]);
 		}
 
-		public IPlayer GetPlayer(int playerNumber)
+		private void SpawnProjectileAfterTimeoutMethod(object[] parameters)
 		{
-			return Players[playerNumber];
+			SpawnProjectile(
+				deletionTimeout: (float) parameters[0], 
+				resourceName: (string) parameters[1], 
+				zone: (Vector3) parameters[2], 
+				rotation: (Quaternion) parameters[3],
+				attack: (IAttack) parameters[4],
+				onTriggerAction: (Action<Collider, GameObject, IAttack>) parameters[5], 
+				onStartAction: (Action<GameObject>) parameters[6],
+				updateAction: (Action<GameObject>)parameters[7]);
+		}
+
+
+		//this method initializes the battlefields
+		private void InitializeBattlefields(int numBattlefields, int mainPlayerFieldNumber)
+		{
+			_battlefields = new bool[numBattlefields, 5, 5];
+			_battlefields.Initialize();
+
+			for (int i = 0; i < numBattlefields; i++)
+			{
+				if (mainPlayerFieldNumber == i)
+				{
+					CreateBattlefield((Battlefield)i, true);
+				}
+				else
+				{
+					CreateBattlefield((Battlefield)i, false);
+				}
+			}
+		}
+
+		private GameObject CreateBattlefield(Battlefield startField, bool mainPlayer)
+		{
+			GameObject battlefield = Instantiate(Resources.Load("Battlefield"), Vector3.zero, new Quaternion(0, 0, 0, 0)) as GameObject;
+			Transform[] battlefields = battlefield.GetComponentsInChildren<Transform>();
+			foreach (Transform child in battlefields)
+			{
+				UpdateBattlefield(child.gameObject, startField, mainPlayer);
+			}
+
+			float x = 0, y = 0, z = 0;
+
+			if ((int)startField <= 1)
+			{
+				x = -5f;
+			}
+			else if ((int)startField > 1 && (int)startField < 4)
+			{
+				x = 0f;
+			}
+			else if ((int)startField >= 4)
+			{
+				x = 5f;
+			}
+
+			y = 0;
+			z = ((int)startField) % 2 == 0 ? -2.5f : 2.5f;
+
+			battlefield.transform.position = new Vector3(x, y, z);
+			return battlefield;
+		}
+
+		private void UpdateBattlefield(GameObject go, Battlefield startField, bool mainPlayer)
+		{
+			if (go.name.Equals("Player"))
+			{
+				if (mainPlayer)
+				{
+					go.tag = "MainPlayer";
+				}
+				Player player = go.AddComponent<Player>();
+				player.SetPlayer(mainPlayer, startField, KitLibrary.GetKitInstance("InitialKit"), 0.01f, 100, 100, 0, 0);
+			}
+			else if (go.name.Equals("Grid"))
+			{
+				GridManager grid = go.AddComponent<GridManager>();
+				grid.ThisBattlefield = startField;
+			}
+		}
+
+		private IPlayer[] FindEnemies(IPlayer target)
+		{
+			IPlayer[] enemies = new IPlayer[Players.Length - 1];
+			int counter = 0;
+			foreach (IPlayer player in Players)
+			{
+				if (!player.Equals(target))
+				{
+					enemies[counter] = player;
+					counter++;
+				}
+			}
+			return enemies;
 		}
 	}
 }

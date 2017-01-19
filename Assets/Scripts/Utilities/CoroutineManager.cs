@@ -22,6 +22,21 @@ namespace Assets.Scripts.Utilities
 			StartCoroutine(coroutine = AfterTimout_Coroutine(method, interval));
 		}
 
+		public void StartCoroutineThread_ForLoop(Action<int, object[]> method, object[] parameters, float interval, ref IEnumerator coroutine)
+		{
+			StartCoroutine(coroutine = ForLoop_Coroutine(method, parameters, interval));
+		}
+
+		public void StartCoroutineThread_WhileLoop(Action<object[]> method, object[] parameters, float interval, ref IEnumerator coroutine)
+		{
+			StartCoroutine(coroutine = WhileLoop_Coroutine(method, parameters, interval));
+		}
+
+		public void StartCoroutineThread_AfterTimout(Action<object[]> method, object[] parameters, float interval, ref IEnumerator coroutine)
+		{
+			StartCoroutine(coroutine = AfterTimout_Coroutine(method, parameters, interval));
+		}
+
 		public void PauseCoroutineThread(ref IEnumerator coroutine)
 		{
 			StopCoroutine(coroutine);
@@ -60,6 +75,30 @@ namespace Assets.Scripts.Utilities
 		{
 			yield return new WaitForSeconds(timeout);
 			coroutine();
+		}
+
+		private IEnumerator ForLoop_Coroutine(Action<int, object []> coroutine, object [] parameters, float interval)
+		{
+			for (int i = 0; ; i++)
+			{
+				coroutine(i, parameters);
+				yield return new WaitForSeconds(interval);
+			}
+		}
+
+		private IEnumerator WhileLoop_Coroutine(Action<object []> coroutine, object[] parameters, float interval)
+		{
+			while (true)
+			{
+				coroutine(parameters);
+				yield return new WaitForSeconds(interval);
+			}
+		}
+
+		private IEnumerator AfterTimout_Coroutine(Action<object[]> coroutine, object[] parameters, float timeout)
+		{
+			yield return new WaitForSeconds(timeout);
+			coroutine(parameters);
 		}
 	}
 }
