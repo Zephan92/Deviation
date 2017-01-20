@@ -20,9 +20,9 @@ namespace Assets.Scripts.Interface.DTO
 		IModule GetRightModule();
 		IModule GetLeftModule();
 
-		IAction GetCurrentAction();
-		IAction GetLeftAction();
-		IAction GetRightAction();
+		IExchangeAction GetCurrentAction();
+		IExchangeAction GetLeftAction();
+		IExchangeAction GetRightAction();
 
 		void CycleActionLeft();
 		void CycleActionRight();

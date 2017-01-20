@@ -2,7 +2,7 @@
 using Assets.Scripts.Interface.Exchange;
 using System;
 
-namespace Assets.Scripts.Exchange
+namespace Assets.Scripts.DTO.Exchange
 {
 	public struct Attack : IAttack
 	{

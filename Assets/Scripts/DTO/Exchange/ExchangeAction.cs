@@ -1,13 +1,12 @@
-﻿using Assets.Scripts.Controllers;
-using Assets.Scripts.Exchange;
-using Assets.Scripts.Interface;
+﻿using Assets.Scripts.Interface;
 using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Interface.Exchange;
+using Assets.Scripts.Library;
 using UnityEngine;
 
-namespace Assets.Scripts.Library
+namespace Assets.Scripts.DTO.Exchange
 {
-	public class Action : IAction
+	public class ExchangeAction : IExchangeAction
 	{
 		//Action Name
 		public string Name { get; set; }
@@ -28,7 +27,7 @@ namespace Assets.Scripts.Library
 		//this is the primary action method run when this action is used
 		public System.Action<IBattlefieldController, IAttack, IPlayer> PrimaryAction;
 
-		public Action(string name, IAttack attack, Color actionTexture, string primaryActionName, float cooldown)
+		public ExchangeAction(string name, IAttack attack, Color actionTexture, string primaryActionName, float cooldown)
 		{
 			Name = name;
 			Attack = attack;
@@ -36,15 +35,15 @@ namespace Assets.Scripts.Library
 			ActionTexture = actionTexture;
 			PrimaryActionName = primaryActionName;
 
-			if(ActionMethodLibrary.ActionMethodLibraryTable.ContainsKey(primaryActionName))
+			if(ActionMethodLibrary.ContainsActionMethod(primaryActionName))
 			{
 				//based on the action name, go find the relevant method in the Action Method Library
-				PrimaryAction = ActionMethodLibrary.ActionMethodLibraryTable[primaryActionName];
+				PrimaryAction = ActionMethodLibrary.GetActionMethod(primaryActionName);
 			}
 			else
 			{
 				//otherwise return a generic method and throw an error
-				PrimaryAction = ActionMethodLibrary.ActionMethodLibraryTable["default"];
+				PrimaryAction = ActionMethodLibrary.GetActionMethod("default");
 				Debug.LogError(name + " - Action: The \"" + primaryActionName + "\" Action Method was not in the ActionMethod Dictionary");
 			}
 		}
@@ -55,12 +54,12 @@ namespace Assets.Scripts.Library
 			PrimaryAction(bc, Attack, ParentModule.ParentKit.Player);
 		}
 
-		public IAction GetRightAction()
+		public IExchangeAction GetRightAction()
 		{
 			return ParentModule.GetRightAction();
 		}
 
-		public IAction GetLeftAction()
+		public IExchangeAction GetLeftAction()
 		{
 			return ParentModule.GetLeftAction();
 		}

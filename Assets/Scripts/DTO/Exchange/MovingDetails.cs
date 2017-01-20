@@ -1,7 +1,7 @@
 ﻿using Assets.Scripts.Enum;
 using UnityEngine;
 
-namespace Assets.Scripts.Exchange
+namespace Assets.Scripts.DTO.Exchange
 {
 	public class MovingDetails
 	{

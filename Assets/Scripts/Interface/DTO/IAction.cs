@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.Interface.DTO
 {
-	public interface IAction
+	public interface IExchangeAction
 	{
 		string Name { get; set; }
 		IAttack Attack { get; set; }
@@ -14,7 +14,7 @@ namespace Assets.Scripts.Interface.DTO
 
 		void InitiateAttack(IBattlefieldController bc);
 
-		IAction GetRightAction();
-		IAction GetLeftAction();	
+		IExchangeAction GetRightAction();
+		IExchangeAction GetLeftAction();	
 	}
 }

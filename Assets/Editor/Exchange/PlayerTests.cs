@@ -17,7 +17,7 @@ namespace Assets.Editor.Exchange
 		private INPCController _npcController;
 		private IKit _kit;
 		private IModule _module;
-		private IAction _action;
+		private IExchangeAction _action;
 		private IAttack _attack;
 
 		//stub variables
@@ -60,7 +60,7 @@ namespace Assets.Editor.Exchange
 			_attack.EnergyRecoilModifier.Returns(-1);
 			_attack.BaseDamage.Returns(35);
 
-			_action = Substitute.For<IAction>();
+			_action = Substitute.For<IExchangeAction>();
 			_action.Attack.Returns(_attack);
 
 			_module = Substitute.For<IModule>();
@@ -307,7 +307,7 @@ namespace Assets.Editor.Exchange
 		[Test]
 		public void TestCycleActionLeft()
 		{
-			IAction action = _sut.CurrentAction.GetLeftAction();
+			IExchangeAction action = _sut.CurrentAction.GetLeftAction();
 
 			_sut.CycleActionLeft();
 
@@ -318,7 +318,7 @@ namespace Assets.Editor.Exchange
 		[Test]
 		public void TestCycleActionRight()
 		{
-			IAction action = _sut.CurrentAction.GetRightAction();
+			IExchangeAction action = _sut.CurrentAction.GetRightAction();
 
 			_sut.CycleActionRight();
 

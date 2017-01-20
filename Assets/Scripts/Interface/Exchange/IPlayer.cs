@@ -26,7 +26,7 @@ namespace Assets.Scripts.Interface.Exchange
 		IPlayer[] Enemies { get; set; }
 		IKit EquipedKit { get; set; }
 		IModule CurrentModule { get; set; }
-		IAction CurrentAction { get; set; }
+		IExchangeAction CurrentAction { get; set; }
 
 		IBattlefieldController BattlefieldController { get; set; }
 		IExchangeController ExchangeController { get; set; }

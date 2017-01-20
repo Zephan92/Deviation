@@ -7,6 +7,7 @@ using Assets.Scripts.Interface;
 using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Interface.Exchange;
 using Assets.Scripts.Exchange.NPC;
+using Assets.Scripts.DTO.Exchange;
 
 namespace Assets.Scripts.Exchange
 {
@@ -31,7 +32,7 @@ namespace Assets.Scripts.Exchange
 		public int CurrentColumn { get; set; }
 		public int CurrentRow { get; set; }
 		public IModule CurrentModule { get { return EquipedKit.GetCurrentModule(); } set { CurrentModule = value; } }
-		public IAction CurrentAction { get { return EquipedKit.GetCurrentModule().GetCurrentAction(); } set { CurrentAction = value; } }
+		public IExchangeAction CurrentAction { get { return EquipedKit.GetCurrentModule().GetCurrentAction(); } set { CurrentAction = value; } }
 
 		private MovingDetails _movingDetails;
 		private float _restoreEnergy;
@@ -205,7 +206,7 @@ namespace Assets.Scripts.Exchange
 		public bool PrimaryAction()
 		{
 			bool success = false;
-			IAction currentAction = EquipedKit.GetCurrentModule().GetCurrentAction();
+			IExchangeAction currentAction = EquipedKit.GetCurrentModule().GetCurrentAction();
 
 			int attackCost = (int)(currentAction.Attack.EnergyRecoilModifier * currentAction.Attack.BaseDamage);
 			int potentialEnergy = Energy + attackCost;
@@ -330,7 +331,7 @@ namespace Assets.Scripts.Exchange
 
 			for (int i = 0; i < kit.ModuleCount; i++)
 			{
-				IAction currentAction = currentModule.GetCurrentAction();
+				IExchangeAction currentAction = currentModule.GetCurrentAction();
 				for (int j = 0; j < currentModule.ActionCount; j++)
 				{
 					TimerManager.AddAttackTimer(currentAction.Name, currentAction.Cooldown);

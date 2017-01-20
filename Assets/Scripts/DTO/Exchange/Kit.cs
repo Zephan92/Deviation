@@ -3,8 +3,9 @@ using UnityEngine;
 using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Interface.Exchange;
 using System;
+using Assets.Scripts.Library;
 
-namespace Assets.Scripts.Library
+namespace Assets.Scripts.DTO.Exchange
 {
 	public class Kit : IKit
 	{

@@ -5,6 +5,7 @@ using Assets.Scripts.Enum;
 using Assets.Scripts.Interface;
 using UnityEngine;
 using Assets.Scripts.Interface.DTO;
+using Assets.Scripts.DTO.Exchange;
 
 namespace Assets.Scripts.Exchange
 {
