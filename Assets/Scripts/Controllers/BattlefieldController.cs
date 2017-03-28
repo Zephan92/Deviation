@@ -244,6 +244,7 @@ namespace Assets.Scripts.Controllers
 		{
 			if (go.name.Equals("Player"))
 			{
+				go.AddComponent<ParticleSystem>().Stop();
 				if (mainPlayer)
 				{
 					go.tag = "MainPlayer";

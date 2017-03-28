@@ -30,7 +30,7 @@ namespace Assets.Scripts.Controllers
 		//Private Variables
 		private IPlayer _mainPlayer;
 		private GameObject[] _displays;
-
+		private IPlayer _winner;
 		//bools
 		private bool _battleStartDisplayIsEnabled = false;
 		private bool _unpauseDisplayIsEnabled = false;
@@ -41,6 +41,7 @@ namespace Assets.Scripts.Controllers
 		private MainPlayerController mp;
 		private NPCController npc;
 		private ITimerManager tm;
+		private IMultiplayerController mc;
 
 		void Awake()
 		{
@@ -49,7 +50,7 @@ namespace Assets.Scripts.Controllers
 			npc = FindObjectOfType<NPCController>();
 			mp = FindObjectOfType<MainPlayerController>();
 			tm = GetComponent<TimerManager>();
-			
+			mc = FindObjectOfType<MultiplayerController>();
 			_displays = GameObject.FindGameObjectsWithTag("Display");
 
 			ExchangeState = ExchangeState.PreBattle;
@@ -96,7 +97,7 @@ namespace Assets.Scripts.Controllers
                 case ExchangeState.Battle:
                     mp.CheckInput();
 					tm.UpdateCountdowns();
-					
+
 					CheckBattleEnd();
                     break;
                 case ExchangeState.End:
@@ -106,7 +107,7 @@ namespace Assets.Scripts.Controllers
                     ExchangeState = ExchangeState.Teardown;
                     break;
                 case ExchangeState.Teardown:
-                    BackToMainMenu();
+					EndRound();
                     break;
                 case ExchangeState.Paused:
 					if (!_awaitingPlayerInput)
@@ -122,10 +123,18 @@ namespace Assets.Scripts.Controllers
 		//check to see if the battle is over
 		private void CheckBattleEnd()
 		{
-			if (_mainPlayer.Health <= 0 || Players[0].Health <= 0)
+			if (_mainPlayer.Health <= 0)
 			{
 				npc.StopDecisionMaker();
 				ExchangeState = ExchangeState.End;
+				_winner = Players[0];
+			}
+
+			if (Players[0].Health <= 0)
+			{
+				npc.StopDecisionMaker();
+				ExchangeState = ExchangeState.End;
+				_winner = _mainPlayer;
 			}
 		}
 
@@ -157,9 +166,10 @@ namespace Assets.Scripts.Controllers
 		}
 
 		//load main menu
-        private void BackToMainMenu()
+        private void EndRound()
         {
-            SceneManager.LoadScene("MainMenu");
+			mc.Winners[mc.CurrentRound - 1] = (int)_winner.Battlefield;
+			mc.StartMultiplayerExchangeInstance();
         }
 
 		private void BackToMultiplayerMenu()

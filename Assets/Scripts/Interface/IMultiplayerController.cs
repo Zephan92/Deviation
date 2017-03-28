@@ -2,6 +2,11 @@
 {
     public interface IMultiplayerController
     {
-        void StartMultiplayerExchangeInstance();
+		int NumberOfPlayers { get; set; }
+		int CurrentRound { get; set; }
+		int NumberOfRounds { get; set; }
+		int[] Winners { get; set; }
+
+		void StartMultiplayerExchangeInstance();
     }
 }
