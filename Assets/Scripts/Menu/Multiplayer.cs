@@ -19,5 +19,15 @@ namespace Assets.Scripts.Menu
         {
 			mc.StartMultiplayerExchangeInstance();
 		}
-    }
+
+		public void OutputResourceBag()
+		{
+			mc.OutputResourceBag();
+		}
+
+		public void GetResource()
+		{
+			mc.GetResource();
+		}
+	}
 }

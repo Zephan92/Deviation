@@ -8,5 +8,8 @@
 		int[] Winners { get; set; }
 
 		void StartMultiplayerExchangeInstance();
-    }
+		void OutputResourceBag();
+		void GetResource();
+
+	}
 }

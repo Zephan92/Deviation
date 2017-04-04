@@ -1,6 +1,9 @@
 ﻿using Assets.Scripts.Interface;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Assets.Scripts.Client;
+using Assets.Scripts.Interface.DTO;
+using Assets.Scripts.External;
 
 namespace Assets.Scripts.Controllers
 {
@@ -16,16 +19,21 @@ namespace Assets.Scripts.Controllers
 		public int NumberOfRounds { get { return NUMBER_OF_ROUNDS; } set { NUMBER_OF_ROUNDS = value; } }
 		public int[] Winners { get { return WINNERS; } set { WINNERS = value; } }
 
+		private IDeviationClient dc;
+		private ILootPool _pool;
+
 		public void Awake()
 		{
 			CURRENT_ROUND = 0;
 			NUMBER_OF_ROUNDS = 3;
 			WINNERS = new int[NUMBER_OF_ROUNDS];
 			WINNERS.Initialize();
+			dc = FindObjectOfType<DeviationClient>();
+			_pool = new LootPool();
 		}
 
 		//instantiates a new multiplayer instance
-        public void StartMultiplayerExchangeInstance()
+		public void StartMultiplayerExchangeInstance()
         {
 			if (CURRENT_ROUND < NUMBER_OF_ROUNDS)
 			{
@@ -39,9 +47,31 @@ namespace Assets.Scripts.Controllers
 					Debug.Log("Round " + i + " Winner: " + WINNERS[i-1]);
 				}
 
+				AllocateResources();
 				Debug.Log("That's it Folks!");
+				
 				SceneManager.LoadScene("MultiplayerMenu");
 				Destroy(gameObject);
+			}
+		}
+
+		public void GetResource()
+		{
+			AllocateResources();
+		}
+
+		private void AllocateResources()
+		{
+			var loot = _pool.GetLoot();
+			Debug.Log("Adding \"" + loot.Name + "\" to Resource Bag");
+			dc.currentPlayer.ResourceBag.AddResource(loot);
+		}
+
+		public void OutputResourceBag()
+		{
+			foreach (string str in dc.currentPlayer.ResourceBag.ToStringArray())
+			{
+				Debug.Log(str);
 			}
 		}
     }

@@ -78,7 +78,7 @@ namespace Assets.Scripts.Exchange
 			_restoreEnergy += EnergyRate;
 			if (_restoreEnergy > 1)
 			{
-				AddEnergy(1);
+				AddEnergy(10);
 				_restoreEnergy = 0.0f;
 				ExchangeController.UpdateExchangeControlsDisplay();
 			}
