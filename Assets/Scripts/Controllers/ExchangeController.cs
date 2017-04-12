@@ -10,6 +10,7 @@ using UnityEngine.EventSystems;
 using Assets.Scripts.Utilities;
 using Assets.Scripts.Interface.Exchange;
 using Assets.Scripts.Exchange.NPC;
+using System.Collections.Generic;
 
 namespace Assets.Scripts.Controllers
 {
@@ -31,10 +32,10 @@ namespace Assets.Scripts.Controllers
 		private IPlayer _mainPlayer;
 		private GameObject[] _displays;
 		private IPlayer _winner;
+
 		//bools
-		private bool _battleStartDisplayIsEnabled = false;
-		private bool _unpauseDisplayIsEnabled = false;
-		private bool _ExchangeControlsDisplayIsEnabled = false;
+		public Dictionary<string, bool> DisplayEnabled { get; set; }
+
 		private bool _awaitingPlayerInput = false;
 
 		//controllers
@@ -52,7 +53,11 @@ namespace Assets.Scripts.Controllers
 			tm = GetComponent<TimerManager>();
 			mc = FindObjectOfType<MultiplayerController>();
 			_displays = GameObject.FindGameObjectsWithTag("Display");
-
+			DisplayEnabled = new Dictionary<string, bool>();
+			foreach (GameObject go in _displays)
+			{
+				DisplayEnabled.Add(go.name, false);
+			}
 			ExchangeState = ExchangeState.PreBattle;
 		}
 
@@ -69,56 +74,56 @@ namespace Assets.Scripts.Controllers
 		}
 
 		void Update()
-        {
-            switch (ExchangeState)
-            {
-                case ExchangeState.Setup:
-                    ExchangeState = ExchangeState.PreBattle;
-                    break;
-                case ExchangeState.PreBattle:
-                    if (!_awaitingPlayerInput)
-                    {
-                        _awaitingPlayerInput = true;
-                        ToggleDisplay("BattleStart", _battleStartDisplayIsEnabled);
-						SelectButton("BattleStart", "Start");
-						_battleStartDisplayIsEnabled = true;
-					}
-                    break;
-                case ExchangeState.Start:
-					if (!_ExchangeControlsDisplayIsEnabled)
+		{
+			switch (ExchangeState)
+			{
+				case ExchangeState.Setup:
+					ExchangeState = ExchangeState.PreBattle;
+					break;
+				case ExchangeState.PreBattle:
+					if (!_awaitingPlayerInput)
 					{
-						ToggleDisplay("ExchangeControls", _ExchangeControlsDisplayIsEnabled);
-						_ExchangeControlsDisplayIsEnabled = true;
+						_awaitingPlayerInput = true;
+						ToggleDisplay("BattleStart", DisplayEnabled["BattleStart"]);
+						SelectButton("BattleStart", "Start");
+						DisplayEnabled["BattleStart"] = true;
+					}
+					break;
+				case ExchangeState.Start:
+					if (!DisplayEnabled["ExchangeControls"])
+					{
+						ToggleDisplay("ExchangeControls", DisplayEnabled["ExchangeControls"]);
+						DisplayEnabled["ExchangeControls"] = true;
 						UpdateExchangeControlsDisplay();
 						npc.StartDecisionMaker();
 					}
 					ExchangeState = ExchangeState.Battle;
-                    break;
-                case ExchangeState.Battle:
-                    mp.CheckInput();
+					break;
+				case ExchangeState.Battle:
+					mp.CheckInput();
 					tm.UpdateCountdowns();
 
 					CheckBattleEnd();
-                    break;
-                case ExchangeState.End:
-                    ExchangeState = ExchangeState.PostBattle;
-                    break;
-                case ExchangeState.PostBattle:
-                    ExchangeState = ExchangeState.Teardown;
-                    break;
-                case ExchangeState.Teardown:
+					break;
+				case ExchangeState.End:
+					ExchangeState = ExchangeState.PostBattle;
+					break;
+				case ExchangeState.PostBattle:
+					ExchangeState = ExchangeState.Teardown;
+					break;
+				case ExchangeState.Teardown:
 					EndRound();
-                    break;
-                case ExchangeState.Paused:
+					break;
+				case ExchangeState.Paused:
 					if (!_awaitingPlayerInput)
 					{
 						_awaitingPlayerInput = true;
 					}
 					break;
-                default:
-                    break;
-            }
-        }
+				default:
+					break;
+			}
+		}
 
 		//check to see if the battle is over
 		private void CheckBattleEnd()
@@ -145,32 +150,32 @@ namespace Assets.Scripts.Controllers
 		}
 
 		//turn on/off specified display
-        private void ToggleDisplay(string displayName, bool currentDisplayValue)
-        {
+		private void ToggleDisplay(string displayName, bool currentDisplayValue)
+		{
 			toggleVisibility(GetDisplayObject(displayName), !currentDisplayValue);
-        }
+		}
 
 		//turn on/off visibility for a display
-        private void toggleVisibility(GameObject display, bool visibility)
-        {
-            CanvasGroup _canvasGroup = display.GetComponent<CanvasGroup>();
-            if (1f > _canvasGroup.alpha)
-                _canvasGroup.alpha = 1f;
-            else
-                _canvasGroup.alpha = 0f;
+		private void toggleVisibility(GameObject display, bool visibility)
+		{
+			CanvasGroup _canvasGroup = display.GetComponent<CanvasGroup>();
+			if (1f > _canvasGroup.alpha)
+				_canvasGroup.alpha = 1f;
+			else
+				_canvasGroup.alpha = 0f;
 
-            _canvasGroup.blocksRaycasts = _canvasGroup.interactable = visibility;
+			_canvasGroup.blocksRaycasts = _canvasGroup.interactable = visibility;
 
-            foreach (Renderer childRenderer in display.GetComponentsInChildren<Renderer>())
-                childRenderer.enabled = visibility;
+			foreach (Renderer childRenderer in display.GetComponentsInChildren<Renderer>())
+				childRenderer.enabled = visibility;
 		}
 
 		//load main menu
-        private void EndRound()
-        {
+		private void EndRound()
+		{
 			mc.Winners[mc.CurrentRound - 1] = (int)_winner.Battlefield;
 			mc.StartMultiplayerExchangeInstance();
-        }
+		}
 
 		private void BackToMultiplayerMenu()
 		{
@@ -237,19 +242,19 @@ namespace Assets.Scripts.Controllers
 
 		//changes the state to start
 		public void ChangeStateToStart()
-        {
-            ToggleDisplay("BattleStart", _battleStartDisplayIsEnabled);
+		{
+			ToggleDisplay("BattleStart", DisplayEnabled["BattleStart"]);
 			ExchangeState = ExchangeState.Start;
-            _awaitingPlayerInput = false;
-        }
+			_awaitingPlayerInput = false;
+		}
 
 		//changes the state to Pause
 		public void ChangeStateToPause()
 		{
 			ExchangeState = ExchangeState.Paused;
 			npc.PauseDecisionMaker();
-			ToggleDisplay("Unpause", _unpauseDisplayIsEnabled);
-			_unpauseDisplayIsEnabled = true;
+			ToggleDisplay("Unpause", DisplayEnabled["Unpause"]);
+			DisplayEnabled["Unpause"] = true;
 			SelectButton("Unpause", "Unpause");
 			_awaitingPlayerInput = true;
 		}
@@ -258,8 +263,8 @@ namespace Assets.Scripts.Controllers
 		public void Unpause()
 		{
 			npc.UnpauseDecisionMaker();
-			ToggleDisplay("Unpause", _unpauseDisplayIsEnabled);
-			_unpauseDisplayIsEnabled = false;
+			ToggleDisplay("Unpause", DisplayEnabled["Unpause"]);
+			DisplayEnabled["Unpause"] = false;
 			ExchangeState = ExchangeState.Battle;
 		}
 

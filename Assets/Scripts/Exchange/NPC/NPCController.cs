@@ -88,9 +88,9 @@ namespace Assets.Scripts.Exchange.NPC
 			Decision decision = Decision.Move;
 			if (State.DecisionReady(decision))
 			{
-				int range = Random.Range(-500, 500);
+				int range = Random.Range(-550, 550);
 				bool success = false;
-				if (range >= 300)
+				if (range >= 300 && range < 500)
 				{
 					success = NPCPlayers[0].MoveObject(Direction.Down, 1);
 				}
@@ -102,9 +102,13 @@ namespace Assets.Scripts.Exchange.NPC
 				{
 					success = NPCPlayers[0].MoveObject(Direction.Left, 1);
 				}
-				else if (range < -200)
+				else if (range < -200 && range > -400)
 				{
 					success = NPCPlayers[0].MoveObject(Direction.Right, 1);
+				}
+				else
+				{
+					success = true;
 				}
 
 				if (success)

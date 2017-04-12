@@ -20,9 +20,11 @@ namespace Assets.Scripts.Exchange
 		public int Health { get; set; }
 		public int MinHealth { get; set; }
 		public int MaxHealth { get; set; }
+		public float HealthPercentage { get { return  Health / (float) MaxHealth; } }
 		public int Energy { get; set; }
 		public int MinEnergy { get; set; }
 		public int MaxEnergy { get; set; }
+		public float EnergyPercentage { get { return  Energy / (float) MaxEnergy; } }
 		public float EnergyRate { get; set; }
 		public IPlayer[] Enemies { get; set; }
 		public IBattlefieldController BattlefieldController { get; set; }
@@ -189,7 +191,7 @@ namespace Assets.Scripts.Exchange
 
 			if (CheckIsNPC(Enemies[0]))
 			{
-				AddDecision(Enemies[0], Decision.Move, 35);
+				AddDecision(Enemies[0], Decision.Move, 20);
 				AddDecision(Enemies[0], Decision.Action, 5);
 			}
 			return success;

@@ -2,8 +2,12 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Assets.Scripts.Client;
+using System.Collections;
+using UnityEngine.Networking;
 using Assets.Scripts.Interface.DTO;
-using Assets.Scripts.External;
+using Assets.Scripts.Library;
+using Deviation.Data.Resource;
+using System;
 
 namespace Assets.Scripts.Controllers
 {
@@ -20,7 +24,6 @@ namespace Assets.Scripts.Controllers
 		public int[] Winners { get { return WINNERS; } set { WINNERS = value; } }
 
 		private IDeviationClient dc;
-		private ILootPool _pool;
 
 		public void Awake()
 		{
@@ -29,7 +32,6 @@ namespace Assets.Scripts.Controllers
 			WINNERS = new int[NUMBER_OF_ROUNDS];
 			WINNERS.Initialize();
 			dc = FindObjectOfType<DeviationClient>();
-			_pool = new LootPool();
 		}
 
 		//instantiates a new multiplayer instance
@@ -47,7 +49,7 @@ namespace Assets.Scripts.Controllers
 					Debug.Log("Round " + i + " Winner: " + WINNERS[i-1]);
 				}
 
-				AllocateResources();
+				GetResource();
 				Debug.Log("That's it Folks!");
 				
 				SceneManager.LoadScene("MultiplayerMenu");
@@ -57,14 +59,12 @@ namespace Assets.Scripts.Controllers
 
 		public void GetResource()
 		{
-			AllocateResources();
+			StartCoroutine(AllocateResourcesCoroutine());
 		}
 
-		private void AllocateResources()
+		public void GetLootPool()
 		{
-			var loot = _pool.GetLoot();
-			Debug.Log("Adding \"" + loot.Name + "\" to Resource Bag");
-			dc.currentPlayer.ResourceBag.AddResource(loot);
+			StartCoroutine(GetLootPoolFromServer());
 		}
 
 		public void OutputResourceBag()
@@ -74,5 +74,41 @@ namespace Assets.Scripts.Controllers
 				Debug.Log(str);
 			}
 		}
-    }
+
+		private IEnumerator AllocateResourcesCoroutine()
+		{
+			UnityWebRequest getreq = UnityWebRequest.Get("http://localhost:50012/api/lootpool/getloot");
+			yield return getreq.Send();
+
+			if (getreq.isError)
+			{
+				Debug.Log("Error: " + getreq.error);
+			}
+			else
+			{
+				//Debug.Log("Received " + getreq.downloadHandler.text);
+				string lootName = getreq.downloadHandler.text.Replace("\"", "");
+				IResource loot = ResourceLibrary.GetResourceInstance(lootName);
+				dc.currentPlayer.ResourceBag.AddResource(loot);
+				Debug.Log("Adding \"" + lootName + "\" to Resource Bag");
+			}
+		}
+
+		private IEnumerator GetLootPoolFromServer()
+		{
+			UnityWebRequest getreq = UnityWebRequest.Get("http://localhost:50012/api/lootpool/getlootpool");
+			yield return getreq.Send();
+
+			if (getreq.isError)
+			{
+				Debug.Log("Error: " + getreq.error);
+			}
+			else
+			{
+				//Debug.Log("Received " + getreq.downloadHandler.text);
+				string lootpool = getreq.downloadHandler.text;
+				Debug.Log(lootpool);
+			}
+		}
+	}
 }

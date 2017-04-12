@@ -29,5 +29,10 @@ namespace Assets.Scripts.Menu
 		{
 			mc.GetResource();
 		}
+
+		public void GetLootPool()
+		{
+			mc.GetLootPool();
+		}
 	}
 }

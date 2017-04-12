@@ -11,5 +11,7 @@
 		void OutputResourceBag();
 		void GetResource();
 
+		void GetLootPool();
+
 	}
 }

@@ -1,4 +1,6 @@
-﻿namespace Assets.Scripts.Interface
+﻿using Deviation.Data.PlayerAccount;
+
+namespace Assets.Scripts.Interface
 {
 	public interface IDeviationClient
 	{
