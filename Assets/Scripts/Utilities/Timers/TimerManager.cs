@@ -122,5 +122,16 @@ namespace Assets.Scripts.Utilities
 				timer.UpdateCountdown(Time.deltaTime);
 			}
 		}
+
+		public float GetTimerCooldownLength(string TimerName, int playerNumber = -1)
+		{
+			if (_timerLibary.ContainsKey(TimerName + playerNumber))
+				return _timerLibary[TimerName + playerNumber].GetCooldown();
+			else
+				Debug.LogError("Timer - " + TimerName + playerNumber + ": Does not exist.");
+
+			return 0;
+		}
+
 	}
 }

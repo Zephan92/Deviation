@@ -84,5 +84,10 @@ namespace Assets.Scripts.Utilities.Timers
 		{
 			_timerPaused = false;
 		}
+
+		public float GetCooldown()
+		{
+			return _cooldown;
+		}
 	}
 }

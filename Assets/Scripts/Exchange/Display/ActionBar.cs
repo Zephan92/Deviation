@@ -53,7 +53,8 @@ namespace Assets.Scripts.Exchange.Display
 					Color color = Color.white;
 					color.a = 0.8f;
 					GUI.color = color;
-					GUI.DrawTexture(new Rect(new Vector2(actionOffset, 0), new Vector2(details.Size.x * 0.25f, details.Size.y) - new Vector2(1, 1)), details.CooldownTexture);
+					float cooldownPercentage = details.TimerManager.GetRemainingCooldown(details.DisplayLabel[i], 0) / details.TimerManager.GetTimerCooldownLength(details.DisplayLabel[i], 0);
+					GUI.DrawTexture(new Rect(new Vector2(actionOffset, 0), new Vector2(details.Size.x * 0.25f * cooldownPercentage, details.Size.y) - new Vector2(1, 1)), details.CooldownTexture);
 					GUI.color = Color.white;
 					var fontStyle = new GUIStyle();
 					fontStyle.alignment = TextAnchor.MiddleCenter;

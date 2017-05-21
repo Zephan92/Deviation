@@ -14,5 +14,6 @@
 		void UnpauseTimers();
 		void RestartTimer(string TimerName, int playerNumber = -1);
 		void UpdateCountdowns();
+		float GetTimerCooldownLength(string TimerName, int playerNumber = -1);
 	}
 }

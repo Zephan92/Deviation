@@ -10,5 +10,6 @@
 		void PauseCooldown();
 		void UnpauseCooldown();
 		void RestartCooldown();
+		float GetCooldown();
 	}
 }
