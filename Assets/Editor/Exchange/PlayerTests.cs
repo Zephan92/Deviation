@@ -64,7 +64,7 @@ namespace Assets.Editor.Exchange
 			_action.Attack.Returns(_attack);
 
 			_module = Substitute.For<IModule>();
-			_module.GetCurrentAction().Returns(_action);
+			_module.Actions[0].Returns(_action);
 
 			_kit = Substitute.For<IKit>();
 			_kit.GetCurrentModule().Returns(_module);
@@ -252,9 +252,9 @@ namespace Assets.Editor.Exchange
 		[Test]
 		public void TestPrimaryAction()
 		{
-			int energyRecoil = (int)(_sut.CurrentAction.Attack.EnergyRecoilModifier * _sut.CurrentAction.Attack.BaseDamage);
+			int energyRecoil = (int)(_sut.Actions[0].Attack.EnergyRecoilModifier * _sut.Actions[0].Attack.BaseDamage);
 
-			_sut.PrimaryAction();
+			_sut.DoAction(0);
 
 			_action.Received().InitiateAttack(_battlefieldController);
 			Assert.LessOrEqual(_sut.MaxEnergy,_sut.Energy);
@@ -265,7 +265,7 @@ namespace Assets.Editor.Exchange
 		{
 			_sut.SetEnergy(_sut.MinEnergy);
 
-			_sut.PrimaryAction();
+			_sut.DoAction(0);
 
 			_action.DidNotReceive().InitiateAttack(_battlefieldController);
 			Assert.AreEqual(_sut.MinEnergy, _sut.Energy);
@@ -277,7 +277,7 @@ namespace Assets.Editor.Exchange
 		{
 			_timerManager.TimerUp(_action.Name).Returns(false);
 
-			_sut.PrimaryAction();
+			_sut.DoAction(0);
 
 			_action.DidNotReceive().InitiateAttack(_battlefieldController);
 			Assert.AreEqual(_sut.MaxEnergy, _sut.Energy);
@@ -287,10 +287,10 @@ namespace Assets.Editor.Exchange
 		public void TestPrimaryAction_TimerReady()
 		{
 			_timerManager.StartTimer("default");
-			_sut.PrimaryAction();
+			_sut.DoAction(0);
 			_timerManager.StopTimer("default");
 
-			_sut.PrimaryAction();
+			_sut.DoAction(0);
 
 			_action.Received().InitiateAttack(_battlefieldController);
 			Assert.LessOrEqual(_sut.MaxEnergy, _sut.Energy);
@@ -303,64 +303,5 @@ namespace Assets.Editor.Exchange
 			_sut.PrimaryModule();
 			//does nothing right now
 		}
-
-		[Test]
-		public void TestCycleActionLeft()
-		{
-			IExchangeAction action = _sut.CurrentAction.GetLeftAction();
-
-			_sut.CycleActionLeft();
-
-			_module.Received().CycleActionLeft();
-			Assert.AreEqual(action.Name, _sut.CurrentAction.Name);
-		}
-
-		[Test]
-		public void TestCycleActionRight()
-		{
-			IExchangeAction action = _sut.CurrentAction.GetRightAction();
-
-			_sut.CycleActionRight();
-
-			_module.Received().CycleActionRight();
-			Assert.AreEqual(action.Name, _sut.CurrentAction.Name);
-		}
-
-		[Test]
-		public void TestCycleModuleLeft()
-		{
-			IModule action = _sut.CurrentModule.GetLeftModule();
-
-			_sut.CycleModuleLeft();
-
-			_kit.Received().CycleModuleLeft();
-			Assert.AreEqual(action.Name, _sut.CurrentModule.Name);
-		}
-
-		[Test]
-		public void TestCycleModuleRight()
-		{
-			IModule module = _sut.CurrentModule.GetRightModule();
-
-			_sut.CycleModuleRight();
-
-			_kit.Received().CycleModuleRight();
-			Assert.AreEqual(module.Name, _sut.CurrentModule.Name);
-		}
-
-		[Test]
-		public void TestCycleBattlefieldCC()
-		{
-			_sut.CycleBattlefieldCW();
-			//does nothing right now
-		}
-
-		[Test]
-		public void TestCycleBattlefieldCW()
-		{
-			_sut.CycleBattlefieldCW();
-			//does nothing right now
-		}
-
 	}
 }

@@ -8,7 +8,6 @@ using UnityEngine;
 
 namespace Assets.Scripts.Exchange.NPC
 {
-
 	public class NPCController : MonoBehaviour, INPCController
 	{
 		public IPlayer[] NPCPlayers { get; set; }
@@ -54,9 +53,6 @@ namespace Assets.Scripts.Exchange.NPC
 		{
 			ActionDecision();
 			MoveDecision();
-			ModuleDecision();
-			CycleModuleDecision();
-			CycleActionDecision();
 
 			if (NPCPlayers[0].MaxHealth / 3 > NPCPlayers[0].Health)
 			{
@@ -122,129 +118,16 @@ namespace Assets.Scripts.Exchange.NPC
 			}
 		}
 
-		private void ModuleDecision()
-		{
-			Decision decision = Decision.Module;
-			if (State.DecisionReady(decision))
-			{
-				bool success = PrimaryModule(NPCPlayers[0]);
-				if (success)
-				{
-					State.ResetDecision(decision);
-					State.DecisionAdd(Decision.CycleModule, Random.Range(15, 26));
-				}
-			}
-			else
-			{
-				State.DecisionAdd(decision, Random.Range(0, 3));
-			}
-		}
-
-		private void CycleModuleDecision()
-		{
-			Decision decision = Decision.CycleModule;
-			if (State.DecisionReady(decision))
-			{
-				int Cycle = Random.Range(-500, 500);
-				if (Cycle > 0)
-				{
-					CycleModuleRight(NPCPlayers[0]);
-				}
-				else
-				{
-					CycleModuleLeft(NPCPlayers[0]);
-				}
-				State.ResetDecision(decision);
-			}
-			else
-			{
-				State.DecisionAdd(decision, Random.Range(0, 3));
-			}
-		}
-
-		private void CycleActionDecision()
-		{
-			Decision decision = Decision.CycleAction;
-
-			if (State.DecisionReady(decision))
-			{
-				int Cycle = Random.Range(-500, 500);
-				if (Cycle > 0)
-				{
-					CycleActionRight(NPCPlayers[0]);
-				}
-				else
-				{
-					CycleActionLeft(NPCPlayers[0]);
-				}
-
-				State.ResetDecision(decision);
-			}
-			else
-			{
-				State.DecisionAdd(decision, Random.Range(8, 12));
-			}
-		}
-
-		//cycle battlefield counter clockwise
-		private void CycleBattlefieldCC(IPlayer npcPlayer)
-		{
-			npcPlayer.CycleBattlefieldCC();
-		}
-
-		//cycle battlefield clockwise
-		private void CycleBattlefieldCW(IPlayer npcPlayer)
-		{
-			npcPlayer.CycleBattlefieldCW();
-		}
-
 		//primary action
 		private bool PrimaryAction(IPlayer npcPlayer)
 		{
-			bool success = npcPlayer.PrimaryAction();
+			var actionNum = Random.Range(0, 4);
+			bool success = npcPlayer.DoAction(actionNum);
 			if (success)
 			{
-				ExchangeController.UpdateExchangeControlsDisplay();
 			}
 
 			return success;
-		}
-
-		//primary module
-		private bool PrimaryModule(IPlayer npcPlayer)
-		{
-			bool success = npcPlayer.PrimaryModule();
-
-			if (success)
-			{
-				ExchangeController.UpdateExchangeControlsDisplay();
-			}
-
-			return success;
-		}
-
-		//cycle action left
-		private void CycleActionLeft(IPlayer npcPlayer)
-		{
-			npcPlayer.CurrentModule.CycleActionLeft();
-		}
-
-		//cycle action right
-		private void CycleActionRight(IPlayer npcPlayer)
-		{
-			npcPlayer.CurrentModule.CycleActionRight();
-		}
-
-		//cycle module left
-		private void CycleModuleLeft(IPlayer npcPlayer)
-		{
-			npcPlayer.EquipedKit.CycleModuleLeft();
-		}
-
-		//cycle module right
-		private void CycleModuleRight(IPlayer npcPlayer)
-		{
-			npcPlayer.EquipedKit.CycleModuleRight();
 		}
 
 		private void FindNPCs()

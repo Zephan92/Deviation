@@ -7,12 +7,10 @@ namespace Assets.Scripts.Interface
 {
 	public interface IInput
 	{
-		bool IsCycleActionLeftPressed();
-		bool IsActionPressed();
-		bool IsCycleActionRightPressed();
-		bool IsCycleModuleLeftPressed();
-		bool IsModulePressed();
-		bool IsCycleModuleRightPressed();
+		bool IsAction_Q_Pressed();
+		bool IsAction_W_Pressed();
+		bool IsAction_E_Pressed();
+		bool IsAction_R_Pressed();
 		bool IsPausePressed();
 		bool IsUpPressed();
 		bool IsDownPressed();

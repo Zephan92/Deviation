@@ -7,14 +7,11 @@ namespace Assets.Scripts.Interface.DTO
 	{
 		string Name { get; set; }
 		IAttack Attack { get; set; }
-		Color ActionTexture { get; set; }
+		Texture2D ActionTexture { get; set; }
 		float Cooldown { get; set; }
 		IModule ParentModule { get; set; }
 		string PrimaryActionName { get; set; }
 
 		void InitiateAttack(IBattlefieldController bc);
-
-		IExchangeAction GetRightAction();
-		IExchangeAction GetLeftAction();	
 	}
 }

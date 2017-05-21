@@ -11,20 +11,9 @@ namespace Assets.Scripts.Interface.DTO
 	{
 		string Name { get; set; }
 		ModuleType Type { get; set; }
-		Color ModuleTexture { get; set; }
+		Texture2D ModuleTexture { get; set; }
+		IExchangeAction[] Actions { get;  set;}
 		string[] ActionNames { get; set; }
-		int ActionCount { get; set; }
-		int MaxActions { get; set; }
 		IKit ParentKit { get; set; }
-		
-		IModule GetRightModule();
-		IModule GetLeftModule();
-
-		IExchangeAction GetCurrentAction();
-		IExchangeAction GetLeftAction();
-		IExchangeAction GetRightAction();
-
-		void CycleActionLeft();
-		void CycleActionRight();
 	}
 }

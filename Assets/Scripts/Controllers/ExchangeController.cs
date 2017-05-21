@@ -52,18 +52,17 @@ namespace Assets.Scripts.Controllers
 			mp = FindObjectOfType<MainPlayerController>();
 			tm = GetComponent<TimerManager>();
 			mc = FindObjectOfType<MultiplayerController>();
+			Players = FindObjectsOfType<Player>();
+
 			_displays = GameObject.FindGameObjectsWithTag("Display");
 			DisplayEnabled = new Dictionary<string, bool>();
 			foreach (GameObject go in _displays)
 			{
 				DisplayEnabled.Add(go.name, false);
 			}
-			ExchangeState = ExchangeState.PreBattle;
-		}
 
-		public void Start()
-		{
-			Players = FindObjectsOfType<Player>();
+			tm.AddAttackTimer("ExchangeTimer", 60);
+
 			foreach (IPlayer player in Players)
 			{
 				if (player.IsMainPlayer)
@@ -71,6 +70,8 @@ namespace Assets.Scripts.Controllers
 					_mainPlayer = player;
 				}
 			}
+
+			ExchangeState = ExchangeState.PreBattle;
 		}
 
 		void Update()
@@ -85,8 +86,8 @@ namespace Assets.Scripts.Controllers
 					{
 						_awaitingPlayerInput = true;
 						ToggleDisplay("BattleStart", DisplayEnabled["BattleStart"]);
-						SelectButton("BattleStart", "Start");
 						DisplayEnabled["BattleStart"] = true;
+						tm.RestartTimer("ExchangeTimer");
 					}
 					break;
 				case ExchangeState.Start:
@@ -94,7 +95,6 @@ namespace Assets.Scripts.Controllers
 					{
 						ToggleDisplay("ExchangeControls", DisplayEnabled["ExchangeControls"]);
 						DisplayEnabled["ExchangeControls"] = true;
-						UpdateExchangeControlsDisplay();
 						npc.StartDecisionMaker();
 					}
 					ExchangeState = ExchangeState.Battle;
@@ -128,6 +128,24 @@ namespace Assets.Scripts.Controllers
 		//check to see if the battle is over
 		private void CheckBattleEnd()
 		{
+			if (tm.GetRemainingCooldown("ExchangeTimer") <= 0)
+			{
+				npc.StopDecisionMaker();
+				ExchangeState = ExchangeState.End;
+				if (_mainPlayer.Health > Players[0].Health)
+				{
+					_winner = _mainPlayer;
+				}
+				else if (_mainPlayer.Health < Players[0].Health)
+				{
+					_winner = Players[0];
+				}
+				else
+				{
+					Debug.Log("Yikes its a draw and I have no idea who to choose");
+				}
+			}
+
 			if (_mainPlayer.Health <= 0)
 			{
 				npc.StopDecisionMaker();
@@ -141,12 +159,6 @@ namespace Assets.Scripts.Controllers
 				ExchangeState = ExchangeState.End;
 				_winner = _mainPlayer;
 			}
-		}
-
-		//select a button on the display
-		private void SelectButton(string UIGroupName, string buttonName)
-		{
-			GetButtonFromUIGroup(GetDisplayObject(UIGroupName), buttonName).GetComponent<Selectable>().Select();
 		}
 
 		//turn on/off specified display
@@ -182,7 +194,6 @@ namespace Assets.Scripts.Controllers
 			SceneManager.LoadScene("MultiplayerMenu");
 		}
 
-		//returns the specified display
 		private GameObject GetDisplayObject(string displayName)
 		{
 			foreach (GameObject display in _displays)
@@ -193,51 +204,6 @@ namespace Assets.Scripts.Controllers
 				}
 			}
 			return null;
-		}
-
-		//returns the specified button
-		private Button GetButtonFromUIGroup(GameObject UIGroup, string buttonName)
-		{
-			foreach (Button button in UIGroup.GetComponentsInChildren<Button>())
-			{
-				if (button.name.Equals(buttonName))
-				{
-					return button;
-				}
-			}
-			return null;
-		}
-
-		//returns the specified text
-		private Text GetTextFromPanelUIGroup(GameObject UIGroup, string panelName)
-		{
-			foreach (Text text in UIGroup.GetComponentsInChildren<Text>())
-			{
-				if (text.name.Equals(panelName))
-				{
-					return text;
-				}
-			}
-			return null;
-		}
-
-		//click on the specified button
-		public void ClickOnButton(string groupUIName, string buttonName)
-		{
-			GameObject ExchangeControlsUIGroup = GetDisplayObject(groupUIName);
-			Button button = GetButtonFromUIGroup(ExchangeControlsUIGroup, buttonName);
-			PointerEventData pointer = new PointerEventData(EventSystem.current);
-			ExecuteEvents.Execute(button.gameObject, pointer, ExecuteEvents.pointerEnterHandler);
-			ExecuteEvents.Execute(button.gameObject, pointer, ExecuteEvents.pointerDownHandler);
-			StartCoroutine(UnClickPointerCoroutine(button, pointer));
-		}
-
-		//coroutine to unclick point on button
-		private IEnumerator UnClickPointerCoroutine(Button button, PointerEventData pointer)
-		{
-			yield return new WaitForSeconds(0.1f);
-			ExecuteEvents.Execute(button.gameObject, pointer, ExecuteEvents.pointerUpHandler);
-			ExecuteEvents.Execute(button.gameObject, pointer, ExecuteEvents.pointerExitHandler);
 		}
 
 		//changes the state to start
@@ -251,12 +217,11 @@ namespace Assets.Scripts.Controllers
 		//changes the state to Pause
 		public void ChangeStateToPause()
 		{
-			ExchangeState = ExchangeState.Paused;
-			npc.PauseDecisionMaker();
-			ToggleDisplay("Unpause", DisplayEnabled["Unpause"]);
-			DisplayEnabled["Unpause"] = true;
-			SelectButton("Unpause", "Unpause");
-			_awaitingPlayerInput = true;
+			//ExchangeState = ExchangeState.Paused;
+			//npc.PauseDecisionMaker();
+			//ToggleDisplay("Unpause", DisplayEnabled["Unpause"]);
+			//DisplayEnabled["Unpause"] = true;
+			//_awaitingPlayerInput = true;
 		}
 
 		//changes the state to Pause
@@ -266,96 +231,6 @@ namespace Assets.Scripts.Controllers
 			ToggleDisplay("Unpause", DisplayEnabled["Unpause"]);
 			DisplayEnabled["Unpause"] = false;
 			ExchangeState = ExchangeState.Battle;
-		}
-
-		//updates the exchange controls to the latest
-		public void UpdateExchangeControlsDisplay()
-		{
-			var ExchangeControls = GetDisplayObject("ExchangeControls");
-			var button = GetButtonFromUIGroup(ExchangeControls, "CurrentModule");
-			UpdateButtonColor(button, _mainPlayer.CurrentModule.ModuleTexture);
-			UpdateButtonText(button, _mainPlayer.CurrentModule.Name);
-
-			button = GetButtonFromUIGroup(ExchangeControls, "NextModule");
-			UpdateButtonColor(button, _mainPlayer.CurrentModule.GetRightModule().ModuleTexture);
-			UpdateButtonText(button, _mainPlayer.CurrentModule.GetRightModule().Name);
-
-			button = GetButtonFromUIGroup(ExchangeControls, "PreviousModule");
-			UpdateButtonColor(button, _mainPlayer.CurrentModule.GetLeftModule().ModuleTexture);
-			UpdateButtonText(button, "");
-
-			button = GetButtonFromUIGroup(ExchangeControls, "CurrentAction");
-			UpdateButtonColor(button, _mainPlayer.CurrentModule.GetCurrentAction().ActionTexture);
-			UpdateButtonText(button, _mainPlayer.CurrentModule.GetCurrentAction().Name + ": " +
-				(int) (-1 * _mainPlayer.CurrentModule.GetCurrentAction().Attack.EnergyRecoilModifier 
-				* _mainPlayer.CurrentModule.GetCurrentAction().Attack.BaseDamage));
-
-			button = GetButtonFromUIGroup(ExchangeControls, "NextAction");
-			UpdateButtonColor(button, _mainPlayer.CurrentModule.GetRightAction().ActionTexture);
-			UpdateButtonText(button, _mainPlayer.CurrentModule.GetRightAction().Name);
-
-			button = GetButtonFromUIGroup(ExchangeControls, "PreviousAction");
-			UpdateButtonColor(button, _mainPlayer.CurrentModule.GetLeftAction().ActionTexture);
-			UpdateButtonText(button, "");
-
-			var text = GetTextFromPanelUIGroup(ExchangeControls, "HealthText");
-			text.text = _mainPlayer.Health.ToString();
-
-			text = GetTextFromPanelUIGroup(ExchangeControls, "EnergyText");
-			text.text = _mainPlayer.Energy.ToString();
-
-			text = GetTextFromPanelUIGroup(ExchangeControls, "Enemy1EnergyText");
-			text.text = Players[0].Energy.ToString();
-
-			text = GetTextFromPanelUIGroup(ExchangeControls, "Enemy1HealthText");
-			text.text = Players[0].Health.ToString();
-		}
-
-		//updates the button color
-		private void UpdateButtonColor(Button button, Color color)
-		{
-			
-			if(button != null && color != null)
-			{
-				ColorBlock cb = button.colors;
-				cb.normalColor = color;
-				button.colors = cb;
-			}
-			else
-			{
-				if (button == null)
-				{
-					Debug.Log("Failed to update button color: Missing button");
-				}
-				else
-				{
-					Debug.Log("Failed to update button color: Missing color for Button: " +  button.name);
-				}
-
-			}
-		}
-
-		//updates the button text
-		private void UpdateButtonText(Button button, String name)
-		{
-
-			if (button != null && ( name != null || name.Equals("")) )
-			{
-				var text = button.gameObject.GetComponentInChildren<Text>();
-				text.text = name;
-			}
-			else
-			{
-				if (button == null)
-				{
-					Debug.Log("Failed to update button text: Missing button");
-				}
-				else
-				{
-					Debug.Log("Failed to update button text: Missing name for Button: " + button.name);
-				}
-
-			}
 		}
 	}
 }

@@ -15,7 +15,7 @@ namespace Assets.Scripts.DTO.Exchange
 		public IAttack Attack { get; set; }
 
 		//This is used the ui texture for the action in the 
-		public Color ActionTexture { get; set; }
+		public Texture2D ActionTexture { get; set; }
 
 		//This is how long after an action is used before it can be used again
 		public float Cooldown { get; set; }
@@ -27,7 +27,7 @@ namespace Assets.Scripts.DTO.Exchange
 		//this is the primary action method run when this action is used
 		public System.Action<IBattlefieldController, IAttack, IPlayer> PrimaryAction;
 
-		public ExchangeAction(string name, IAttack attack, Color actionTexture, string primaryActionName, float cooldown)
+		public ExchangeAction(string name, IAttack attack, Texture2D actionTexture, string primaryActionName, float cooldown)
 		{
 			Name = name;
 			Attack = attack;
@@ -52,16 +52,6 @@ namespace Assets.Scripts.DTO.Exchange
 		public void InitiateAttack(IBattlefieldController bc)
 		{
 			PrimaryAction(bc, Attack, ParentModule.ParentKit.Player);
-		}
-
-		public IExchangeAction GetRightAction()
-		{
-			return ParentModule.GetRightAction();
-		}
-
-		public IExchangeAction GetLeftAction()
-		{
-			return ParentModule.GetLeftAction();
 		}
 	}
 }

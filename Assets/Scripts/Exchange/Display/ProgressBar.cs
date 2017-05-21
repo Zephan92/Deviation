@@ -1,16 +1,10 @@
-﻿using Assets.Scripts.Controllers;
-using Assets.Scripts.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Assets.Scripts.Exchange
+namespace Assets.Scripts.Exchange.Display
 {
 	public interface IProgressBar
 	{
-		void DrawProgressBar(ProgressBarDetails details, float barDisplay, string displayLabel = "");
+		void DrawProgressBar(Vector3 playerPos, ProgressBarDetails details, float barDisplay, string displayLabel = "");
 	}
 
 	public struct ProgressBarDetails
@@ -34,9 +28,11 @@ namespace Assets.Scripts.Exchange
 
 	public class ProgressBar : IProgressBar
 	{
-		public void DrawProgressBar(ProgressBarDetails details, float barDisplay, string displayLabel = "")
+		public void DrawProgressBar(Vector3 playerPos, ProgressBarDetails details, float barDisplay, string displayLabel = "")
 		{
-			GUI.BeginGroup(new Rect(details.Position, details.Size));
+			Vector2 targetPos = Camera.main.WorldToScreenPoint(playerPos);
+
+			GUI.BeginGroup(new Rect(new Vector2(targetPos.x - details.Position.x, Screen.height - targetPos.y - details.Position.y), details.Size));
 				GUI.DrawTexture(new Rect(Vector2.zero, details.Size), details.OutlineTexture);
 				GUI.DrawTexture(new Rect(Vector2.zero, details.Size - new Vector2(1,1)), details.EmptyTexture);
 
@@ -48,5 +44,6 @@ namespace Assets.Scripts.Exchange
 				GUI.Label(new Rect(Vector2.zero, details.Size - new Vector2(1, 1)),displayLabel, style);
 			GUI.EndGroup();
 		} 
+
 	}
 }

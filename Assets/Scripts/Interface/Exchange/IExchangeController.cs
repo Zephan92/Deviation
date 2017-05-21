@@ -13,8 +13,6 @@ namespace Assets.Scripts.Interface
 		IPlayer[] Players { get; set; }
 		ExchangeState ExchangeState { get; set; }
 		Dictionary<string, bool> DisplayEnabled { get; set; }
-		void UpdateExchangeControlsDisplay();
-		void ClickOnButton(string groupUIName, string buttonName);
 		void ChangeStateToStart();
 		void ChangeStateToPause();
 		void Unpause();

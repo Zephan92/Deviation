@@ -60,7 +60,6 @@ namespace Assets.Scripts.Exchange
 				Player player = other.gameObject.GetComponent<Player>();
 				Attack.SetDefender(player);
 				Attack.InitiateDrain();
-				ec.UpdateExchangeControlsDisplay();
 				if (player.CurrentColumn == -2)
 				{
 					player.MoveObject(Direction.Right, 2, true);

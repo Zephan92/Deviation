@@ -14,36 +14,36 @@ namespace Assets.Scripts.Utilities
 		private Dictionary<string, IUnityTimer> _timerLibary = new Dictionary<string, IUnityTimer>();
 
 		//instantiates a new Attack timer and adds it to the timer library
-		public void AddAttackTimer(string TimerName, float Cooldown)
+		public void AddAttackTimer(string TimerName, float Cooldown, int playerNumber = -1)
 		{
-			if (!_timerLibary.ContainsKey(TimerName))
-				_timerLibary.Add(TimerName, new ActionTimer(Cooldown));
+			if (!_timerLibary.ContainsKey(TimerName + playerNumber))
+				_timerLibary.Add(TimerName + playerNumber, new ActionTimer(Cooldown));
 		}
 
 		//checks to see if specified timer is up
-		public bool TimerUp(string TimerName)
+		public bool TimerUp(string TimerName, int playerNumber = -1)
 		{
-			if (_timerLibary.ContainsKey(TimerName))
-				return _timerLibary[TimerName].TimerUp();
+			if (_timerLibary.ContainsKey(TimerName + playerNumber))
+				return _timerLibary[TimerName + playerNumber].TimerUp();
 			else
-				throw new Exception("Timer - " + TimerName + ": Does not exist.");
+				throw new Exception("Timer - " + TimerName + playerNumber + ": Does not exist.");
 		}
 
 		//returns remaining time on a specified timer
-		public float GetRemainingCooldown(string TimerName)
+		public float GetRemainingCooldown(string TimerName, int playerNumber = -1)
 		{
-			if (_timerLibary.ContainsKey(TimerName))
-				return _timerLibary[TimerName].GetRemainingCountdown();
+			if (_timerLibary.ContainsKey(TimerName + playerNumber))
+				return _timerLibary[TimerName + playerNumber].GetRemainingCountdown();
 			else
-				throw new Exception("Timer - " + TimerName + ": Does not exist.");
+				throw new Exception("Timer - " + TimerName + playerNumber + ": Does not exist.");
 		}
 
-		public void StopTimer(string TimerName)
+		public void StopTimer(string TimerName, int playerNumber = -1)
 		{
-			if (_timerLibary.ContainsKey(TimerName))
-				_timerLibary[TimerName].StopCooldown();
+			if (_timerLibary.ContainsKey(TimerName + playerNumber))
+				_timerLibary[TimerName + playerNumber].StopCooldown();
 			else
-				Debug.LogError("Timer - " + TimerName + ": Does not exist.");
+				Debug.LogError("Timer - " + TimerName + playerNumber + ": Does not exist.");
 		}
 
 		public void StopTimers()
@@ -54,12 +54,12 @@ namespace Assets.Scripts.Utilities
 			}
 		}
 
-		public void PauseTimer(string TimerName)
+		public void PauseTimer(string TimerName, int playerNumber = -1)
 		{
-			if (_timerLibary.ContainsKey(TimerName))
-				_timerLibary[TimerName].PauseCooldown();
+			if (_timerLibary.ContainsKey(TimerName + playerNumber))
+				_timerLibary[TimerName + playerNumber].PauseCooldown();
 			else
-				Debug.LogError("Timer - " + TimerName + ": Does not exist.");
+				Debug.LogError("Timer - " + TimerName + playerNumber + ": Does not exist.");
 		}
 
 
@@ -71,12 +71,12 @@ namespace Assets.Scripts.Utilities
 			}
 		}
 
-		public void UnpauseTimer(string TimerName)
+		public void UnpauseTimer(string TimerName, int playerNumber = -1)
 		{
-			if (_timerLibary.ContainsKey(TimerName))
-				_timerLibary[TimerName].UnpauseCooldown();
+			if (_timerLibary.ContainsKey(TimerName + playerNumber))
+				_timerLibary[TimerName + playerNumber].UnpauseCooldown();
 			else
-				Debug.LogError("Timer - " + TimerName + ": Does not exist.");
+				Debug.LogError("Timer - " + TimerName + playerNumber + ": Does not exist.");
 		}
 
 
@@ -89,12 +89,12 @@ namespace Assets.Scripts.Utilities
 		}
 
 		//restarts a specified timer
-		public void RestartTimer(string TimerName)
+		public void RestartTimer(string TimerName, int playerNumber = -1)
 		{
-			if (_timerLibary.ContainsKey(TimerName))
-				_timerLibary[TimerName].RestartCooldown();
+			if (_timerLibary.ContainsKey(TimerName + playerNumber))
+				_timerLibary[TimerName + playerNumber].RestartCooldown();
 			else
-				Debug.LogError("Timer - " + TimerName + ": Does not exist.");
+				Debug.LogError("Timer - " + TimerName + playerNumber + ": Does not exist.");
 		}
 
 		public void RestartTimers()
@@ -106,12 +106,12 @@ namespace Assets.Scripts.Utilities
 		}
 
 		//starts a specified timer
-		public void StartTimer(string TimerName)
+		public void StartTimer(string TimerName, int playerNumber = -1)
 		{
-			if (_timerLibary.ContainsKey(TimerName))
-				_timerLibary[TimerName].StartCooldown();
+			if (_timerLibary.ContainsKey(TimerName + playerNumber))
+				_timerLibary[TimerName + playerNumber].StartCooldown();
 			else
-				Debug.LogError("Timer - " + TimerName + ": Does not exist.");
+				Debug.LogError("Timer - " + TimerName + playerNumber + ": Does not exist.");
 		}
 
 		public void UpdateCountdowns()

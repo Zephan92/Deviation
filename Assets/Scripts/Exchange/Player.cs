@@ -34,7 +34,7 @@ namespace Assets.Scripts.Exchange
 		public int CurrentColumn { get; set; }
 		public int CurrentRow { get; set; }
 		public IModule CurrentModule { get { return EquipedKit.GetCurrentModule(); } set { CurrentModule = value; } }
-		public IExchangeAction CurrentAction { get { return EquipedKit.GetCurrentModule().GetCurrentAction(); } set { CurrentAction = value; } }
+		public IExchangeAction[] Actions { get { return EquipedKit.GetCurrentModule().Actions; } set { Actions = value; } }
 
 		private MovingDetails _movingDetails;
 		private float _restoreEnergy;
@@ -82,7 +82,6 @@ namespace Assets.Scripts.Exchange
 			{
 				AddEnergy(10);
 				_restoreEnergy = 0.0f;
-				ExchangeController.UpdateExchangeControlsDisplay();
 			}
 		}
 
@@ -205,18 +204,18 @@ namespace Assets.Scripts.Exchange
 		}
 
 		//uses the current action
-		public bool PrimaryAction()
+		public bool DoAction(int actionNumber)
 		{
 			bool success = false;
-			IExchangeAction currentAction = EquipedKit.GetCurrentModule().GetCurrentAction();
+			IExchangeAction action = EquipedKit.GetCurrentModule().Actions[actionNumber];
 
-			int attackCost = (int)(currentAction.Attack.EnergyRecoilModifier * currentAction.Attack.BaseDamage);
+			int attackCost = (int)(action.Attack.EnergyRecoilModifier * action.Attack.BaseDamage);
 			int potentialEnergy = Energy + attackCost;
-			if (TimerManager.TimerUp(currentAction.Name) && potentialEnergy >= MinEnergy)
+			if (TimerManager.TimerUp(action.Name, (int) Battlefield) && potentialEnergy >= MinEnergy)
 			{
-				currentAction.InitiateAttack(BattlefieldController);
+				action.InitiateAttack(BattlefieldController);
 
-				TimerManager.StartTimer(currentAction.Name);
+				TimerManager.StartTimer(action.Name, (int) Battlefield);
 				success = true;
 			}
 
@@ -241,48 +240,6 @@ namespace Assets.Scripts.Exchange
 			}
 			return success;
 		}
-
-		//Cycle Action Left
-		public bool CycleActionLeft()
-		{
-			EquipedKit.GetCurrentModule().CycleActionLeft();
-			return true;
-		}
-
-		//Cycle Action Right
-		public bool CycleActionRight()
-		{
-			EquipedKit.GetCurrentModule().CycleActionRight();
-			return true;
-		}
-
-		//Cycle Module Left
-		public bool CycleModuleLeft()
-		{
-			EquipedKit.CycleModuleLeft();
-			return true;
-		}
-
-		//Cycle Module Right
-		public bool CycleModuleRight()
-		{
-			EquipedKit.CycleModuleRight();
-			return true;
-		}
-
-
-		//Cycles the Battlefield counter clockwise
-		public bool CycleBattlefieldCC()
-		{
-			return true;
-		}
-
-		//cycles the battlefiled clockwise
-		public bool CycleBattlefieldCW()
-		{
-			return true;
-		}
-
 
 
 
@@ -333,12 +290,10 @@ namespace Assets.Scripts.Exchange
 
 			for (int i = 0; i < kit.ModuleCount; i++)
 			{
-				IExchangeAction currentAction = currentModule.GetCurrentAction();
-				for (int j = 0; j < currentModule.ActionCount; j++)
+				IExchangeAction currentAction = currentModule.Actions[0];
+				foreach (IExchangeAction action in currentModule.Actions)
 				{
-					TimerManager.AddAttackTimer(currentAction.Name, currentAction.Cooldown);
-					currentAction = currentModule.GetRightAction();
-					currentModule.CycleActionRight();
+					TimerManager.AddAttackTimer(action.Name, action.Cooldown, (int) Battlefield);
 				}
 
 				currentModule = kit.GetRightModule();

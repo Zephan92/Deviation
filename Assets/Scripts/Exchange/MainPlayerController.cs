@@ -64,57 +64,32 @@ namespace Assets.Scripts.Exchange
 		private void CheckForUserAction()
 		{
 			bool success = false;
-			if (Input.IsCycleActionLeftPressed())
+			
+			if (Input.IsAction_Q_Pressed())
 			{
-				success = MainPlayer.CycleActionLeft();
+				success = MainPlayer.DoAction(0);
 			}
-			else if (Input.IsActionPressed())
+			else if (Input.IsAction_W_Pressed())
 			{
-				success = MainPlayer.PrimaryAction();
-				ExchangeController.ClickOnButton("ExchangeControls", "CurrentAction");
+				success = MainPlayer.DoAction(1);
 			}
-			else if (Input.IsCycleActionRightPressed())
+			else if (Input.IsAction_E_Pressed())
 			{
-				success = MainPlayer.CycleActionRight();
+				success = MainPlayer.DoAction(2);
 			}
-			else if (Input.IsCycleModuleLeftPressed())
+			else if (Input.IsAction_R_Pressed())
 			{
-				success = MainPlayer.CycleModuleLeft();
-			}
-			else if (Input.IsModulePressed())
-			{
-				success = MainPlayer.PrimaryModule();
-				ExchangeController.ClickOnButton("ExchangeControls", "CurrentModule");
-			}
-			else if (Input.IsCycleModuleRightPressed())
-			{
-				success = MainPlayer.CycleModuleRight();
+				success = MainPlayer.DoAction(3);
 			}
 			else if (Input.IsPausePressed())
 			{
-				if (ExchangeController.ExchangeState == ExchangeState.Battle)
-					ExchangeController.ChangeStateToPause();
+				//if (ExchangeController.ExchangeState == ExchangeState.Battle)
+				//	ExchangeController.ChangeStateToPause();
 			}
 
 			if (success)
 			{
-				ExchangeController.UpdateExchangeControlsDisplay();
 			}
 		}
-
-		////cycle battlefield counter clockwise
-		//private void CycleBattlefieldCC()
-		//{
-		//	MainPlayer.CycleBattlefieldCC();
-		//	ExchangeController.UpdateExchangeControlsDisplay();
-		//}
-
-		////cycle battlefield clockwise
-		//private void CycleBattlefieldCW()
-		//{
-		//	MainPlayer.CycleBattlefieldCW();
-		//	ExchangeController.UpdateExchangeControlsDisplay();
-		//}
-
 	}
 }

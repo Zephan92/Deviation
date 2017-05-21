@@ -1,40 +1,11 @@
-﻿using Assets.Scripts.Interface;
+﻿using System;
+using Assets.Scripts.Interface;
 using UnityEngine;
 
 namespace Assets.Scripts.Utilities
 {
 	public class InputWrapper : IInput
 	{
-		public bool IsCycleActionLeftPressed()
-		{
-			return Input.GetKeyDown(KeyCode.U);
-		}
-
-		public bool IsActionPressed()
-		{
-			return Input.GetKeyDown(KeyCode.I);
-		}
-
-		public bool IsCycleActionRightPressed()
-		{
-			return Input.GetKeyDown(KeyCode.O);
-		}
-
-		public bool IsCycleModuleLeftPressed()
-		{
-			return Input.GetKeyDown(KeyCode.J);
-		}
-
-		public bool IsModulePressed()
-		{
-			return Input.GetKeyDown(KeyCode.K);
-		}
-
-		public bool IsCycleModuleRightPressed()
-		{
-			return Input.GetKeyDown(KeyCode.L);
-		}
-
 		public bool IsPausePressed()
 		{
 			return Input.GetKeyDown(KeyCode.Escape);
@@ -58,6 +29,26 @@ namespace Assets.Scripts.Utilities
 		public bool IsRightPressed()
 		{
 			return Input.GetKeyDown(KeyCode.D);
+		}
+
+		public bool IsAction_Q_Pressed()
+		{
+			return Input.GetKeyDown(KeyCode.Q);
+		}
+
+		public bool IsAction_W_Pressed()
+		{
+			return Input.GetKeyDown(KeyCode.W);
+		}
+
+		public bool IsAction_E_Pressed()
+		{
+			return Input.GetKeyDown(KeyCode.E);
+		}
+
+		public bool IsAction_R_Pressed()
+		{
+			return Input.GetKeyDown(KeyCode.R);
 		}
 	}
 }

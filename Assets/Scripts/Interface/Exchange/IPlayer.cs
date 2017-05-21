@@ -28,7 +28,7 @@ namespace Assets.Scripts.Interface.Exchange
 		IPlayer[] Enemies { get; set; }
 		IKit EquipedKit { get; set; }
 		IModule CurrentModule { get; set; }
-		IExchangeAction CurrentAction { get; set; }
+		IExchangeAction [] Actions { get; set; }
 
 		IBattlefieldController BattlefieldController { get; set; }
 		IExchangeController ExchangeController { get; set; }
@@ -49,13 +49,7 @@ namespace Assets.Scripts.Interface.Exchange
 		bool MoveObject(Direction direction, int distance, bool force = false);
 		void MoveObject_Instant(int row, int column);
 
-		bool PrimaryAction();
+		bool DoAction(int actionNumber);
 		bool PrimaryModule();
-		bool CycleActionLeft();
-		bool CycleActionRight();
-		bool CycleModuleLeft();
-		bool CycleModuleRight();
-		bool CycleBattlefieldCC();
-		bool CycleBattlefieldCW();
 	}
 }

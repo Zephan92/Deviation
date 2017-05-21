@@ -79,79 +79,44 @@ namespace Assets.Editor.Exchange
 		}
 
 		[Test]
-		public void TestCheckInput_CycleActionLeft()
+		public void TestCheckInput_Action_Q()
 		{
-			_input.IsCycleActionLeftPressed().Returns(true);
-			_player.CurrentModule.Returns(_module);
-			_player.CycleActionLeft().Returns(true);
+			_input.IsAction_Q_Pressed().Returns(true);
+			_player.DoAction(0).Returns(true);
 
 			_sut.CheckInput();
 
-			_player.Received().CycleActionLeft();
-			_exchangeController.Received().UpdateExchangeControlsDisplay();
+			_player.Received().DoAction(0);
 		}
-
 		[Test]
-		public void TestCheckInput_Action()
+		public void TestCheckInput_Action_W()
 		{
-			_input.IsActionPressed().Returns(true);
-			_player.PrimaryAction().Returns(true);
+			_input.IsAction_W_Pressed().Returns(true);
+			_player.DoAction(1).Returns(true);
 
 			_sut.CheckInput();
 
-			_player.Received().PrimaryAction();
-			_exchangeController.Received().UpdateExchangeControlsDisplay();
-			_exchangeController.Received().ClickOnButton("ExchangeControls", "CurrentAction");
+			_player.Received().DoAction(1);
 		}
-
 		[Test]
-		public void TestCheckInput_CycleActionRight()
+		public void TestCheckInput_Action_E()
 		{
-			_input.IsCycleActionRightPressed().Returns(true);
-			_player.CurrentModule.Returns(_module);
-			_player.CycleActionRight().Returns(true);
+			_input.IsAction_E_Pressed().Returns(true);
+			_player.DoAction(2).Returns(true);
 
 			_sut.CheckInput();
 
-			_player.Received().CycleActionRight();
-			_exchangeController.Received().UpdateExchangeControlsDisplay();
+			_player.Received().DoAction(2);
 		}
-
 		[Test]
-		public void TestCheckInput_CycleModuleLeft()
+		public void TestCheckInput_Action_R()
 		{
-			_input.IsCycleModuleLeftPressed().Returns(true);
-			_player.CycleModuleLeft().Returns(true);
+			_input.IsAction_R_Pressed().Returns(true);
+			_player.DoAction(3).Returns(true);
 
 			_sut.CheckInput();
 
-			_player.Received().CycleModuleLeft();
-			_exchangeController.Received().UpdateExchangeControlsDisplay();
-		}
-
-		[Test]
-		public void TestCheckInput_Module()
-		{
-			_input.IsModulePressed().Returns(true);
-			_player.PrimaryModule().Returns(true);
-
-			_sut.CheckInput();
-
-			_player.Received().PrimaryModule();
-			_exchangeController.Received().UpdateExchangeControlsDisplay();
-			_exchangeController.Received().ClickOnButton("ExchangeControls", "CurrentModule");
-		}
-
-		[Test]
-		public void TestCheckInput_CycleModuleRight()
-		{
-			_input.IsCycleModuleRightPressed().Returns(true);
-			_player.CycleModuleRight().Returns(true);
-
-			_sut.CheckInput();
-
-			_player.Received().CycleModuleRight();
-			_exchangeController.Received().UpdateExchangeControlsDisplay();
+			_player.Received().DoAction(3);
 		}
 
 		[Test]
