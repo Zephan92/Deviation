@@ -9,7 +9,7 @@ using Assets.Scripts.DTO.Exchange;
 
 namespace Assets.Scripts.Exchange
 {
-	public class WallPush : MonoBehaviour, IExchangeAttack
+	public class WallPush : MonoBehaviour
 	{
 		private IExchangeController ec;
 		private IBattlefieldController bc;
@@ -22,12 +22,12 @@ namespace Assets.Scripts.Exchange
 		public void Awake()
 		{
 			//start moving wall toward center
-			_movingDetails = new MovingDetails(new Vector3(transform.position.x + 2, 0, transform.position.z),Direction.Right);
+			_movingDetails = new MovingDetails(new Vector3(transform.position.x + 2, 0, transform.position.z), Direction.Right);
 			bc = FindObjectOfType<BattlefieldController>();
 			ec = FindObjectOfType<ExchangeController>();
 
-			CurrentColumn = (int) transform.localPosition.x;
-			CurrentRow = (int) transform.localPosition.z;
+			CurrentColumn = (int)transform.localPosition.x;
+			CurrentRow = (int)transform.localPosition.z;
 		}
 
 		public void Update()
@@ -50,42 +50,6 @@ namespace Assets.Scripts.Exchange
 		private void UpdateTransform(float row, float column)
 		{
 			transform.localPosition = new Vector3(column, 0, row);
-		}
-
-		public void OnTriggerEnter(Collider other)
-		{
-			//if this hits a player, push them and deal damage
-			if(other.name.Equals("Player"))
-			{
-				Player player = other.gameObject.GetComponent<Player>();
-				Attack.SetDefender(player);
-				Attack.InitiateDrain();
-				if (player.CurrentColumn == -2)
-				{
-					player.MoveObject(Direction.Right, 2, true);
-				}
-				else
-				{
-					player.MoveObject(Direction.Right, 1, true);
-				}
-				bc.SetBattlefieldState(player.Battlefield, ConvertToArrayNumber(player.CurrentRow), ConvertToArrayNumber(player.CurrentColumn), true);
-			}
-		}
-
-		//should put these in a utilities class
-		private int ConvertToArrayNumber(int input)
-		{
-			return input + 2;
-		}
-
-		private int ConvertFromArrayNumber(int input)
-		{
-			return input - 2;
-		}
-
-		public void SetAttack(IAttack attack)
-		{
-			Attack = attack;
 		}
 	}
 }

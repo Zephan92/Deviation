@@ -13,22 +13,22 @@ namespace Assets.Scripts.Utilities
 
 		public bool IsUpPressed()
 		{
-			return Input.GetKeyDown(KeyCode.W);
+			return Input.GetKeyDown(KeyCode.UpArrow);
 		}
 
 		public bool IsDownPressed()
 		{
-			return Input.GetKeyDown(KeyCode.S);
+			return Input.GetKeyDown(KeyCode.DownArrow);
 		}
 
 		public bool IsLeftPressed()
 		{
-			return Input.GetKeyDown(KeyCode.A);
+			return Input.GetKeyDown(KeyCode.LeftArrow);
 		}
 
 		public bool IsRightPressed()
 		{
-			return Input.GetKeyDown(KeyCode.D);
+			return Input.GetKeyDown(KeyCode.RightArrow);
 		}
 
 		public bool IsAction_Q_Pressed()

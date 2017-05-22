@@ -24,7 +24,7 @@ namespace Assets.Scripts.Controllers
 		//Unity Objects
 		public GameObject MainPlayerObject { get; set; }
 		public IPlayer[] Players { get; set; }
-
+		public AudioSource music;
 		//Current state
 		public ExchangeState ExchangeState { get; set; }
 
@@ -70,7 +70,7 @@ namespace Assets.Scripts.Controllers
 					_mainPlayer = player;
 				}
 			}
-
+			music = GetComponent<AudioSource>();
 			ExchangeState = ExchangeState.PreBattle;
 		}
 
@@ -80,6 +80,7 @@ namespace Assets.Scripts.Controllers
 			{
 				case ExchangeState.Setup:
 					ExchangeState = ExchangeState.PreBattle;
+					music.Play();
 					break;
 				case ExchangeState.PreBattle:
 					if (!_awaitingPlayerInput)

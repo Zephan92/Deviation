@@ -35,35 +35,53 @@ namespace Assets.Scripts.Exchange.Display
 	}
 	public class ActionBar : IActionBar
 	{
+		private GUIStyle actionLabelStyle;
+		private GUIStyle cooldownLabelStyle;
+
+		public ActionBar()
+		{
+			actionLabelStyle = new GUIStyle();
+			actionLabelStyle.alignment = TextAnchor.MiddleCenter;
+
+			cooldownLabelStyle = new GUIStyle();
+			cooldownLabelStyle.alignment = TextAnchor.MiddleCenter;
+			cooldownLabelStyle.normal.textColor = Color.white;
+			cooldownLabelStyle.fontSize = 20;
+		}
+
 		public void DrawActionBar(ActionBarDetails details)
 		{
-			GUI.BeginGroup(new Rect(details.Position, details.Size));
-			GUI.DrawTexture(new Rect(Vector2.zero, details.Size), details.OuterTexture);
 			float actionOffset = 0;
 			int i = 0;
+
+			GUI.BeginGroup(new Rect(details.Position, details.Size));
+			GUI.DrawTexture(new Rect(Vector2.zero, details.Size), details.OuterTexture);
+			
 			foreach (Texture2D actionTexture in details.ActionTextures)
 			{
-				GUI.DrawTexture(new Rect(new Vector2(actionOffset, 0), new Vector2(details.Size.x * 0.25f, details.Size.y) - new Vector2(1, 1)), actionTexture);
-				var style = new GUIStyle();
-				style.alignment = TextAnchor.MiddleCenter;
-				GUI.Label(new Rect(new Vector2(actionOffset, 0), new Vector2(details.Size.x * 0.25f, details.Size.y) - new Vector2(1, 1)), details.DisplayLabel[i], style);
+				string attackName = details.DisplayLabel[i];
+				Vector2 actionSize = new Vector2(details.Size.x * 0.25f, details.Size.y) - new Vector2(1, 1);
+				Rect textureDimensions = new Rect(new Vector2(actionOffset, 0), actionSize);
+				float timeLeft = details.TimerManager.GetRemainingCooldown(attackName, 0);
+				float totalTime = details.TimerManager.GetTimerCooldownLength(attackName, 0);
+
+				GUI.DrawTexture(textureDimensions, actionTexture);
+				GUI.Label(textureDimensions, attackName, actionLabelStyle);
 				
-				if(details.TimerManager.GetRemainingCooldown(details.DisplayLabel[i], 0) > 0)
+				if(timeLeft > 0)
 				{
+					float cooldownPercentage = timeLeft / totalTime;
+					Rect cooldownDimensions = new Rect(new Vector2(actionOffset, 0), new Vector2(actionSize.x * cooldownPercentage, actionSize.y));
+					string cooldownLabel = (1 + (int) timeLeft).ToString();
 					Color color = Color.white;
 					color.a = 0.8f;
 					GUI.color = color;
-					float cooldownPercentage = details.TimerManager.GetRemainingCooldown(details.DisplayLabel[i], 0) / details.TimerManager.GetTimerCooldownLength(details.DisplayLabel[i], 0);
-					GUI.DrawTexture(new Rect(new Vector2(actionOffset, 0), new Vector2(details.Size.x * 0.25f * cooldownPercentage, details.Size.y) - new Vector2(1, 1)), details.CooldownTexture);
+					GUI.DrawTexture(cooldownDimensions, details.CooldownTexture);
 					GUI.color = Color.white;
-					var fontStyle = new GUIStyle();
-					fontStyle.alignment = TextAnchor.MiddleCenter;
-					fontStyle.normal.textColor = Color.white;
-					fontStyle.fontSize = 20;
-					GUI.Label(new Rect(new Vector2(actionOffset, 0), new Vector2(details.Size.x * 0.25f, details.Size.y) - new Vector2(1, 1)), (1 + (int) details.TimerManager.GetRemainingCooldown(details.DisplayLabel[i], 0)).ToString(), fontStyle);
+					GUI.Label(textureDimensions, cooldownLabel, cooldownLabelStyle);
 				}
-				actionOffset += details.Size.x * 0.25f;
 
+				actionOffset += details.Size.x * 0.25f;
 				i++;
 			}
 
