@@ -187,12 +187,17 @@ namespace Assets.Scripts.Controllers
 		private void EndRound()
 		{
 			mc.Winners[mc.CurrentRound - 1] = (int)_winner.Battlefield;
-			mc.StartMultiplayerExchangeInstance();
+			ToChangePhase();
 		}
 
 		private void BackToMultiplayerMenu()
 		{
 			SceneManager.LoadScene("MultiplayerMenu");
+		}
+
+		private void ToChangePhase()
+		{
+			SceneManager.LoadScene("ChangePhase");
 		}
 
 		private GameObject GetDisplayObject(string displayName)

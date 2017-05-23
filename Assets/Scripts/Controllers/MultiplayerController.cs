@@ -36,7 +36,7 @@ namespace Assets.Scripts.Controllers
 
 		//instantiates a new multiplayer instance
 		public void StartMultiplayerExchangeInstance()
-        {
+		{
 			if (CURRENT_ROUND < NUMBER_OF_ROUNDS)
 			{
 				CURRENT_ROUND++;

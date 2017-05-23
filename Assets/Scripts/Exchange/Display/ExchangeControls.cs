@@ -31,7 +31,7 @@ namespace Assets.Scripts.Exchange.Display
 		private ActionBarDetails player1actionBar;
 		private Texture2D [] actionTextures;
 		private string [] actionNames;
-		private ExchangeTimer exchangeTimer;
+		private IExchangeTimer exchangeTimer;
 		private ExchangeTimerDetails exchangeTimerDetails;
 		private ProgressBarDetails player1energyBar;
 		private ProgressBarDetails player1healthBar;
@@ -60,7 +60,6 @@ namespace Assets.Scripts.Exchange.Display
 			HealthPosition1 = new Vector2(BarSize.x / 2, corners[1].y * 0.1f);
 			ActionBarPosition = new Vector2(0, corners[2].y - ActionBarSize.y);
 			ExchangeTimerPosition = new Vector2(corners[2].x - ExchangeTimerSize.x, 0);
-			//fontMaterial = Resources.Load("User Interface/White") as Material;
 		}
 
 		public void Awake()
