@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Scripts.Enum;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,14 +10,14 @@ namespace Assets.Scripts.ModuleEditor
 	public class SnapPoint : MonoBehaviour
 	{
 		public Rect Area;
+		public bool IsOccupied = false;
+		public ModuleType Type = ModuleType.Default;
 
 		public void Awake()
 		{
+			IsOccupied = false;
+			Type = ModuleType.Default;
 			Area = GetScreenCoordinates(GetComponent<RectTransform>());
-		}
-		public SnapPoint(Rect area)
-		{
-			Area = area;
 		}
 
 		private Rect GetScreenCoordinates(RectTransform uiElement)

@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Interface.Exchange;
+﻿using Assets.Scripts.Enum;
+using Assets.Scripts.Interface.Exchange;
 using UnityEngine;
 
 namespace Assets.Scripts.Interface.DTO
@@ -11,6 +12,7 @@ namespace Assets.Scripts.Interface.DTO
 		float Cooldown { get; set; }
 		IModule ParentModule { get; set; }
 		string PrimaryActionName { get; set; }
+		ModuleType Type { get; }
 
 		void InitiateAttack(IBattlefieldController bc);
 	}

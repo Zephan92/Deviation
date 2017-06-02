@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Assets.Scripts.Enum;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Assets.Scripts.ModuleEditor
 {
@@ -12,35 +14,52 @@ namespace Assets.Scripts.ModuleEditor
 		Vector2 Offset;
 		public SnapPoint[] SnapPoints;
 		private Vector2 _oldPos;
-		public void Awake()
+		private SnapPoint _currentSnapPoint;
+		private ModuleType _type = ModuleType.Default;
+
+		public void Start()
 		{
-			SnapPoints = FindObjectsOfType<SnapPoint>();
+			SnapPoints = transform.parent.parent.parent.GetComponentsInChildren<SnapPoint>();
+			foreach (SnapPoint snap in SnapPoints)
+			{
+				if(snap.transform.name.Contains(gameObject.GetComponentInChildren<Text>().text))
+				{
+					_currentSnapPoint = snap;
+					_type = _currentSnapPoint.Type;
+				}
+			}
 		}
 
 		public void BeginDrag()
 		{
-			Debug.Log("Begin called.");
 			_oldPos = transform.position;
+			transform.parent.parent.SetAsLastSibling();
+			transform.parent.SetAsLastSibling();
+			transform.SetAsLastSibling();
+
 			Offset = new Vector2(transform.position.x,transform.position.y) - new Vector2( Input.mousePosition.x, Input.mousePosition.y);
 		}
 
 		public void OnDrag()
 		{
 			transform.position = new Vector3(Offset.x + Input.mousePosition.x, Offset.y + Input.mousePosition.y, 0);
-			Debug.Log("OnDrag called.");
 		}
 
 		public void EndDrag()
 		{
-			Debug.Log("EndDrag called.");
-			foreach (SnapPoint rect in SnapPoints)
+			foreach (SnapPoint snap in SnapPoints)
 			{
-				if (rect.Area.Contains(Input.mousePosition))
+				if (snap.Area.Contains(Input.mousePosition) && !snap.IsOccupied && (snap.Type == _type || snap.Type == ModuleType.Default))
 				{
-					float x = rect.Area.x + rect.Area.width / 2;
-					float y = rect.Area.y + rect.Area.height / 2;
+					float x = snap.Area.x + snap.Area.width / 2;
+					float y = snap.Area.y + snap.Area.height / 2;
 					Vector2 newPos = new Vector2(x,y);
 					transform.position = newPos;
+					transform.SetParent(snap.transform.parent, true);
+					transform.parent.SetAsLastSibling();
+					_currentSnapPoint.IsOccupied = false;
+					_currentSnapPoint = snap;
+					_currentSnapPoint.IsOccupied = true;
 					return;
 				}
 			}

@@ -17,6 +17,12 @@
 		//fire, water, air, earth, wide area, focused damage, buffs, enemy debuffs
 		Elemental,
 
+		Mage,
+
+		Ranger,
+
+		Test,
+
 		//Default type
 		Default,
 	}

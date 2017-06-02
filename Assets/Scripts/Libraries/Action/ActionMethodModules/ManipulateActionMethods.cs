@@ -58,7 +58,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 					attack.Defender = enemy;
 					attack.InitiateRecoil();
 					Vector3 origin = ActionUtilities.FindOrigin(enemy);
-					float originX = origin.x;
+					//float originX = origin.x;
 					float originZ = origin.z;
 					Battlefield field = enemy.Battlefield;
 					float timeout = 0.5f;
@@ -67,7 +67,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 					{
 						if(other.name.Equals("Player"))
 						{
-							Player otherPlayer = other.gameObject.GetComponent<Player>();
+							//Player otherPlayer = other.gameObject.GetComponent<Player>();
 							attack.SetDefender(player);
 							attack.InitiateDrain();
 							if (player.CurrentColumn == -2)

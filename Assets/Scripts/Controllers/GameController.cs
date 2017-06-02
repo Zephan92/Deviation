@@ -60,10 +60,10 @@ namespace Assets.Scripts.Controllers
 		//this loads the player data file
 		public void Load()
 		{
-			BinaryFormatter bf = new BinaryFormatter();
+			//BinaryFormatter bf = new BinaryFormatter();
 			FileStream file = File.Open(Application.persistentDataPath + "/playerInfo.dat", FileMode.Open);
 
-			PlayerData data = (PlayerData) bf.Deserialize(file);
+			//PlayerData data = (PlayerData) bf.Deserialize(file);
 			file.Close();
 			//grab stuff from data
 			//SaveFile.playerName = data.playerName;

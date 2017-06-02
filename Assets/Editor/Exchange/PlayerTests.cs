@@ -252,7 +252,7 @@ namespace Assets.Editor.Exchange
 		[Test]
 		public void TestPrimaryAction()
 		{
-			int energyRecoil = (int)(_sut.Actions[0].Attack.EnergyRecoilModifier * _sut.Actions[0].Attack.BaseDamage);
+			//int energyRecoil = (int)(_sut.Actions[0].Attack.EnergyRecoilModifier * _sut.Actions[0].Attack.BaseDamage);
 
 			_sut.DoAction(0);
 

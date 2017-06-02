@@ -19,13 +19,13 @@ namespace Assets.Scripts.Exchange.Display
 		private Canvas exchangeCanvas;
 
 		private ITimerManager tm;
-		private IMultiplayerController mc;
+		//private IMultiplayerController mc;
 		private IChangePhaseController cp;
 		public void Awake()
 		{
 			cp = FindObjectOfType<ChangePhaseController>();
 			tm = FindObjectOfType<TimerManager>();
-			mc = FindObjectOfType<MultiplayerController>();
+			//mc = FindObjectOfType<MultiplayerController>();
 
 			exchangeTimer = new ExchangeTimer();
 			exchangeCanvas = GetComponent<Canvas>();

@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.Library.Action.ModuleActions
 {
-	public class ElementalActionMethods : MonoBehaviour, IActionMethodLibraryModule
+	public class ElementalActionMethods : IActionMethodLibraryModule
 	{
 		public Dictionary<string, System.Action<IBattlefieldController, IAttack, IPlayer>> ActionMethods { get; set; }
 		public ElementalActionMethods()
@@ -36,7 +36,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 							{
 								atk.SetDefender(other.GetComponent<Player>());
 								atk.InitiateDrain();
-								Destroy(projectile);
+								GameObject.Destroy(projectile);
 							}
 						};
 
@@ -57,7 +57,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 				{"FireBlast", //Shoots a burst of fire in a column
 					delegate (IBattlefieldController bc, IAttack attack, IPlayer player)
 					{
-						IPlayer enemy = player.Enemies[0];
+						//IPlayer enemy = player.Enemies[0];
 						attack.Attacker = player;
 						attack.InitiateRecoil();
 

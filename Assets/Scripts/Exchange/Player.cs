@@ -290,7 +290,6 @@ namespace Assets.Scripts.Exchange
 
 			for (int i = 0; i < kit.ModuleCount; i++)
 			{
-				IExchangeAction currentAction = currentModule.Actions[0];
 				foreach (IExchangeAction action in currentModule.Actions)
 				{
 					TimerManager.AddAttackTimer(action.Name, action.Cooldown, (int) Battlefield);

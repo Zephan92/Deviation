@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.DTO.Exchange;
+using Assets.Scripts.Enum;
 using Assets.Scripts.Interface.DTO;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 	public class ScavengeActions : IActionLibraryModule
 	{
 		public Dictionary<string, IExchangeAction> Actions { get; set; }
-		string IActionLibraryModule.ModuleName { get { return "Scavenge"; } }
+		public ModuleType Type { get { return ModuleType.Scavenge; } }
 
 		public ScavengeActions()
 		{
@@ -23,7 +24,8 @@ namespace Assets.Scripts.Library.Action.ActionModules
 						attack: new Attack(baseDamage: 20, healthDrainModifier: -0.1f,  energyRecoilModifier: -1.8f),
 						actionTexture: Resources.Load("ActionTextures/Purple") as Texture2D,
 						primaryActionName: "StunField",
-						cooldown: 1f
+						cooldown: 1f,
+						type: Type
 					)
 				},
 			};

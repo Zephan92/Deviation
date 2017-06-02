@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Interface.DTO;
+﻿using Assets.Scripts.Enum;
+using Assets.Scripts.Interface.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace Assets.Scripts.Library.Action
 	public interface IActionLibraryModule
 	{
 		Dictionary<string, IExchangeAction> Actions { get; }
-		string ModuleName { get; }
+		ModuleType Type { get; }
 	}
 }

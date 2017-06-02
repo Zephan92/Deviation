@@ -5,6 +5,7 @@ using UnityEngine;
 using Assets.Scripts.Library.Action.ActionModules;
 using Assets.Scripts.Library.Action;
 using System.Linq;
+using Assets.Scripts.Enum;
 
 namespace Assets.Scripts.Library
 {
@@ -29,7 +30,7 @@ namespace Assets.Scripts.Library
 			AddActionModulesToLibrary();
 
 			IExchangeAction action = ActionLibraryTable[actionName];
-			IExchangeAction actionInstance = new ExchangeAction(action.Name,action.Attack,action.ActionTexture,action.PrimaryActionName,action.Cooldown);
+			IExchangeAction actionInstance = new ExchangeAction(action.Name,action.Attack,action.ActionTexture,action.PrimaryActionName,action.Cooldown,action.Type);
 			return actionInstance;
 		}
 
@@ -43,7 +44,8 @@ namespace Assets.Scripts.Library
 					attack: new Attack(),
 					actionTexture: Resources.Load("ActionTextures/White") as Texture2D,
 					primaryActionName: "default",
-					cooldown: 0f
+					cooldown: 0f,
+					type: ModuleType.Default
 				));
 
 				foreach (IActionLibraryModule actionLibraryModule in ActionLibraryModules)

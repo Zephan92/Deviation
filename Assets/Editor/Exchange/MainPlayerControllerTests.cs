@@ -14,7 +14,7 @@ namespace Assets.Editor.Exchange
 		IInput _input;
 		IPlayer _player;
 		IExchangeController _exchangeController;
-		IModule _module;
+		//IModule _module;
 
 		[SetUp]
 		public void SetUp()
@@ -22,7 +22,7 @@ namespace Assets.Editor.Exchange
 			_input = Substitute.For<IInput>();
 			_player = Substitute.For<IPlayer>();
 			_exchangeController = Substitute.For<IExchangeController>();
-			_module = Substitute.For<IModule>();
+			//_module = Substitute.For<IModule>();
 
 			_sut = new MainPlayerController();
 			_sut.Input = _input;

@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Interface;
+﻿using Assets.Scripts.Enum;
+using Assets.Scripts.Interface;
 using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Interface.Exchange;
 using Assets.Scripts.Library;
@@ -27,13 +28,17 @@ namespace Assets.Scripts.DTO.Exchange
 		//this is the primary action method run when this action is used
 		public System.Action<IBattlefieldController, IAttack, IPlayer> PrimaryAction;
 
-		public ExchangeAction(string name, IAttack attack, Texture2D actionTexture, string primaryActionName, float cooldown)
+		public ModuleType Type { get; set; }
+
+
+		public ExchangeAction(string name, IAttack attack, Texture2D actionTexture, string primaryActionName, float cooldown, ModuleType type)
 		{
 			Name = name;
 			Attack = attack;
 			Cooldown = cooldown;
 			ActionTexture = actionTexture;
 			PrimaryActionName = primaryActionName;
+			Type = type;
 
 			if(ActionMethodLibrary.ContainsActionMethod(primaryActionName))
 			{
