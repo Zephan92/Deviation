@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Deviation.Exchange.Scripts;
+using UnityEngine;
 using UnityEngine.Networking;
 
 /// <summary>
@@ -8,7 +9,7 @@ using UnityEngine.Networking;
 public class ExchangeNetworkManager : NetworkManager
 {
 	// Set this in the inspector
-	public UnetGameRoom GameRoom;
+	public ExchangeGameRoom GameRoom;
 
 	void Awake()
 	{
@@ -29,6 +30,7 @@ public class ExchangeNetworkManager : NetworkManager
 		// This is just a dummy example, you'll need to create your own object (or not)
 		var playerGameObject = new GameObject();
 		NetworkServer.AddPlayerForConnection(player.Connection, playerGameObject, 0);
+		Debug.Log("Player Joined");
 	}
 
 	private void OnPlayerLeft(UnetMsfPlayer player)
