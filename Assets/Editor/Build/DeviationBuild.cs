@@ -36,10 +36,13 @@ public class DeviationBuild
 		if (string.IsNullOrEmpty(path))
 			return;
 
+		UnityEngine.Debug.Log("Starting Deviation Build");
 		BuildMaster(path);
 		BuildSpawner(path);
 		BuildClient(path);
 		BuildGameServer(path);
+		UnityEngine.Debug.Log("Finished Building");
+
 	}
 
 	[MenuItem("Tools/Deviation/Start Deviation Servers", false, 0)]
@@ -47,7 +50,6 @@ public class DeviationBuild
 	{
 		StartMaster();
 		StartSpawner();
-		Start1v1ExchangeGameServer();
 	}
 
 	[MenuItem("Tools/Deviation/Start Master Server", false, 11)]
@@ -58,7 +60,7 @@ public class DeviationBuild
 			UnityEngine.Debug.Log("Shutting down: " + process.ProcessName);
 			process.Kill();
 		}
-		var commandLineArgs = " -msfStartMaster -batchmode";
+		var commandLineArgs = " -msfStartMaster -batchmode  -nographics";
 		var exePath = GetServerLocation("MasterServer");
 		UnityEngine.Debug.Log(exePath + commandLineArgs);
 
@@ -73,24 +75,13 @@ public class DeviationBuild
 			UnityEngine.Debug.Log("Shutting down: " + process.ProcessName);
 			process.Kill();
 		}
-		var commandLineArgs = " -msfStartSpawner -batchmode";
+		var gameServerExePath = GetServerLocation("1v1ExchangeGameServer");
+
+		var commandLineArgs = " -batchmode -nographics -msfStartSpawner -msfExe " + gameServerExePath;
 		var exePath = GetServerLocation("1v1ExchangeSpawnerServer");
+
 		UnityEngine.Debug.Log(exePath + commandLineArgs);
 
-		Process.Start(exePath, commandLineArgs);
-	}
-
-	[MenuItem("Tools/Deviation/Start 1v1 Exchange Game Server", false, 11)]
-	public static void Start1v1ExchangeGameServer()
-	{
-		foreach (var process in Process.GetProcessesByName("1v1ExchangeGameServer"))
-		{
-			UnityEngine.Debug.Log("Shutting down: " + process.ProcessName);
-			process.Kill();
-		}
-		var exePath = GetServerLocation("1v1ExchangeGameServer");
-		var commandLineArgs = " -msfLoadScene 1v1Exchange";
-		UnityEngine.Debug.Log(exePath + commandLineArgs);
 		Process.Start(exePath, commandLineArgs);
 	}
 
@@ -100,13 +91,19 @@ public class DeviationBuild
 	/// <param name="path"></param>
 	public static void BuildMaster(string path)
 	{
+		foreach (var process in Process.GetProcessesByName("MasterServer"))
+		{
+			UnityEngine.Debug.Log("Shutting down: " + process.ProcessName);
+			process.Kill();
+		}
 		string exePath = path + "/MasterServer.exe";
-
+		
 		var masterScenes = new[]
 		{
 			MasterServer
 		};
 		AddServerLocationsToDict("MasterServer", exePath);
+		UnityEngine.Debug.Log("Building MasterServer");
 
 		BuildPipeline.BuildPlayer(masterScenes, exePath, TargetPlatform, BuildOptions);
 	}
@@ -117,6 +114,12 @@ public class DeviationBuild
 	/// <param name="path"></param>
 	public static void BuildSpawner(string path)
 	{
+		foreach (var process in Process.GetProcessesByName("1v1ExchangeSpawnerServer"))
+		{
+			UnityEngine.Debug.Log("Shutting down: " + process.ProcessName);
+			process.Kill();
+		}
+
 		string exePath = path + "/1v1ExchangeSpawnerServer.exe";
 
 		var spawnerScenes = new[]
@@ -124,6 +127,8 @@ public class DeviationBuild
 			Exchange1v1SpawnerServer
 		};
 		AddServerLocationsToDict("1v1ExchangeSpawnerServer", exePath);
+		UnityEngine.Debug.Log("Building 1v1ExchangeSpawnerServer");
+
 		BuildPipeline.BuildPlayer(spawnerScenes, exePath, TargetPlatform, BuildOptions);
 	}
 
@@ -133,6 +138,12 @@ public class DeviationBuild
 	/// <param name="path"></param>
 	public static void BuildClient(string path)
 	{
+		foreach (var process in Process.GetProcessesByName("DeviationClient"))
+		{
+			UnityEngine.Debug.Log("Shutting down: " + process.ProcessName);
+			process.Kill();
+		}
+
 		string exePath = path + "/DeviationClient.exe";
 
 		var clientScenes = new[]
@@ -144,6 +155,8 @@ public class DeviationBuild
 
 		};
 		AddServerLocationsToDict("DeviationClient", exePath);
+		UnityEngine.Debug.Log("Building DeviationClient");
+
 		BuildPipeline.BuildPlayer(clientScenes, exePath, TargetPlatform, BuildOptions);
 	}
 
@@ -153,6 +166,12 @@ public class DeviationBuild
 	/// <param name="path"></param>
 	public static void BuildGameServer(string path)
 	{
+		foreach (var process in Process.GetProcessesByName("1v1ExchangeGameServer"))
+		{
+			UnityEngine.Debug.Log("Shutting down: " + process.ProcessName);
+			process.Kill();
+		}
+
 		string exePath = path + "/1v1ExchangeGameServer.exe";
 		var gameServerScenes = new[]
 		{
@@ -163,6 +182,8 @@ public class DeviationBuild
 
 		};
 		AddServerLocationsToDict("1v1ExchangeGameServer", exePath);
+		UnityEngine.Debug.Log("Building 1v1ExchangeGameServer");
+
 		BuildPipeline.BuildPlayer(gameServerScenes, exePath, TargetPlatform, BuildOptions);
 	}
 
