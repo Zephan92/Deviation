@@ -204,7 +204,10 @@ namespace Assets.Deviation.Exchange.Scripts
 
 			// If this room was spawned
 			if (SpawnTaskController != null)
+			{
+				Logger.Debug("Finalizing Spawn Task");
 				SpawnTaskController.FinalizeTask(CreateSpawnFinalizationData());
+			}
 		}
 
 		/// <summary>
@@ -270,6 +273,7 @@ namespace Assets.Deviation.Exchange.Scripts
 				}
 
 				Logger.Debug("Confirmed token access for peer: " + validatedAccess);
+				
 
 				// Get account info
 				Msf.Server.Auth.GetPeerAccountInfo(validatedAccess.PeerId, (info, errorMsg) =>
