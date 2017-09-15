@@ -7,6 +7,16 @@ namespace Assets.Scripts.Utilities
 {
 	public class CoroutineManager : MonoBehaviour, ICoroutineManager
 	{
+		public void StartCoroutineThread(Action method, ref IEnumerator coroutine)
+		{
+			StartCoroutine(coroutine = Coroutine(method));
+		}
+
+		public void StartFixedCoroutineThread(Action method, ref IEnumerator coroutine)
+		{
+			StartCoroutine(coroutine = FixedCoroutine(method));
+		}
+
 		public void StartCoroutineThread_ForLoop(Action<int> method, float interval, ref IEnumerator coroutine)
 		{
 			StartCoroutine(coroutine = ForLoop_Coroutine(method, interval));
@@ -20,6 +30,16 @@ namespace Assets.Scripts.Utilities
 		public void StartCoroutineThread_AfterTimout(Action method, float interval, ref IEnumerator coroutine)
 		{
 			StartCoroutine(coroutine = AfterTimout_Coroutine(method, interval));
+		}
+
+		public void StartCoroutineThread(Action<object[]> method, object[] parameters, ref IEnumerator coroutine)
+		{
+			StartCoroutine(coroutine = Coroutine(method, parameters));
+		}
+
+		public void StartFixedCoroutineThread(Action<object[]> method, object[] parameters, ref IEnumerator coroutine)
+		{
+			StartCoroutine(coroutine = FixedCoroutine(method, parameters));
 		}
 
 		public void StartCoroutineThread_ForLoop(Action<int, object[]> method, object[] parameters, float interval, ref IEnumerator coroutine)
@@ -53,6 +73,24 @@ namespace Assets.Scripts.Utilities
 			coroutine = null;
 		}
 
+		private IEnumerator Coroutine(Action coroutine)
+		{
+			while (true)
+			{
+				coroutine();
+				yield return null;
+			}
+		}
+
+		private IEnumerator FixedCoroutine(Action coroutine)
+		{
+			while (true)
+			{
+				coroutine();
+				yield return new WaitForFixedUpdate();
+			}
+		}
+
 		private IEnumerator ForLoop_Coroutine(Action<int> coroutine, float interval)
 		{
 			for (int i = 0; ; i++)
@@ -75,6 +113,24 @@ namespace Assets.Scripts.Utilities
 		{
 			yield return new WaitForSeconds(timeout);
 			coroutine();
+		}
+
+		private IEnumerator Coroutine(Action<object[]> coroutine, object[] parameters)
+		{
+			while (true)
+			{
+				coroutine(parameters);
+				yield return null;
+			}
+		}
+
+		private IEnumerator FixedCoroutine(Action<object[]> coroutine, object[] parameters)
+		{
+			while (true)
+			{
+				coroutine(parameters);
+				yield return new WaitForFixedUpdate();
+			}
 		}
 
 		private IEnumerator ForLoop_Coroutine(Action<int, object []> coroutine, object [] parameters, float interval)

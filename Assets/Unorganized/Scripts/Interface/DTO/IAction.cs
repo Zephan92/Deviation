@@ -14,6 +14,6 @@ namespace Assets.Scripts.Interface.DTO
 		string PrimaryActionName { get; set; }
 		ModuleType Type { get; }
 
-		void InitiateAttack(IBattlefieldController bc);
+		void InitiateAttack(IBattlefieldController bc, BattlefieldZone zone);
 	}
 }

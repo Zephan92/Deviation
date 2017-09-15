@@ -26,7 +26,7 @@ namespace Assets.Scripts.DTO.Exchange
 		public string PrimaryActionName { get; set; }
 
 		//this is the primary action method run when this action is used
-		public System.Action<IBattlefieldController, IAttack, IPlayer> PrimaryAction;
+		public System.Action<IBattlefieldController, IAttack, IExchangePlayer, BattlefieldZone> PrimaryAction;
 
 		public ModuleType Type { get; set; }
 
@@ -54,9 +54,9 @@ namespace Assets.Scripts.DTO.Exchange
 		}
 
 		//when this method is called, it runs the primary action and passes in the Attack and Battlefield Controller for use in that method
-		public void InitiateAttack(IBattlefieldController bc)
+		public void InitiateAttack(IBattlefieldController bc, BattlefieldZone zone)
 		{
-			PrimaryAction(bc, Attack, ParentModule.ParentKit.Player);
+			PrimaryAction(bc, Attack, ParentModule.ParentKit.Player, zone);
 		}
 	}
 }

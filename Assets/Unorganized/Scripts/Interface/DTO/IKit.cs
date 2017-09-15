@@ -11,7 +11,7 @@ namespace Assets.Scripts.Interface.DTO
 		string Name { get; set; }
 		int ModuleCount { get; set; }
 		int MaxModules { get; set; }
-		IPlayer Player { get; set; }
+		IExchangePlayer Player { get; set; }
 		string[] ModuleNames { get; set; }
 
 		IModule GetCurrentModule();

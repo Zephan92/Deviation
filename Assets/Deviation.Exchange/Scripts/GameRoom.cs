@@ -18,7 +18,7 @@ namespace Assets.Deviation.Exchange.Scripts
 	/// After room is created, it also checks if this game server was "spawned", and 
 	/// if so - it finalizes the spawn task
 	/// </summary>
-	public class ExchangeGameRoom : NetworkBehaviour
+	public class GameRoom : NetworkBehaviour
 	{
 		public static SpawnTaskController SpawnTaskController;
 
@@ -61,6 +61,8 @@ namespace Assets.Deviation.Exchange.Scripts
 
 		public event Action<UnetMsfPlayer> PlayerJoined;
 		public event Action<UnetMsfPlayer> PlayerLeft;
+		public event Action ServerFull;
+		public event Action ServerEmpty;
 
 		public NetworkManager NetworkManager;
 
@@ -69,7 +71,6 @@ namespace Assets.Deviation.Exchange.Scripts
 		protected virtual void Awake()
 		{
 			NetworkManager = NetworkManager ?? FindObjectOfType<NetworkManager>();
-
 			Logger.LogLevel = LogLevel;
 
 			PlayersByPeerId = new Dictionary<int, UnetMsfPlayer>();
@@ -302,7 +303,14 @@ namespace Assets.Deviation.Exchange.Scripts
 			PlayersByConnectionId[player.Connection.connectionId] = player;
 
 			if (PlayerJoined != null)
+			{
 				PlayerJoined.Invoke(player);
+			}
+
+			if (PlayersByPeerId.Count == MaxPlayers)
+			{
+				ServerFull.Invoke();
+			}
 		}
 
 		protected virtual void OnPlayerLeft(UnetMsfPlayer player)
@@ -317,6 +325,11 @@ namespace Assets.Deviation.Exchange.Scripts
 
 			// Notify controller that the player has left
 			Controller.PlayerLeft(player.PeerId);
+
+			if (PlayersByPeerId.Count == 0)
+			{
+				ServerEmpty.Invoke();
+			}
 		}
 
 		private void OnDisconnectedFromMaster()

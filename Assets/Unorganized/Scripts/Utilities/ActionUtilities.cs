@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Interface.Exchange;
+﻿using Assets.Scripts.Enum;
+using Assets.Scripts.Interface.Exchange;
 using UnityEngine;
 
 namespace Assets.Scripts.Utilities
@@ -61,6 +62,11 @@ namespace Assets.Scripts.Utilities
 			zones[currentZone, 0] = column;
 			zones[currentZone, 1] = row;
 			return zones;
+		}
+
+		public static BattlefieldZone GetEnemyBattlefieldZone(BattlefieldZone zone)
+		{
+			return (zone == BattlefieldZone.Left) ? BattlefieldZone.Right : BattlefieldZone.Left;
 		}
 	}
 }

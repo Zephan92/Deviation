@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 
 namespace Assets.Scripts.Controllers
 {
-	public class GameController : MonoBehaviour, IGameController
+	public class GameController : MonoBehaviour
 	{
 		public static GameController control;
 		public static GameState GameState;

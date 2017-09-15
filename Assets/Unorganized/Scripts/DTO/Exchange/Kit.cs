@@ -18,7 +18,7 @@ namespace Assets.Scripts.DTO.Exchange
 		//Max Number of Modules this Kit can have
 		public int MaxModules { get; set; }
 
-		public IPlayer Player { get; set; }
+		public IExchangePlayer Player { get; set; }
 
 		public string[] ModuleNames { get; set; }
 

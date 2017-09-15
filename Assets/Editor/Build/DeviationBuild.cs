@@ -43,7 +43,7 @@ public class DeviationBuild
 		BuildClient(path);
 		BuildGameServer(path);
 		UnityEngine.Debug.Log("Finished Building");
-
+		StartServer();
 	}
 
 	[MenuItem("Tools/Deviation/Start Deviation Servers", false, 0)]
@@ -78,7 +78,8 @@ public class DeviationBuild
 		}
 		var gameServerExePath = GetServerLocation("1v1ExchangeGameServer");
 
-		var commandLineArgs = " -batchmode -nographics -msfStartSpawner -msfExe " + gameServerExePath;
+		//var commandLineArgs = " -batchmode -nographics -msfStartSpawner -msfExe " + gameServerExePath;
+		var commandLineArgs = "-msfStartSpawner -msfExe " + gameServerExePath;
 		var exePath = GetServerLocation("1v1ExchangeSpawnerServer");
 
 		UnityEngine.Debug.Log(exePath + commandLineArgs);

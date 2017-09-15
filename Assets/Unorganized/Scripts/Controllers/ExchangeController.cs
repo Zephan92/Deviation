@@ -19,7 +19,7 @@ namespace Assets.Scripts.Controllers
 	{
 		//Public Static Variables
 		public int NumberOfPlayers { get { return 2; } }
-		public Battlefield MainPlayerFieldNumber { get { return Battlefield.One; } }
+		public BattlefieldZone MainPlayerFieldNumber { get { return BattlefieldZone.One; } }
 
 		//Unity Objects
 		public GameObject MainPlayerObject { get; set; }
@@ -186,7 +186,7 @@ namespace Assets.Scripts.Controllers
 		//load main menu
 		private void EndRound()
 		{
-			mc.Winners[mc.CurrentRound - 1] = (int)_winner.Battlefield;
+			mc.Winners[mc.CurrentRound - 1] = (int)_winner.BattlefieldZone;
 			ToChangePhase();
 		}
 

@@ -126,7 +126,7 @@ public class ExchangeServerStarter : MonoBehaviour
 			}
 
 			// Set the static object, so that it can be used when creating a room
-			ExchangeGameRoom.SpawnTaskController = controller;
+			GameRoom.SpawnTaskController = controller;
 
 			if (Msf.Args.IsProvided(Msf.Args.Names.WebGl))
 				NetworkManager.useWebSockets = true;

@@ -44,7 +44,7 @@ namespace Assets.Scripts.DTO.Exchange
 			//for each action name, find corresponding action in the Action Library Table
 			foreach (string actionName in actionNames)
 			{
-				if (ActionLibrary.ActionLibraryTable.ContainsKey(actionName))
+				if (ActionLibrary.GetActionLibraryTable().ContainsKey(actionName))
 				{
 					Actions[ActionCount] = ActionLibrary.GetActionInstance(actionName);
 				}

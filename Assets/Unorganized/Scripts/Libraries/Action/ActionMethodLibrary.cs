@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Assets.Scripts.Library.Action.ModuleActions;
 using System.Linq;
 using UnityEngine;
+using Assets.Scripts.Enum;
 
 namespace Assets.Scripts.Library
 {
@@ -15,9 +16,9 @@ namespace Assets.Scripts.Library
 			new ElementalActionMethods(),
 		};
 
-		private static Dictionary<string, System.Action<IBattlefieldController, IAttack, IPlayer>> ActionMethodLibraryTable = new Dictionary<string, System.Action<IBattlefieldController, IAttack, IPlayer>>();
+		private static Dictionary<string, System.Action<IBattlefieldController, IAttack, IExchangePlayer, BattlefieldZone>> ActionMethodLibraryTable = new Dictionary<string, System.Action<IBattlefieldController, IAttack, IExchangePlayer, BattlefieldZone>>();
 
-		public static System.Action<IBattlefieldController, IAttack, IPlayer> GetActionMethod(string actionName)
+		public static System.Action<IBattlefieldController, IAttack, IExchangePlayer, BattlefieldZone> GetActionMethod(string actionName)
 		{
 			AddActionMethodModulesToLibrary();
 
@@ -31,7 +32,7 @@ namespace Assets.Scripts.Library
 			return ActionMethodLibraryTable.ContainsKey(actionName);
 		}
 
-		public static Dictionary<string, System.Action<IBattlefieldController, IAttack, IPlayer>> GetActionLibary()
+		public static Dictionary<string, System.Action<IBattlefieldController, IAttack, IExchangePlayer, BattlefieldZone>> GetActionLibary()
 		{
 			AddActionMethodModulesToLibrary();
 
@@ -43,7 +44,7 @@ namespace Assets.Scripts.Library
 			if (ActionMethodLibraryTable.Count == 0)
 			{
 				ActionMethodLibraryTable.Add("default",
-				delegate (IBattlefieldController bc, IAttack attack, IPlayer player)
+				delegate (IBattlefieldController bc, IAttack attack, IExchangePlayer player, BattlefieldZone zone)
 				{
 					Debug.Log("Default Action");
 				});

@@ -12,7 +12,7 @@ public class ExchangeRoomTerminator : MonoBehaviour
 			   "It's recommended that you create your own termination scripts"
 	};
 
-	public ExchangeGameRoom Room;
+	public GameRoom Room;
 
 	[Tooltip("Terminates server if first player doesn't join in a given number of seconds")]
 	public float FirstPlayerTimeoutSecs = 25;
@@ -35,7 +35,7 @@ public class ExchangeRoomTerminator : MonoBehaviour
 	// Use this for initialization
 	void Awake()
 	{
-		Room = FindObjectOfType<ExchangeGameRoom>();
+		Room = FindObjectOfType<GameRoom>();
 
 		if (!Msf.Args.IsProvided(Msf.Args.Names.SpawnCode))
 		{

@@ -23,7 +23,7 @@ namespace Assets.Scripts.Interface.Exchange
 		int CurrentColumn { get; set; }
 		int CurrentRow { get; set; }
 
-		Battlefield Battlefield { get; set; }
+		BattlefieldZone BattlefieldZone { get; set; }
 		Transform Transform { get;  }
 		IPlayer[] Enemies { get; set; }
 		IKit EquipedKit { get; set; }
@@ -35,7 +35,7 @@ namespace Assets.Scripts.Interface.Exchange
 		ITimerManager TimerManager { get; set; }
 		INPCController NPCController { get; set; }
 
-		void SetPlayer(bool isMainPlayer, Battlefield startField, IKit kit, float energyRate, int maxHealth, int maxEnergy, int minHealth, int minEnergy);
+		void SetPlayer(bool isMainPlayer, BattlefieldZone startField, IKit kit, float energyRate, int maxHealth, int maxEnergy, int minHealth, int minEnergy);
 
 		void RestoreEnergy();
 		void ResetEnergy();

@@ -11,7 +11,13 @@ public class StandaloneController : MonoBehaviour
 
 	public void Awake()
 	{
-		Msf.Client.Connection.Connected += JoinServer;
+		Msf.Client.Connection.Connected += Login;
+	}
+
+	public void Login()
+	{
+		Msf.Client.Auth.LogInAsGuest((successful, error) => { });
+		Msf.Client.Auth.LoggedIn += JoinServer;
 	}
 
 	public void JoinServer()
@@ -144,23 +150,5 @@ public class StandaloneController : MonoBehaviour
 
 		FindObjectOfType<ExchangeRoomConnector>().ConnectToGame(packet);
 
-	}
-
-	public void OnRoomAccessReceived(RoomAccessPacket access)
-	{
-		var loadingPromise = Msf.Events.FireWithPromise(Msf.EventNames.ShowLoading, "Joining lobby");
-
-		Msf.Client.Lobbies.JoinLobby(access.RoomId, (lobby, error) =>
-		{
-			loadingPromise.Finish();
-
-			if (lobby == null)
-			{
-				Msf.Events.Fire(Msf.EventNames.ShowDialogBox, DialogBoxData.CreateError(error));
-				return;
-			}
-		});
-
-		FindObjectOfType<ExchangeRoomConnector>().ConnectToGame(access);
 	}
 }

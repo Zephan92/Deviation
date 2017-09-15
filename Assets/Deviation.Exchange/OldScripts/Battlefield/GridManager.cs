@@ -6,7 +6,7 @@ namespace Assets.Scripts.Exchange
 {
 	class GridManager : MonoBehaviour
 	{
-		public Battlefield ThisBattlefield = Battlefield.One;
+		public BattlefieldZone ThisBattlefield = BattlefieldZone.One;
 		private Transform[] _gridSpheres;
 		private BattlefieldController bc;
 
@@ -16,7 +16,7 @@ namespace Assets.Scripts.Exchange
 			bc = FindObjectOfType<BattlefieldController>();
 		}
 
-		void SetBattlefield(Battlefield battlefield)
+		void SetBattlefield(BattlefieldZone battlefield)
 		{
 			ThisBattlefield = battlefield;
 		}

@@ -9,6 +9,7 @@ using Assets.Scripts.Utilities;
 using System;
 using System.Collections;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace Assets.Scripts.Controllers
 {
@@ -39,20 +40,20 @@ namespace Assets.Scripts.Controllers
 		}
 
 		//sets the specified battlefield state of a particular cell
-		public void SetBattlefieldState(Battlefield field, int row, int column, bool state)
+		public void SetBattlefieldState(BattlefieldZone field, int row, int column, bool state)
 		{
 			_battlefields[(int) field, row, column] = state;
 		}
 
 		//sets the specifed battlefield state of a particular cell after a period of time
-		public void SetBattlefieldStateAfterTimout(float timeout, Battlefield field, int row, int column, bool state)
+		public void SetBattlefieldStateAfterTimout(float timeout, BattlefieldZone field, int row, int column, bool state)
 		{
 			object[] parameters = { field, row, column, state };
 			CoroutineManager.StartCoroutineThread_AfterTimout(SetBattlefieldStateMethod, parameters, timeout, ref _coroutine);
 		}
 		
 		//returns the battlefield state from the specified battlefield cell
-		public bool GetBattlefieldState(Battlefield field, int row, int column)
+		public bool GetBattlefieldState(BattlefieldZone field, int row, int column)
 		{
 			if (column < 0 || column > 4 || row < 0 || row > 4)
 			{
@@ -84,14 +85,14 @@ namespace Assets.Scripts.Controllers
 			CoroutineManager.StartCoroutineThread_AfterTimout(DeleteAfterTimeoutMethod, parameters, timeout, ref _coroutine);
 		}
 
-		public void Spawn(float deletionTimeout, string resourceName, Vector3 zone, Quaternion rotation)
+		public void Spawn(float deletionTimeout, string resourceName, Vector3 zone, Quaternion rotation = new Quaternion())
 		{
 			GameObject go = (GameObject) Instantiate(Resources.Load(resourceName), zone, rotation);
 			DeleteAfterTimeout(deletionTimeout, go);
 		}
 
 		//spawn object after timeout
-		public void SpawnAfterTimeout(float timeout, float deletionTimeout, string resourceName, Vector3 zone, Quaternion rotation)
+		public void SpawnAfterTimeout(float timeout, float deletionTimeout, string resourceName, Vector3 zone, Quaternion rotation = new Quaternion())
 		{
 			object[] parameters = { deletionTimeout, resourceName, zone, rotation };
 			CoroutineManager.StartCoroutineThread_AfterTimout(SpawnAfterTimeoutMethod, parameters, timeout, ref _coroutine);
@@ -151,7 +152,7 @@ namespace Assets.Scripts.Controllers
 		private void SetBattlefieldStateMethod(object[] parameters)
 		{
 			SetBattlefieldState(
-				field: (Battlefield)parameters[0],
+				field: (BattlefieldZone)parameters[0],
 				row: (int)parameters[1],
 				column: (int)parameters[2],
 				state: (bool)parameters[3]);
@@ -200,16 +201,16 @@ namespace Assets.Scripts.Controllers
 			{
 				if (mainPlayerFieldNumber == i)
 				{
-					CreateBattlefield((Battlefield)i, true);
+					CreateBattlefield((BattlefieldZone)i, true);
 				}
 				else
 				{
-					CreateBattlefield((Battlefield)i, false);
+					CreateBattlefield((BattlefieldZone)i, false);
 				}
 			}
 		}
 
-		private GameObject CreateBattlefield(Battlefield startField, bool mainPlayer)
+		private GameObject CreateBattlefield(BattlefieldZone startField, bool mainPlayer)
 		{
 			GameObject battlefield = Instantiate(Resources.Load("Battlefield"), Vector3.zero, new Quaternion(0, 0, 0, 0)) as GameObject;
 			Transform[] battlefields = battlefield.GetComponentsInChildren<Transform>();
@@ -240,7 +241,7 @@ namespace Assets.Scripts.Controllers
 			return battlefield;
 		}
 
-		private void UpdateBattlefield(GameObject go, Battlefield startField, bool mainPlayer)
+		private void UpdateBattlefield(GameObject go, BattlefieldZone startField, bool mainPlayer)
 		{
 			if (go.name.Equals("Player"))
 			{
@@ -272,6 +273,16 @@ namespace Assets.Scripts.Controllers
 				}
 			}
 			return enemies;
+		}
+
+		public List<IExchangePlayer> GetPlayers(BattlefieldZone zone = BattlefieldZone.All)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Vector3 GetBattlefieldCoordinates(BattlefieldZone zone)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

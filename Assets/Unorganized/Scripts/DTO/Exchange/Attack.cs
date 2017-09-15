@@ -1,17 +1,11 @@
 ﻿using Assets.Scripts.Interface.DTO;
-using Assets.Scripts.Interface.Exchange;
 using System;
+using System.Collections.Generic;
 
 namespace Assets.Scripts.DTO.Exchange
 {
 	public struct Attack : IAttack
 	{
-		//this is the attack initiator of the attack, recoil applies to them
-		public IPlayer Attacker { get; set; }
-
-		//this is the defender of the attack, drain applies to them
-		public IPlayer Defender { get; set; }
-
 		//this is the base damage of the attack
 		public int BaseDamage { get; set; }
 
@@ -25,8 +19,6 @@ namespace Assets.Scripts.DTO.Exchange
 
 		public Attack( int baseDamage = 0, float healthDrainModifier = -1.0f, float energyDrainModifier = 0.0f, float healthRecoilModifier = 0.0f, float energyRecoilModifier = -1.0f)
 		{
-			Attacker = null;
-			Defender = null;
 			BaseDamage = baseDamage;
 			HealthDrainModifier = healthDrainModifier;
 			EnergyDrainModifier = energyDrainModifier;
@@ -34,78 +26,63 @@ namespace Assets.Scripts.DTO.Exchange
 			EnergyRecoilModifier = energyRecoilModifier;
 		}
 
-		//sets the attacker
-		public void SetAttacker(IPlayer attacker)
+		public void InitiateAttack(List<IExchangePlayer> allies, List<IExchangePlayer> enemies)
 		{
-			Attacker = attacker;
+			InitiateAttack(allies, AttackAlignment.Allies);
+			InitiateAttack(enemies, AttackAlignment.Enemies);
 		}
 
-		//sets the defender
-		public void SetDefender(IPlayer defender)
+		public void InitiateAttack(List<IExchangePlayer> targets, AttackAlignment alignment)
 		{
-			Defender = defender;
-		}
-
-		//this is an attack that hits applies the attack to both the attacker and defender
-		public void InitiateAttack(IPlayer attacker = null, IPlayer defender = null)
-		{
-			if (attacker != null)
+			switch(alignment)
 			{
-				SetAttacker(attacker);
-			}
-
-			if (defender != null)
-			{
-				SetDefender(defender);
-			}
-			
-			InitiateRecoil();
-			InitiateDrain();
-		}
-
-		//this is an attack that just affects the attacker
-		public void InitiateRecoil()
-		{
-			if (Attacker != null)
-			{
-				UpdateEnergy(Attacker, GetDamage(EnergyRecoilModifier));
-				UpdateHealth(Attacker, GetDamage(HealthRecoilModifier));
-			}
-			else
-			{
-				throw new Exception("Defender not set");
+				case AttackAlignment.Allies:
+					DeliverDamage(targets, EnergyRecoilModifier, HealthRecoilModifier);
+					break;
+				case AttackAlignment.Enemies:
+					DeliverDamage(targets, EnergyDrainModifier, HealthDrainModifier);
+					break;
 			}
 		}
 
-		//this is an attack that just affects the defender
-		public void InitiateDrain()
+		public int GetHealthCost(AttackAlignment alignment)
 		{
-			if (Defender != null)
+			switch (alignment)
 			{
-				UpdateEnergy(Defender, GetDamage(EnergyDrainModifier));
-				UpdateHealth(Defender, GetDamage(HealthDrainModifier));
+				case AttackAlignment.Allies:
+					return GetDamage(HealthRecoilModifier);
+				case AttackAlignment.Enemies:
+					return GetDamage(HealthDrainModifier);
+				default:
+					return 0;
 			}
-			else
+		}
+
+		public int GetEnergyCost(AttackAlignment alignment)
+		{
+			switch (alignment)
 			{
-				throw new Exception("Defender not set");
+				case AttackAlignment.Allies:
+					return GetDamage(EnergyRecoilModifier);
+				case AttackAlignment.Enemies:
+					return GetDamage(EnergyDrainModifier);
+				default:
+					return 0;
 			}
 		}
 
-		//this helper function adds energy to the target
-		private void UpdateEnergy(IPlayer target, int damage)
+		private void DeliverDamage(List<IExchangePlayer> targets, float energyModifier, float healthModifier)
 		{
-			target.AddEnergy(damage);
+			foreach (IExchangePlayer player in targets)
+			{
+				player.Energy.Add(GetDamage(energyModifier));
+				player.Health.Add(GetDamage(healthModifier));
+			}
 		}
 
-		//this helper function adds health to the target
-		private void UpdateHealth(IPlayer target, int damage)
+		private int GetDamage(float modifier)
 		{
-			target.AddHealth(damage);
-		}
-
-		public int GetDamage(float modifier)
-		{
-			return (int) (modifier * BaseDamage);
+			return (int)(modifier * BaseDamage);
 		}
 	}
 }

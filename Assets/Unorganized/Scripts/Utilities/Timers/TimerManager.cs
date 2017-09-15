@@ -2,8 +2,6 @@
 using Assets.Scripts.Utilities.Timers;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace Assets.Scripts.Utilities
@@ -12,7 +10,7 @@ namespace Assets.Scripts.Utilities
 	public class TimerManager : MonoBehaviour, ITimerManager
 	{
 		private Dictionary<string, IUnityTimer> _timerLibary = new Dictionary<string, IUnityTimer>();
-
+		
 		//instantiates a new Attack timer and adds it to the timer library
 		public void AddAttackTimer(string TimerName, float Cooldown, int playerNumber = -1)
 		{

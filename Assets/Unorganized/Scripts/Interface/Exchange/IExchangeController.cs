@@ -8,7 +8,7 @@ namespace Assets.Scripts.Interface
     public interface IExchangeController
     {
 		int NumberOfPlayers { get; }
-		Battlefield MainPlayerFieldNumber { get; }
+		BattlefieldZone MainPlayerFieldNumber { get; }
 		GameObject MainPlayerObject { get; set; }
 		IPlayer[] Players { get; set; }
 		ExchangeState ExchangeState { get; set; }
