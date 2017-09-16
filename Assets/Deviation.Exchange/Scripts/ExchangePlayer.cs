@@ -7,6 +7,9 @@ using UnityEngine.Networking;
 
 public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 {
+	private const int INTITIAL_COLUMN = 2;
+	private const int INTITIAL_ROW = 2;
+
 	[SyncVar]
 	private bool _initialized;
 	[SyncVar]
@@ -98,7 +101,7 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	[ClientRpc]
 	private void RpcInit(BattlefieldZone zone, string kitName)
 	{
-		_mover.Init(zone, 2, 2, 1f);
+		_mover.Init(zone, INTITIAL_ROW, INTITIAL_COLUMN, 1f);
 		_kit = KitLibrary.GetKitInstance(kitName);
 		_kit.Player = this;
 

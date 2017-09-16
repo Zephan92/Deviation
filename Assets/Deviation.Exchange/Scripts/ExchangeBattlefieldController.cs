@@ -96,13 +96,33 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 				return false;
 		}
 		var coordinates = GetGridCoordinates(row, column, zone);
-		return Grid[(int)coordinates.x, (int)coordinates.y].Occupied;
+		if (coordinates.x > 0 &&
+			coordinates.x < Grid.GetLength(0) &&
+			coordinates.y > 0 &&
+			coordinates.y < Grid.GetLength(1))
+		{
+			return Grid[(int)coordinates.x, (int)coordinates.y].Occupied;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	public void SetBattlefieldState(int row, int column, bool state, BattlefieldZone zone = BattlefieldZone.All)
 	{
 		var coordinates = GetGridCoordinates(row, column, zone);
-		Grid[(int)coordinates.x, (int)coordinates.y].Occupied = state;
+		if (coordinates.x >= 0 &&
+			coordinates.x < Grid.GetLength(0) &&
+			coordinates.y >= 0 &&
+			coordinates.y < Grid.GetLength(1))
+		{
+			Grid[(int)coordinates.x, (int)coordinates.y].Occupied = state;
+		}
+		else
+		{
+			Debug.LogError("Coordinates were not valid. (" + coordinates.x + ", " + coordinates.y + ")");
+		}
 	}
 
 	[Obsolete]
@@ -124,11 +144,6 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 			default:
 				throw new System.Exception("Zone was not Left, Right or All.");
 		}
-	}
-
-	public void SetGridOccupied(int row, int column, bool occupied)
-	{
-		Grid[column, row].Occupied = occupied;
 	}
 
 	public Vector3 GetBattlefieldCoordinates(BattlefieldZone zone)
@@ -193,7 +208,7 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		throw new NotImplementedException();
 	}
 
-	private Vector2 GetGridCoordinates(int row, int column, BattlefieldZone zone)
+	public Vector2 GetGridCoordinates(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
 	{
 		int gridColumn = 0;
 		switch (zone)
@@ -208,6 +223,22 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		}
 
 		return new Vector2(gridColumn, row);
+	}
+
+	public Vector2 GetGridCoordinates(Vector3 pos, BattlefieldZone zone = BattlefieldZone.All)
+	{
+		switch (zone)
+		{
+			case BattlefieldZone.All:
+			case BattlefieldZone.Left:
+				return GetGridCoordinates((int)pos.z, (int)pos.x);
+			case BattlefieldZone.Right:
+				return GetGridCoordinates((int)pos.z, (int)pos.x - 5);
+				break;
+			default:
+				return GetGridCoordinates((int)pos.z, (int)pos.x);
+		}
+
 	}
 
 	private void AddPlayersToDict()
@@ -264,6 +295,8 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 				}
 			}
 		}
+		SetBattlefieldState(2, 2, true, BattlefieldZone.Left);
+		SetBattlefieldState(2, 2, true, BattlefieldZone.Right);
 	}
 
 	[ClientRpc]
@@ -276,7 +309,8 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 	{
 		go.transform.parent = BattlefieldGO.transform;
 		go.GetComponentInChildren<MeshRenderer>().material.color = color;
-		Grid[column, row] = go.GetComponent<GridSpace>();
+		var gridspace = go.GetComponent<GridSpace>();
+		Grid[column, row] = gridspace;
 	}
 
 	//coroutine to delete specified objects

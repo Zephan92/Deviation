@@ -9,12 +9,4 @@ public class GridSpace : NetworkBehaviour
 	public BattlefieldZone Zone;
 	[SyncVar]
 	public bool Occupied = false;
-	public GameObject GridSpaceObject;
-
-	public GridSpace(GameObject gridSpaceObject, BattlefieldZone zone)
-	{
-		Occupied = false;
-		GridSpaceObject = gridSpaceObject;
-		Zone = zone;
-	}
 }
