@@ -14,15 +14,23 @@ namespace Assets.Scripts.Interface
 
 		Vector3 GetBattlefieldCoordinates(BattlefieldZone zone);
 
-		void SetBattlefieldState(BattlefieldZone field, int row, int column, bool state);
-		void SetBattlefieldStateAfterTimout(float timeout, BattlefieldZone field, int row, int column, bool state);
-		bool GetBattlefieldState(BattlefieldZone field, int row, int column);
+		void SetBattlefieldState(int row, int column, bool state, BattlefieldZone zone = BattlefieldZone.All);
+		bool GetBattlefieldState(int row, int column, BattlefieldZone zone = BattlefieldZone.All);
 
 		void DeleteAfterTimeout(float timeout, GameObject gameObjects);
 		void DeleteAfterTimeout(float timeout, GameObject[] battlefieldObjects);
-		void Spawn(float deletionTimeout, string resourceName, Vector3 zone, Quaternion rotation = new Quaternion());
+		GameObject Spawn(float deletionTimeout, string resourceName, Vector3 zone, Quaternion rotation = new Quaternion());
 		void SpawnAfterTimeout(float timeout, float deletionTimeout, string resourceName, Vector3 zone, Quaternion rotation = new Quaternion());
-		void SpawnProjectile(float deletionTimeout, string resourceName, Vector3 zone, Quaternion rotation, IAttack attack, Action<Collider, GameObject, IAttack> onTriggerAction = null, Action<GameObject> onStartAction = null, Action<GameObject> updateAction = null);
-		void SpawnProjectileAfterTimeout(float timeout, float deletionTimeout, string resourceName, Vector3 zone, Quaternion rotation, IAttack attack, Action<Collider, GameObject, IAttack> onTriggerAction = null, Action<GameObject> onStartAction = null, Action<GameObject> updateAction = null);
+		void SpawnActionObject(float deletionTimeout, string resourceName, Vector3 zone, IAttack attack, Quaternion rotation = new Quaternion(),
+			Action<Collider, GameObject, IAttack> onTriggerAction = null,
+			Action<GameObject> onStartAction = null, 
+			Action<GameObject> updateAction = null,
+			Action<GameObject> fixedUpdateAction = null);
+
+		void SpawnActionObjectAfterTimeout(float timeout, float deletionTimeout, string resourceName, Vector3 zone, IAttack attack, Quaternion rotation = new Quaternion(),
+			Action<Collider, GameObject, IAttack> onTriggerAction = null,
+			Action<GameObject> onStartAction = null,
+			Action<GameObject> updateAction = null,
+			Action<GameObject> fixedUpdateAction = null);
 	}
 }

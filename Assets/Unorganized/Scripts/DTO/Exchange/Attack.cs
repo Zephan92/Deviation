@@ -1,6 +1,7 @@
 ﻿using Assets.Scripts.Interface.DTO;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Assets.Scripts.DTO.Exchange
 {
@@ -32,9 +33,18 @@ namespace Assets.Scripts.DTO.Exchange
 			InitiateAttack(enemies, AttackAlignment.Enemies);
 		}
 
+		public void ApplyEffect(List<IExchangePlayer> targets, StatusEffect effect, float timeout, float rate = 0f)
+		{
+			foreach (IExchangePlayer player in targets)
+			{
+				player.Status.ApplyEffect(effect, timeout, rate);
+			}
+		}
+
 		public void InitiateAttack(List<IExchangePlayer> targets, AttackAlignment alignment)
 		{
-			switch(alignment)
+			Debug.LogError("Attack - InitiateAttack. Targeting: " + alignment);
+			switch (alignment)
 			{
 				case AttackAlignment.Allies:
 					DeliverDamage(targets, EnergyRecoilModifier, HealthRecoilModifier);

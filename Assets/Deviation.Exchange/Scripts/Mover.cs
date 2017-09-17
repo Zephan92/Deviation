@@ -9,6 +9,8 @@ using Assets.Scripts.Interface;
 public class Mover : NetworkBehaviour
 {
 	[SyncVar]
+	private bool _rooted;
+	[SyncVar]
 	public int CurrentRow;
 	[SyncVar]
 	public int CurrentColumn;
@@ -46,10 +48,21 @@ public class Mover : NetworkBehaviour
 		CurrentColumn = column;
 		MovementSpeed = movementSpeed;
 		_zone = zone;
+		_rooted = false;
+	}
+
+	public void SetRoot(bool root)
+	{
+		_rooted = root;
 	}
 
 	public void Move(Direction direction, int distance, bool force = false)
 	{
+		if (_rooted)
+		{
+			return;
+		}
+
 		Vector3 currentPosition = transform.position;
 		bool createMoveCoroutine = false;
 
@@ -215,11 +228,6 @@ public class Mover : NetworkBehaviour
 			_movingDetails.AddDistanceTraveled(MovementSpeed);
 			transform.Translate(directionVector * MovementSpeed);
 		}
-	}
-
-	public void MoveInstant(Vector3 pos)
-	{
-		transform.position = pos;
 	}
 
 	public bool IsAtBoundary(Direction dir, float destination)

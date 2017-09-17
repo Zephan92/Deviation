@@ -21,7 +21,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 				{"StunField",new ExchangeAction
 					(
 					name: "Stun Field",
-						attack: new Attack(baseDamage: 20, healthDrainModifier: -0.1f,  energyRecoilModifier: -1.8f),
+						attack: new Attack(baseDamage: 20, healthDrainModifier: -0.6f,  energyRecoilModifier: -1.8f),
 						actionTexture: Resources.Load("ActionTextures/Purple") as Texture2D,
 						primaryActionName: "StunField",
 						cooldown: 1f,

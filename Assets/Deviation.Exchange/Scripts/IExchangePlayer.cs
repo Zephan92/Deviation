@@ -6,6 +6,7 @@ public interface IExchangePlayer
 	Energy Energy { get; }
 	Health Health { get; }
 	Mover Mover { get; }
+	Status Status { get; }
 	BattlefieldZone Zone { get; }
 
 	void Init(int energyMin, int energyMax, float energyRate, int healthMin, int healthMax, BattlefieldZone zone, string kitName);

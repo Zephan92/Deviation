@@ -19,6 +19,10 @@ public class Energy : NetworkBehaviour
 	private float _rate;
 	[SyncVar]
 	private float _energy;
+	[SyncVar]
+	private bool _recoilBlock;
+	[SyncVar]
+	private bool _regenBlock;
 
 	public void Init(int min, int max, float rate)
 	{
@@ -27,6 +31,8 @@ public class Energy : NetworkBehaviour
 		_current = max;
 		_rate = rate;
 		_energy = 0f;
+		_recoilBlock = false;
+		_regenBlock = false;
 	}
 
 	public void UpdateMax(int increase)
@@ -37,7 +43,21 @@ public class Energy : NetworkBehaviour
 
 	public void Add(int add)
 	{
+		int currentMin = _min;
+		int currentMax = _max;
+
+		if (_recoilBlock)
+		{
+			currentMin = _current;
+		}
+
+		if (_regenBlock)
+		{
+			currentMax = _current;
+		}
+
 		_current = Mathf.Clamp(_current + add, _min, _max);
+		
 	}
 
 	public void ReInit()
@@ -48,11 +68,21 @@ public class Energy : NetworkBehaviour
 	public void Restore()
 	{
 		_energy += _max * _rate;
-		if (_energy > 1)
+		if (_energy > 1 || _energy < -1)
 		{
 			var add = (int)_energy;
 			Add(add);
 			_energy -= add;
 		}
+	}
+
+	public void RecoilBlock(bool recoilBlockEnabled)
+	{
+		_recoilBlock = recoilBlockEnabled;
+	}
+
+	public void RegenBlock(bool regenBlockEnabled)
+	{
+		_regenBlock = regenBlockEnabled;
 	}
 }

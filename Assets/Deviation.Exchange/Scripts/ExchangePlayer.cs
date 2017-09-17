@@ -19,10 +19,12 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	private Energy _energy;
 	private Health _health;
 	private Mover _mover;
+	private Status _status;
 
 	public Energy Energy { get { return _energy; } }
 	public Health Health { get { return _health; } }
 	public Mover Mover { get { return _mover; } }
+	public Status Status { get { return _status; } }
 	public BattlefieldZone Zone { get { return _zone; } }
 	public bool Initialized { get { return _initialized;  } }
 	public IKit Kit { get { return _kit; } }
@@ -37,6 +39,7 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 		_energy = GetComponent<Energy>();
 		_health = GetComponent<Health>();
 		_mover = GetComponent<Mover>();
+		_status = GetComponent<Status>();
 	}
 
 	public void FixedUpdate()
@@ -44,6 +47,7 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 		if (_initialized)
 		{
 			_energy.Restore();
+			_health.Restore();
 		}
 	}
 

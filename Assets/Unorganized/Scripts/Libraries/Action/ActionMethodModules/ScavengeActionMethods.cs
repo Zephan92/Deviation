@@ -22,13 +22,22 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 					float originX = origin.x;
 					float originZ = origin.z;
 
+					System.Action<Collider, GameObject, IAttack> onTriggerEnterMethod = delegate(Collider other, GameObject actionGO, IAttack actionAttack)
+					{
+						IExchangePlayer otherPlayer = other.GetComponent<IExchangePlayer>();
+						actionAttack.InitiateAttack(new List<IExchangePlayer>{ otherPlayer}, AttackAlignment.Enemies );
+						actionAttack.ApplyEffect(new List<IExchangePlayer>{ otherPlayer}, StatusEffect.Root, 1f);
+						actionAttack.ApplyEffect(new List<IExchangePlayer>{ otherPlayer}, StatusEffect.Burn, 1f, -0.005f);
+						Destroy(actionGO);
+					};
+
 					int numStuns = 5;
 					int[,] stunLocations = new int[numStuns, 2];
 					stunLocations = ActionUtilities.InitializeZones(stunLocations, numStuns);
 					for (int i = 0; i < numStuns; i++)
 					{
 						stunLocations = ActionUtilities.PickZone(stunLocations, i);
-						bc.Spawn(4f, "StunTrigger", new Vector3(originX + stunLocations[i,0], 0, originZ + stunLocations[i,1]));
+						bc.SpawnActionObject(4f, "StunTrigger", new Vector3(originX + stunLocations[i,0], 0, originZ + stunLocations[i,1]), attack, onTriggerAction: onTriggerEnterMethod);
 					}
 				}
 			},
