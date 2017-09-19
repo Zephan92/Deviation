@@ -2,6 +2,7 @@
 using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Library;
 using Assets.Scripts.Utilities;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -32,6 +33,8 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	private ExchangeBattlefieldController bc;
 	private TimerManager tm;
 
+	private Dictionary<int, bool> _actionsDisabled;
+
 	public void Start()
 	{
 		bc = FindObjectOfType<ExchangeBattlefieldController>();
@@ -40,6 +43,11 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 		_health = GetComponent<Health>();
 		_mover = GetComponent<Mover>();
 		_status = GetComponent<Status>();
+		_actionsDisabled = new Dictionary<int, bool>();
+		_actionsDisabled.Add(0, false);
+		_actionsDisabled.Add(1, false);
+		_actionsDisabled.Add(2, false);
+		_actionsDisabled.Add(3, false);
 	}
 
 	public void FixedUpdate()
@@ -57,10 +65,24 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 		RpcInit(zone, kitName);
 	}
 
-	
+	public void DisableAction(bool disabled, int actionNumber = -1)
+	{
+		if (actionNumber == -1)
+		{
+			foreach (int keyNumber in _actionsDisabled.Keys)
+			{
+				_actionsDisabled[keyNumber] = disabled;
+			}
+		}
+		else
+		{
+			_actionsDisabled[actionNumber] = disabled;
+		}
+	}
+
 	public bool Action(int actionNumber)
 	{
-		if (!isLocalPlayer)
+		if (!isLocalPlayer || _actionsDisabled[actionNumber])
 		{
 			return false;
 		}

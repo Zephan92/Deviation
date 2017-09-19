@@ -25,20 +25,6 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 
 	private ICoroutineManager cm;
 
-	[Obsolete]
-	public IPlayer[] Players
-	{
-		get
-		{
-			throw new NotImplementedException();
-		}
-
-		set
-		{
-			throw new NotImplementedException();
-		}
-	}
-
 	public void Start()
 	{
 		if (BattlefieldGO == null)
@@ -154,25 +140,9 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		}
 	}
 
-
 	public void SetBattlefieldStateAfterTimout(float timeout, BattlefieldZone field, int row, int column, bool state)
 	{
 		throw new NotImplementedException();
-	}
-
-	public GameObject Spawn(float deletionTimeout, string resourceName, Vector3 zone, Quaternion rotation = new Quaternion())
-	{
-		var gameObject = (GameObject)Instantiate(Resources.Load(resourceName), zone, rotation);
-		NetworkServer.Spawn(gameObject);
-		DeleteAfterTimeout(deletionTimeout, gameObject);
-		return gameObject;
-	}
-
-	//spawn object after timeout
-	public void SpawnAfterTimeout(float timeout, float deletionTimeout, string resourceName, Vector3 zone, Quaternion rotation = new Quaternion())
-	{
-		object[] parameters = { deletionTimeout, resourceName, zone, rotation };
-		cm.StartCoroutineThread_AfterTimout(SpawnAfterTimeoutMethod, parameters, timeout, ref _coroutine);
 	}
 
 	//delete object after timeout
@@ -188,63 +158,103 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		cm.StartCoroutineThread_AfterTimout(DeleteAfterTimeoutMethod, parameters, timeout, ref _coroutine);
 	}
 
-	public void SpawnActionObject(float deletionTimeout, string resourceName, Vector3 zone, IAttack attack, Quaternion rotation = new Quaternion(),
+	public void SpawnActionObject(float delay, float deletionTimeout, string resourceName, Vector3 zone, IAttack attack, Quaternion rotation = new Quaternion(),
 		Action<Collider, GameObject, IAttack> onTriggerAction = null, 
 		Action<GameObject> onStartAction = null, 
 		Action<GameObject> updateAction = null, 
-		Action<GameObject> fixedUpdateAction = null)
+		Action<GameObject> fixedUpdateAction = null,
+		Action onDelayStartAction = null,
+		Action onDelayEndAction = null)
 	{
-		GameObject go = Spawn(deletionTimeout, resourceName, zone, rotation);
+		if (onDelayStartAction != null)
+		{
+			onDelayStartAction();
+		}
+
+		object[] parameters = 
+		{
+			deletionTimeout,	//0
+			resourceName,		//1
+			zone,				//2
+			rotation,			//3
+			attack,				//4
+			onTriggerAction,	//5
+			onStartAction,		//6
+			updateAction,		//7
+			fixedUpdateAction	//8
+		};
+
+		cm.StartCoroutineThread_AfterTimout(() => 
+		{
+			if (onDelayEndAction != null)
+			{
+				onDelayEndAction();
+			}
+			SpawnActionObjectHelper(parameters);
+		}, delay, ref _coroutine);
+	}
+
+	public void SpawnActionObjectAfterTimeout(float delay, float timeout, float deletionTimeout, string resourceName, Vector3 zone, IAttack attack, Quaternion rotation = new Quaternion(),
+		Action<Collider, GameObject, IAttack> onTriggerAction = null,
+		Action<GameObject> onStartAction = null,
+		Action<GameObject> updateAction = null,
+		Action<GameObject> fixedUpdateAction = null,
+		Action onDelayStartAction = null,
+		Action onDelayEndAction = null)
+	{
+		cm.StartCoroutineThread_AfterTimout(() =>
+		{
+			SpawnActionObject(delay, deletionTimeout, resourceName, zone, attack, rotation, onTriggerAction, onStartAction, updateAction, fixedUpdateAction, onDelayStartAction, onDelayEndAction);
+		}, timeout, ref _coroutine);
+	}
+
+	private void SpawnActionObjectHelper(object[] parameters)
+	{
+		var go = Spawn(
+			deletionTimeout: (float)parameters[0],
+			resourceName: (string)parameters[1],
+			zone: (Vector3)parameters[2],
+			rotation: (Quaternion)parameters[3]);
 
 		IActionObject actionObject = go.GetComponent<ActionObject>();
 
-		actionObject.SetAttack(attack);
+		actionObject.SetAttack((IAttack)parameters[4]);
 
-		if (onTriggerAction != null)
+		if (parameters[5] != null)
 		{
-			actionObject.SetOnTriggerEnter(onTriggerAction);
+			actionObject.SetOnTriggerEnter((Action<Collider, GameObject, IAttack>) parameters[5]);
 		}
 		else
 		{
 			actionObject.SetOnTriggerEnter(delegate (Collider other, GameObject actionGO, IAttack atk) { });
 		}
 
-		if (onStartAction != null)
+		if (parameters[6] != null)
 		{
-			actionObject.SetStart(onStartAction);
+			actionObject.SetStart((Action<GameObject>) parameters[6]);
 		}
 		else
 		{
 			actionObject.SetStart(delegate (GameObject actionGO) { });
 		}
 
-		if (updateAction != null)
+		if (parameters[7] != null)
 		{
-			actionObject.SetUpdate(updateAction);
+			actionObject.SetUpdate((Action<GameObject>) parameters[7]);
 		}
 		else
 		{
 			actionObject.SetUpdate(delegate (GameObject actionGO) { });
 		}
 
-		if (fixedUpdateAction != null)
+		if (parameters[8] != null)
 		{
-			actionObject.SetFixedUpdate(fixedUpdateAction);
+			actionObject.SetFixedUpdate((Action<GameObject>)parameters[8]);
 		}
 		else
 		{
 			actionObject.SetFixedUpdate(delegate (GameObject actionGO) { });
 		}
-	}
-
-	public void SpawnActionObjectAfterTimeout(float timeout, float deletionTimeout, string resourceName, Vector3 zone, IAttack attack, Quaternion rotation = new Quaternion(),
-		Action<Collider, GameObject, IAttack> onTriggerAction = null, 
-		Action<GameObject> onStartAction = null, 
-		Action<GameObject> updateAction = null, 
-		Action<GameObject> fixedUpdateAction = null)
-	{
-		object[] parameters = { deletionTimeout, resourceName, zone, rotation, attack, onTriggerAction, onStartAction, updateAction, fixedUpdateAction };
-		cm.StartCoroutineThread_AfterTimout(SpawnProjectileAfterTimeoutMethod, parameters, timeout, ref _coroutine);
 	}
 
 	public Vector2 GetGridCoordinates(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
@@ -278,6 +288,42 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 				return GetGridCoordinates((int)pos.z, (int)pos.x);
 		}
 
+	}
+
+	public void SetGridSpaceColor(int column, int row, Color color, BattlefieldZone zone = BattlefieldZone.All)
+	{
+		var pos = GetGridCoordinates(row, column, zone);
+		Debug.Log(pos);
+		var gridSpace = Grid[(int)pos.x, (int)pos.y];
+		gridSpace.GetComponentInChildren<MeshRenderer>().material.color = color;
+
+		if (isServer)
+		{
+			RpcSetGridSpaceColor(column, row, color, zone);
+		}
+	}
+
+	[ClientRpc]
+	private void RpcSetGridSpaceColor(int column, int row, Color color, BattlefieldZone zone)
+	{
+		SetGridSpaceColor(column, row, color, zone);
+	}
+
+	private GameObject Spawn(float deletionTimeout, string resourceName, Vector3 zone, Quaternion rotation = new Quaternion())
+	{
+		var gameObject = (GameObject)Instantiate(Resources.Load(resourceName), zone, rotation);
+		NetworkServer.Spawn(gameObject);
+		DeleteAfterTimeout(deletionTimeout, gameObject);
+		return gameObject;
+	}
+
+	//coroutine to delete specified objects
+	private void DeleteAfterTimeoutMethod(object[] parameters)
+	{
+		foreach (GameObject battlefieldObject in (GameObject[])parameters[0])
+		{
+			Destroy(battlefieldObject);
+		}
 	}
 
 	private void AddPlayersToDict()
@@ -341,7 +387,7 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 	[ClientRpc]
 	private void RpcGridSpaceInit(GameObject go, Color color, int column, int row)
 	{
-		GridSpaceInit(go, color, column, row);		
+		GridSpaceInit(go, color, column, row);
 	}
 
 	private void GridSpaceInit(GameObject go, Color color, int column, int row)
@@ -350,38 +396,5 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		go.GetComponentInChildren<MeshRenderer>().material.color = color;
 		var gridspace = go.GetComponent<GridSpace>();
 		Grid[column, row] = gridspace;
-	}
-
-	//coroutine to delete specified objects
-	private void DeleteAfterTimeoutMethod(object[] parameters)
-	{
-		foreach (GameObject battlefieldObject in (GameObject[])parameters[0])
-		{
-			Destroy(battlefieldObject);
-		}
-	}
-
-	//coroutine to spawn an object after a timeout
-	private void SpawnAfterTimeoutMethod(object[] parameters)
-	{
-		Spawn(
-			deletionTimeout: (float)parameters[0],
-			resourceName: (string)parameters[1],
-			zone: (Vector3)parameters[2],
-			rotation: (Quaternion)parameters[3]);
-	}
-
-	private void SpawnProjectileAfterTimeoutMethod(object[] parameters)
-	{
-		SpawnActionObject(
-			deletionTimeout: (float)parameters[0],
-			resourceName: (string)parameters[1],
-			zone: (Vector3)parameters[2],
-			rotation: (Quaternion)parameters[3],
-			attack: (IAttack)parameters[4],
-			onTriggerAction: (Action<Collider, GameObject, IAttack>)parameters[5],
-			onStartAction: (Action<GameObject>)parameters[6],
-			updateAction: (Action<GameObject>)parameters[7],
-			fixedUpdateAction: (Action<GameObject>)parameters[8]);
 	}
 }

@@ -12,4 +12,6 @@ public interface IExchangePlayer
 	void Init(int energyMin, int energyMax, float energyRate, int healthMin, int healthMax, BattlefieldZone zone, string kitName);
 
 	bool Action(int actionNumber);
+
+	void DisableAction(bool disabled, int actionNumber = -1);
 }

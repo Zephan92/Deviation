@@ -1,14 +1,16 @@
 ﻿public enum StatusEffect
 {
 	//health
-	Burn,//damage over time
-	Regenerate,//heal over time
-	TODOEndurance,//cannot die when above 1 health (if hit again, they die)
+	HealthRate,//damage over time
 	HealBlock,//cannot heal
+	DamageBlock,//cannot take damage
 	TODOShield,//absorb damage without taking it
+	TODOEndurance,//cannot die when above 1 health (if hit again, they die)
 
 	//energy
-	EnergySap,//energy drain over time
+	EnergyRate,//energy drain over time
+	EnergyRecoilBlock,//cannot lose energy
+	EnergyRegenBlock,//cannot gain energy
 
 	//player
 	Silence,//all abilities

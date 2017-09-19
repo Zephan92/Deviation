@@ -27,7 +27,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 						IExchangePlayer otherPlayer = other.GetComponent<IExchangePlayer>();
 						actionAttack.InitiateAttack(new List<IExchangePlayer>{ otherPlayer}, AttackAlignment.Enemies );
 						actionAttack.ApplyEffect(new List<IExchangePlayer>{ otherPlayer}, StatusEffect.Root, 1f);
-						actionAttack.ApplyEffect(new List<IExchangePlayer>{ otherPlayer}, StatusEffect.Burn, 1f, -0.005f);
+						actionAttack.ApplyEffect(new List<IExchangePlayer>{ otherPlayer}, StatusEffect.HealthRate, 1f, -0.005f);
 						Destroy(actionGO);
 					};
 
@@ -37,7 +37,31 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 					for (int i = 0; i < numStuns; i++)
 					{
 						stunLocations = ActionUtilities.PickZone(stunLocations, i);
-						bc.SpawnActionObject(4f, "StunTrigger", new Vector3(originX + stunLocations[i,0], 0, originZ + stunLocations[i,1]), attack, onTriggerAction: onTriggerEnterMethod);
+						int x = (int) originX + stunLocations[i,0];
+						int z = (int) originZ + stunLocations[i,1];
+
+						System.Action onDelayStart = delegate()
+						{
+							bc.SetGridSpaceColor(x,z,Color.yellow);
+						};
+
+						System.Action onDelayEnd = delegate()
+						 {
+							 if(zone == BattlefieldZone.Left)
+							 {
+								bc.SetGridSpaceColor(x,z,Color.red);
+							 }
+							 else
+							 {
+								 bc.SetGridSpaceColor(x,z,Color.blue);
+							 }
+						 };
+
+						bc.SpawnActionObject(0.5f, 4f, "StunTrigger", new Vector3(x, 0, z), attack, 
+							onTriggerAction: onTriggerEnterMethod, 
+							onDelayStartAction: onDelayStart, 
+							onDelayEndAction: onDelayEnd );
+						bc.SetGridSpaceColor(x,z,Color.yellow);
 					}
 				}
 			},
