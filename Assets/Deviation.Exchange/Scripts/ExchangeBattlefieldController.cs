@@ -158,6 +158,19 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		cm.StartCoroutineThread_AfterTimout(DeleteAfterTimeoutMethod, parameters, timeout, ref _coroutine);
 	}
 
+	public void ActionWarning(float delay, Action warningActionStart, Action warningActionEnd)
+	{
+		if (warningActionStart != null)
+		{
+			warningActionStart();
+		}
+
+		if (warningActionEnd != null)
+		{
+			cm.StartCoroutineThread_AfterTimout(warningActionEnd, delay, ref _coroutine);
+		}
+	}
+
 	public void SpawnActionObject(float delay, float deletionTimeout, string resourceName, Vector3 zone, IAttack attack, Quaternion rotation = new Quaternion(),
 		Action<Collider, GameObject, IAttack> onTriggerAction = null, 
 		Action<GameObject> onStartAction = null, 
@@ -166,10 +179,7 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		Action onDelayStartAction = null,
 		Action onDelayEndAction = null)
 	{
-		if (onDelayStartAction != null)
-		{
-			onDelayStartAction();
-		}
+		ActionWarning(delay, onDelayStartAction, onDelayEndAction);
 
 		object[] parameters = 
 		{
@@ -186,10 +196,6 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 
 		cm.StartCoroutineThread_AfterTimout(() => 
 		{
-			if (onDelayEndAction != null)
-			{
-				onDelayEndAction();
-			}
 			SpawnActionObjectHelper(parameters);
 		}, delay, ref _coroutine);
 	}
@@ -290,23 +296,32 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 
 	}
 
+	public void ResetGridSpaceColor(int column, int row, BattlefieldZone zone = BattlefieldZone.All)
+	{
+		var pos = GetGridCoordinates(row, column, zone);
+		var gridSpace = Grid[(int)pos.x, (int)pos.y];
+		gridSpace.ResetTexture();
+	}
+
 	public void SetGridSpaceColor(int column, int row, Color color, BattlefieldZone zone = BattlefieldZone.All)
 	{
 		var pos = GetGridCoordinates(row, column, zone);
-		Debug.Log(pos);
 		var gridSpace = Grid[(int)pos.x, (int)pos.y];
-		gridSpace.GetComponentInChildren<MeshRenderer>().material.color = color;
-
-		if (isServer)
-		{
-			RpcSetGridSpaceColor(column, row, color, zone);
-		}
+		gridSpace.UpdateTexture(color);
 	}
 
-	[ClientRpc]
-	private void RpcSetGridSpaceColor(int column, int row, Color color, BattlefieldZone zone)
+	public void BreakTile(int column, int row, BattlefieldZone zone = BattlefieldZone.All)
 	{
-		SetGridSpaceColor(column, row, color, zone);
+		var pos = GetGridCoordinates(row, column, zone);
+		var gridSpace = Grid[(int)pos.x, (int)pos.y];
+		gridSpace.BreakTile();
+	}
+
+	public void DamageTile(int column, int row, BattlefieldZone zone = BattlefieldZone.All)
+	{
+		var pos = GetGridCoordinates(row, column, zone);
+		var gridSpace = Grid[(int)pos.x, (int)pos.y];
+		gridSpace.Broken = true;
 	}
 
 	private GameObject Spawn(float deletionTimeout, string resourceName, Vector3 zone, Quaternion rotation = new Quaternion())
@@ -365,19 +380,20 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 				gridSpaceObject.transform.localPosition = new Vector3(columnNum, 0, rowNum);
 				NetworkServer.Spawn(gridSpaceObject);
 				var gridspace = gridSpaceObject.GetComponent<GridSpace>();
-
+				
 				if (columnNum < BATTLEFIELD_LOCAL_COLUMN_COUNT)
 				{
-					GridSpaceInit(gridSpaceObject, Color.blue, columnNum, rowNum);
-					RpcGridSpaceInit(gridSpaceObject, Color.blue, columnNum, rowNum);
 					gridspace.Zone = BattlefieldZone.Left;
 				}
 				else
 				{
-					GridSpaceInit(gridSpaceObject, Color.red, columnNum, rowNum);
-					RpcGridSpaceInit(gridSpaceObject, Color.red, columnNum, rowNum);
 					gridspace.Zone = BattlefieldZone.Right;
+					
 				}
+
+				gridspace.ResetTexture();
+				GridSpaceInit(gridSpaceObject, columnNum, rowNum);
+				RpcGridSpaceInit(gridSpaceObject, columnNum, rowNum);
 			}
 		}
 		SetBattlefieldState(2, 2, true, BattlefieldZone.Left);
@@ -385,15 +401,14 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 	}
 
 	[ClientRpc]
-	private void RpcGridSpaceInit(GameObject go, Color color, int column, int row)
+	private void RpcGridSpaceInit(GameObject go, int column, int row)
 	{
-		GridSpaceInit(go, color, column, row);
+		GridSpaceInit(go, column, row);
 	}
 
-	private void GridSpaceInit(GameObject go, Color color, int column, int row)
+	private void GridSpaceInit(GameObject go, int column, int row)
 	{
 		go.transform.parent = BattlefieldGO.transform;
-		go.GetComponentInChildren<MeshRenderer>().material.color = color;
 		var gridspace = go.GetComponent<GridSpace>();
 		Grid[column, row] = gridspace;
 	}

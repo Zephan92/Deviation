@@ -47,7 +47,7 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 	{
 		tm = GetComponent<TimerManager>();
 		bc = FindObjectOfType<ExchangeBattlefieldController>();
-		tm.AddAttackTimer("ExchangeTimer", 60);
+		tm.AddAttackTimer("ExchangeTimer", 600);
 	}
 
 	// Update is called once per frame

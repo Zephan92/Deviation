@@ -28,6 +28,16 @@ namespace Assets.Scripts.Library.Action.ActionModules
 						type: Type
 					)
 				},
+				{"Tremor",new ExchangeAction
+					(
+					name: "Tremor",
+						attack: new Attack(baseDamage: 20, healthDrainModifier: -0.6f,  energyRecoilModifier: -1.8f),
+						actionTexture: Resources.Load("ActionTextures/Purple") as Texture2D,
+						primaryActionName: "Tremor",
+						cooldown: 1f,
+						type: Type
+					)
+				},
 			};
 		}
 	}

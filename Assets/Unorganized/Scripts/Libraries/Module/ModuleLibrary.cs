@@ -34,7 +34,7 @@ namespace Assets.Scripts.Library
 				{
 					//"OneHitKO",
 					"Drain",
-					"WallPush",
+					"Tremor",
 					//"Disappear",
 					//"Steal",
 					"StunField",
