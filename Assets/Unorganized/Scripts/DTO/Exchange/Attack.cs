@@ -43,7 +43,6 @@ namespace Assets.Scripts.DTO.Exchange
 
 		public void InitiateAttack(List<IExchangePlayer> targets, AttackAlignment alignment)
 		{
-			Debug.LogError("Attack - InitiateAttack. Targeting: " + alignment);
 			switch (alignment)
 			{
 				case AttackAlignment.Allies:

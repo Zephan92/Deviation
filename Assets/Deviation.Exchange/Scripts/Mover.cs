@@ -214,10 +214,16 @@ public class Mover : NetworkBehaviour
 
 		if (isAtDestination)
 		{
-			bc.SetBattlefieldState(CurrentRow, CurrentColumn, false, _zone);
+			if (!bc.GetGridSpaceBroken(CurrentRow, CurrentColumn, _zone))
+			{
+				bc.SetBattlefieldState(CurrentRow, CurrentColumn, false, _zone);
+				bc.ResetGridSpaceColor(CurrentRow, CurrentColumn, _zone);
+			}
 			var gridLocation = bc.GetGridCoordinates(_movingDetails.Destination, _zone);
 			CurrentRow = (int) gridLocation.y;
 			CurrentColumn = (int) gridLocation.x;
+			bc.SetGridSpaceColor(CurrentRow, CurrentColumn, Color.gray, _zone);
+
 			bc.SetBattlefieldState(CurrentRow, CurrentColumn, true, _zone);
 			transform.position = _movingDetails.Destination;
 			cm.StopCoroutineThread(ref _movingCoroutine);

@@ -25,7 +25,7 @@ public class GridSpace : NetworkBehaviour
 
 	public void Update()
 	{
-		if (Broken && GetCurrentTexture() != Color.green)
+		if (Broken && GetCurrentTexture() != Color.green && isServer)
 		{
 			AddBrokenTexture();
 		}
@@ -58,7 +58,11 @@ public class GridSpace : NetworkBehaviour
 	public void UpdateTexture(Color color)
 	{
 		gameObject.GetComponentInChildren<MeshRenderer>().material.color = color;
-		RpcUpdateTexture(color);
+
+		if (isServer)
+		{
+			RpcUpdateTexture(color);
+		}
 	}
 
 	public void BreakTile()

@@ -12,6 +12,7 @@ namespace Assets.Scripts.Interface
 		List<IExchangePlayer> GetPlayers(BattlefieldZone zone = BattlefieldZone.All);
 
 		Vector3 GetBattlefieldCoordinates(BattlefieldZone zone);
+		bool GetGridSpaceBroken(int column, int row, BattlefieldZone zone = BattlefieldZone.All);
 		void SetGridSpaceColor(int column, int row, Color color, BattlefieldZone zone = BattlefieldZone.All);
 		void ResetGridSpaceColor(int column, int row, BattlefieldZone zone = BattlefieldZone.All);
 		void BreakTile(int column, int row, BattlefieldZone zone = BattlefieldZone.All);

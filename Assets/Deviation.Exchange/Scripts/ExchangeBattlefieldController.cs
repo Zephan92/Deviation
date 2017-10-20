@@ -62,56 +62,6 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		}
 	}
 
-	public bool GetBattlefieldState(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
-	{
-		switch (zone)
-		{
-			case BattlefieldZone.All:
-				if (BATTLEFIELD_ROW_COUNT <= row || BATTLEFIELD_COLUMN_COUNT <= column)
-				{
-					return false;
-				}
-				break;
-			case BattlefieldZone.Left:
-			case BattlefieldZone.Right:
-				if (BATTLEFIELD_ROW_COUNT <= row || BATTLEFIELD_LOCAL_COLUMN_COUNT <= column)
-				{
-					return false;
-				}
-				break;
-			default:
-				return false;
-		}
-		var coordinates = GetGridCoordinates(row, column, zone);
-		if (coordinates.x > 0 &&
-			coordinates.x < Grid.GetLength(0) &&
-			coordinates.y > 0 &&
-			coordinates.y < Grid.GetLength(1))
-		{
-			return Grid[(int)coordinates.x, (int)coordinates.y].Occupied;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	public void SetBattlefieldState(int row, int column, bool state, BattlefieldZone zone = BattlefieldZone.All)
-	{
-		var coordinates = GetGridCoordinates(row, column, zone);
-		if (coordinates.x >= 0 &&
-			coordinates.x < Grid.GetLength(0) &&
-			coordinates.y >= 0 &&
-			coordinates.y < Grid.GetLength(1))
-		{
-			Grid[(int)coordinates.x, (int)coordinates.y].Occupied = state;
-		}
-		else
-		{
-			Debug.LogError("Coordinates were not valid. (" + coordinates.x + ", " + coordinates.y + ")");
-		}
-	}
-
 	public Rect GetBattlefieldBoundaries(BattlefieldZone zone = BattlefieldZone.All)
 	{
 		switch (zone)
@@ -293,35 +243,97 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 			default:
 				return GetGridCoordinates((int)pos.z, (int)pos.x);
 		}
-
 	}
 
-	public void ResetGridSpaceColor(int column, int row, BattlefieldZone zone = BattlefieldZone.All)
+	public bool GetBattlefieldState(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
 	{
-		var pos = GetGridCoordinates(row, column, zone);
-		var gridSpace = Grid[(int)pos.x, (int)pos.y];
-		gridSpace.ResetTexture();
+		GridSpace gridspace = GetGridSpace(row, column, zone);
+		if (gridspace != null)
+		{
+			return gridspace.Occupied;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
-	public void SetGridSpaceColor(int column, int row, Color color, BattlefieldZone zone = BattlefieldZone.All)
+	public void SetBattlefieldState(int row, int column, bool state, BattlefieldZone zone = BattlefieldZone.All)
 	{
-		var pos = GetGridCoordinates(row, column, zone);
-		var gridSpace = Grid[(int)pos.x, (int)pos.y];
-		gridSpace.UpdateTexture(color);
+		GridSpace gridspace = GetGridSpace(row, column, zone);
+		if (gridspace != null)
+		{
+			gridspace.Occupied = state;
+		}
+		else
+		{
+			Debug.LogErrorFormat("Set Gridspace State tile didn't target a correct gridspace. Row: {0}, Column {1}", row, column);
+		}
 	}
 
-	public void BreakTile(int column, int row, BattlefieldZone zone = BattlefieldZone.All)
+	public bool GetGridSpaceBroken(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
 	{
-		var pos = GetGridCoordinates(row, column, zone);
-		var gridSpace = Grid[(int)pos.x, (int)pos.y];
-		gridSpace.BreakTile();
+		GridSpace gridspace = GetGridSpace(row, column, zone);
+		if (gridspace != null)
+		{
+			return gridspace.Broken;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
-	public void DamageTile(int column, int row, BattlefieldZone zone = BattlefieldZone.All)
+	public void ResetGridSpaceColor(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
 	{
-		var pos = GetGridCoordinates(row, column, zone);
-		var gridSpace = Grid[(int)pos.x, (int)pos.y];
-		gridSpace.Broken = true;
+		GridSpace gridspace = GetGridSpace(row, column, zone);
+		if (gridspace != null)
+		{
+			gridspace.ResetTexture();
+		}
+		else
+		{
+			Debug.LogErrorFormat("Reset Gridspace Color tile didn't target a correct gridspace. Row: {0}, Column {1}", row, column);
+		}
+	}
+
+	public void SetGridSpaceColor(int row, int column, Color color, BattlefieldZone zone = BattlefieldZone.All)
+	{
+		GridSpace gridspace = GetGridSpace(row, column, zone);
+		if (gridspace != null)
+		{
+			gridspace.UpdateTexture(color);
+		}
+		else
+		{
+			Debug.LogErrorFormat("Set Gridspace Color tile didn't target a correct gridspace. Row: {0}, Column {1}", row, column);
+		}
+	}
+
+	public void BreakTile(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
+	{
+		GridSpace gridspace = GetGridSpace(row, column, zone);
+		if (gridspace != null)
+		{
+			gridspace.BreakTile();
+		}
+		else
+		{
+			Debug.LogErrorFormat("Break tile didn't target a correct gridspace. Row: {0}, Column {1}", row, column);
+		}
+	}
+
+	public void DamageTile(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
+	{
+		GridSpace gridspace = GetGridSpace(row, column, zone);
+		if (gridspace != null)
+		{
+			gridspace.Broken = true;
+		}
+		else
+		{
+			Debug.LogErrorFormat("Damage tile didn't target a correct gridspace. Row: {0}, Column {1}", row, column);
+		}
 	}
 
 	private GameObject Spawn(float deletionTimeout, string resourceName, Vector3 zone, Quaternion rotation = new Quaternion())
@@ -411,5 +423,39 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		go.transform.parent = BattlefieldGO.transform;
 		var gridspace = go.GetComponent<GridSpace>();
 		Grid[column, row] = gridspace;
+	}
+
+	private GridSpace GetGridSpace(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
+	{
+		switch (zone)
+		{
+			case BattlefieldZone.All:
+				if (BATTLEFIELD_ROW_COUNT <= row || BATTLEFIELD_COLUMN_COUNT <= column)
+				{
+					return null;
+				}
+				break;
+			case BattlefieldZone.Left:
+			case BattlefieldZone.Right:
+				if (BATTLEFIELD_ROW_COUNT <= row || BATTLEFIELD_LOCAL_COLUMN_COUNT <= column)
+				{
+					return null;
+				}
+				break;
+			default:
+				return null;
+		}
+		var coordinates = GetGridCoordinates(row, column, zone);
+		if (coordinates.x >= 0 &&
+			coordinates.x < Grid.GetLength(0) &&
+			coordinates.y >= 0 &&
+			coordinates.y < Grid.GetLength(1))
+		{
+			return Grid[(int)coordinates.x, (int)coordinates.y];
+		}
+		else
+		{
+			return null;
+		}
 	}
 }

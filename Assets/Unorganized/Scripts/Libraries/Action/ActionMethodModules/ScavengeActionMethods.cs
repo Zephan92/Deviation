@@ -78,13 +78,13 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 
 						System.Action onDelayStart = delegate()
 						{
-							bc.SetGridSpaceColor(x,z,Color.yellow);
+							bc.SetGridSpaceColor(z,x,Color.yellow);
 						};
 
 						System.Action onDelayEnd = delegate()
 						{
-							bc.ResetGridSpaceColor(x,z);
-							bc.DamageTile(x,z);
+							bc.ResetGridSpaceColor(z,x);
+							bc.DamageTile(z,x);
 						};
 
 						bc.ActionWarning(0.5f, onDelayStart, onDelayEnd);
