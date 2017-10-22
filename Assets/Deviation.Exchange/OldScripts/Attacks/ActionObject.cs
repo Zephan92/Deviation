@@ -2,10 +2,11 @@
 using UnityEngine;
 using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Interface.Exchange;
+using UnityEngine.Networking;
 
 namespace Assets.Scripts.Exchange.Attacks
 {
-	public class ActionObject : MonoBehaviour, IActionObject
+	public class ActionObject : NetworkBehaviour, IActionObject
 	{
 		private Action<Collider, GameObject, IAttack> _onTriggerEnterAction;
 		private Action<GameObject> _startAction;
@@ -16,6 +17,7 @@ namespace Assets.Scripts.Exchange.Attacks
 
 		public void Start()
 		{
+			gameObject.layer = 8;
 			if (_startAction != null)
 			{
 				_startAction(gameObject);
@@ -69,6 +71,23 @@ namespace Assets.Scripts.Exchange.Attacks
 		public void SetFixedUpdate(Action<GameObject> action)
 		{
 			_fixedUpdateAction = action;
+		}
+
+		public void DisableRenderer()
+		{
+			if (!isServer)
+			{
+				return;
+			}
+
+			GetComponentInChildren<MeshRenderer>().enabled = false;
+			RpcDisableRenderer();
+		}
+
+		[ClientRpc]
+		private void RpcDisableRenderer()
+		{
+			GetComponentInChildren<MeshRenderer>().enabled = false;
 		}
 	}
 }

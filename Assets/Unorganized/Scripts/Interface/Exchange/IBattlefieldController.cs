@@ -10,13 +10,13 @@ namespace Assets.Scripts.Interface
 	public interface IBattlefieldController
 	{
 		List<IExchangePlayer> GetPlayers(BattlefieldZone zone = BattlefieldZone.All);
-
+		void ResetBattlefield();
 		Vector3 GetBattlefieldCoordinates(BattlefieldZone zone);
-		bool GetGridSpaceBroken(int column, int row, BattlefieldZone zone = BattlefieldZone.All);
-		void SetGridSpaceColor(int column, int row, Color color, BattlefieldZone zone = BattlefieldZone.All);
-		void ResetGridSpaceColor(int column, int row, BattlefieldZone zone = BattlefieldZone.All);
-		void BreakTile(int column, int row, BattlefieldZone zone = BattlefieldZone.All);
-		void DamageTile(int column, int row, BattlefieldZone zone = BattlefieldZone.All);
+		bool GetGridSpaceBroken(int row, int column, BattlefieldZone zone = BattlefieldZone.All);
+		void SetGridSpaceColor(int row, int column, Color color, BattlefieldZone zone = BattlefieldZone.All);  
+		void ResetGridSpaceColor(int row, int column, BattlefieldZone zone = BattlefieldZone.All);
+		void BreakTile(int row, int column, BattlefieldZone zone = BattlefieldZone.All);
+		void DamageTile(int row, int column, BattlefieldZone zone = BattlefieldZone.All);
 
 		void SetBattlefieldState(int row, int column, bool state, BattlefieldZone zone = BattlefieldZone.All);
 		bool GetBattlefieldState(int row, int column, BattlefieldZone zone = BattlefieldZone.All);

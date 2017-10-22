@@ -11,5 +11,6 @@ namespace Assets.Scripts.Interface.Exchange
 		void SetUpdate(Action<GameObject> action);
 		void SetFixedUpdate(Action<GameObject> action);
 		void SetAttack(IAttack attack);
+		void DisableRenderer();
 	}
 }

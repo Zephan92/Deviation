@@ -29,6 +29,8 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	public BattlefieldZone Zone { get { return _zone; } }
 	public bool Initialized { get { return _initialized;  } }
 	public IKit Kit { get { return _kit; } }
+	public Vector3 Position { get { return transform.position; } }
+	public Quaternion Rotation { get { return transform.rotation; } }
 
 	private ExchangeBattlefieldController bc;
 	private TimerManager tm;
@@ -144,10 +146,12 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 			case BattlefieldZone.Left:
 				Camera.main.transform.position = new Vector3(-2, 4, -2);
 				Camera.main.transform.rotation = Quaternion.Euler(new Vector3(30,60,0));
+				transform.rotation = Quaternion.Euler(new Vector3(0, 90, 0));
 				break;
 			case BattlefieldZone.Right:
 				Camera.main.transform.position = new Vector3(12, 4, -2);
 				Camera.main.transform.rotation = Quaternion.Euler(new Vector3(30,-60,0));
+				transform.rotation = Quaternion.Euler(new Vector3(0, -90, 0));
 				break;
 		}
 	}

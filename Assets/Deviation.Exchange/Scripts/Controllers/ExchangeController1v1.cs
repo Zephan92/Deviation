@@ -15,6 +15,7 @@ public interface IExchangeController1v1 : IGameController
 {
 	ExchangeState ExchangeState { get; set; }
 	IExchangePlayer [] ExchangePlayers { get; set; }
+	void ResetExchange();
 }
 
 public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
@@ -84,6 +85,25 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 			default:
 				break;
 		}
+	}
+
+	public void ResetExchange()
+	{
+		if (!isServer)
+		{
+			return;
+		}
+		Debug.LogError("Reset Exchange");
+		tm.RestartTimers();
+		bc.ResetBattlefield();
+		ExchangeState = ExchangeState.Start;
+		RpcResetExchange();
+	}
+
+	[ClientRpc]
+	private void RpcResetExchange()
+	{
+		tm.RestartTimers();
 	}
 
 	private void ExchangeSetup()

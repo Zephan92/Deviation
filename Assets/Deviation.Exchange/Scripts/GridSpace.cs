@@ -39,6 +39,11 @@ public class GridSpace : NetworkBehaviour
 		}
 	}
 
+	public void ReInit()
+	{
+		FixTile();
+	}
+
 	public void ResetTexture(BattlefieldZone zone = BattlefieldZone.None)
 	{
 		zone = zone == BattlefieldZone.None ? Zone : zone;

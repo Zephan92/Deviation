@@ -104,8 +104,10 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 	//delete objects after timeout
 	public void DeleteAfterTimeout(float timeout, GameObject[] battlefieldObjects)
 	{
-		object[] parameters = { battlefieldObjects };
-		cm.StartCoroutineThread_AfterTimout(DeleteAfterTimeoutMethod, parameters, timeout, ref _coroutine);
+		foreach (GameObject go in battlefieldObjects)
+		{
+			Destroy(go, timeout);
+		}
 	}
 
 	public void ActionWarning(float delay, Action warningActionStart, Action warningActionEnd)
@@ -213,6 +215,24 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		}
 	}
 
+	public void ResetBattlefield()
+	{
+		foreach (GridSpace gridspace in Grid)
+		{
+			gridspace.ReInit();
+		}
+
+		foreach (IExchangePlayer player in GetPlayers())
+		{
+			player.Init(0, 100, 0.001f, 0, 100, player.Zone, "InitialKit");
+		}
+
+		foreach (ActionObject actionObject  in FindObjectsOfType<ActionObject>())
+		{
+			Destroy(actionObject.gameObject);
+		}
+	}
+
 	public Vector2 GetGridCoordinates(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
 	{
 		int gridColumn = 0;
@@ -236,12 +256,11 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		{
 			case BattlefieldZone.All:
 			case BattlefieldZone.Left:
-				return GetGridCoordinates((int)pos.z, (int)pos.x);
+				return GetGridCoordinates(Mathf.RoundToInt(pos.z), Mathf.RoundToInt(pos.x));
 			case BattlefieldZone.Right:
-				return GetGridCoordinates((int)pos.z, (int)pos.x - 5);
-				break;
+				return GetGridCoordinates(Mathf.RoundToInt(pos.z), Mathf.RoundToInt(pos.x) - 5);
 			default:
-				return GetGridCoordinates((int)pos.z, (int)pos.x);
+				return GetGridCoordinates(Mathf.RoundToInt(pos.z), Mathf.RoundToInt(pos.x));
 		}
 	}
 
@@ -340,7 +359,7 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 	{
 		var gameObject = (GameObject)Instantiate(Resources.Load(resourceName), zone, rotation);
 		NetworkServer.Spawn(gameObject);
-		DeleteAfterTimeout(deletionTimeout, gameObject);
+		Destroy(gameObject, deletionTimeout);
 		return gameObject;
 	}
 

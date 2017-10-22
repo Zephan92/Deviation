@@ -18,13 +18,33 @@ namespace Assets.Scripts.Library.Action.ActionModules
 		{
 			Actions = new Dictionary<string, IExchangeAction>
 			{
-				{"FireRocket",new ExchangeAction
+				{"SmallProjectile",new ExchangeAction
 					(
-						name: "Fire Rocket",
-						attack: new Attack(baseDamage: 20, healthDrainModifier: -0.3f, energyRecoilModifier: -0.4f),
+						name: "Small Projectile",
+						attack: new Attack(baseDamage: 1, healthDrainModifier: -1f, energyRecoilModifier: -0.0f),
 						actionTexture: Resources.Load("ActionTextures/Red") as Texture2D,
-						primaryActionName: "FireRocket",
-						cooldown: 1f,
+						primaryActionName: "SmallProjectile",
+						cooldown: 0.1f,
+						type: Type
+					)
+				},
+				{"MediumProjectile",new ExchangeAction
+					(
+						name: "Medium Projectile",
+						attack: new Attack(baseDamage: 5, healthDrainModifier: -1f, energyRecoilModifier: -0.0f),
+						actionTexture: Resources.Load("ActionTextures/Red") as Texture2D,
+						primaryActionName: "MediumProjectile",
+						cooldown: 0.5f,
+						type: Type
+					)
+				},
+				{"LargeProjectile",new ExchangeAction
+					(
+						name: "LargeProjectile",
+						attack: new Attack(baseDamage: 10, healthDrainModifier: -1f, energyRecoilModifier: -0.0f),
+						actionTexture: Resources.Load("ActionTextures/Red") as Texture2D,
+						primaryActionName: "LargeProjectile",
+						cooldown: 1.0f,
 						type: Type
 					)
 				},

@@ -51,19 +51,19 @@ public class PlayerController : NetworkBehaviour
 	{
 		Direction dir = Direction.None;
 
-		if (InputWrapper.IsKeyPressed(KeyCode.UpArrow))
+		if (InputWrapper.GetKeyDown(KeyCode.UpArrow))
 		{
 			dir = Direction.Up;
 		}
-		else if (InputWrapper.IsKeyPressed(KeyCode.DownArrow))
+		else if (InputWrapper.GetKeyDown(KeyCode.DownArrow))
 		{
 			dir = Direction.Down;
 		}
-		else if (InputWrapper.IsKeyPressed(KeyCode.LeftArrow))
+		else if (InputWrapper.GetKeyDown(KeyCode.LeftArrow))
 		{
 			dir = Direction.Left;
 		}
-		else if (InputWrapper.IsKeyPressed(KeyCode.RightArrow))
+		else if (InputWrapper.GetKeyDown(KeyCode.RightArrow))
 		{
 			dir = Direction.Right;
 		}
@@ -78,25 +78,36 @@ public class PlayerController : NetworkBehaviour
 	{
 		bool success = false;
 
-		if (InputWrapper.IsKeyPressed(KeyCode.Q))
+		if (InputWrapper.GetKeyDown(KeyCode.Q))
 		{
 			success = Player.Action(0);
 		}
-		else if (InputWrapper.IsKeyPressed(KeyCode.W))
+		else if (InputWrapper.GetKeyDown(KeyCode.W))
 		{
 			success = Player.Action(1);
 		}
-		else if (InputWrapper.IsKeyPressed(KeyCode.E))
+		else if (InputWrapper.GetKeyDown(KeyCode.E))
 		{
 			success = Player.Action(2);
 		}
-		else if (InputWrapper.IsKeyPressed(KeyCode.R))
+		else if (InputWrapper.GetKeyDown(KeyCode.R))
 		{
 			success = Player.Action(3);
+		}
+		else if (InputWrapper.GetKeyDown(KeyCode.Escape))
+		{
+			CmdReset();
 		}
 
 		if (success)
 		{
 		}
 	}
+
+	[Command]
+	private void CmdReset()
+	{
+		ec.ResetExchange();
+	}
 }
+

@@ -41,7 +41,7 @@ namespace Assets.Scripts.Exchange.Display
 
 		private Canvas exchangeCanvas;
 
-		private ExchangePlayer [] players;
+		private IExchangePlayer [] players;
 		private ITimerManager tm;
 		private IExchangeController1v1 _ec;
 		public void Awake()
@@ -154,10 +154,10 @@ namespace Assets.Scripts.Exchange.Display
 			//player1actionBar = new ActionBarDetails(ec.Players[1].CurrentModule.ModuleTexture, actionTextures, outlineTex, ActionBarPosition, ActionBarSize, actionNames, tm);
 			exchangeTimerDetails = new ExchangeTimerDetails(emptyTex, ExchangeTimerPosition, ExchangeTimerSize);
 
-			progressBar.DrawProgressBar(players[0].transform.position, player1healthBar, players[0].Health.CurrentPercentage, players[0].Health.Current.ToString() + "/" + players[0].Health.Max.ToString());
-			progressBar.DrawProgressBar(players[0].transform.position, player1energyBar, players[0].Energy.CurrentPercentage, players[0].Energy.Current.ToString() + "/" + players[0].Energy.Max.ToString());
-			progressBar.DrawProgressBar(players[1].transform.position, player2healthBar, players[1].Health.CurrentPercentage, players[1].Health.Current.ToString() + "/" + players[1].Health.Max.ToString());
-			progressBar.DrawProgressBar(players[1].transform.position, player2energyBar, players[1].Energy.CurrentPercentage, players[1].Energy.Current.ToString() + "/" + players[1].Energy.Max.ToString());
+			progressBar.DrawProgressBar(players[0].Position, player1healthBar, players[0].Health.CurrentPercentage, players[0].Health.Current.ToString() + "/" + players[0].Health.Max.ToString());
+			progressBar.DrawProgressBar(players[0].Position, player1energyBar, players[0].Energy.CurrentPercentage, players[0].Energy.Current.ToString() + "/" + players[0].Energy.Max.ToString());
+			progressBar.DrawProgressBar(players[1].Position, player2healthBar, players[1].Health.CurrentPercentage, players[1].Health.Current.ToString() + "/" + players[1].Health.Max.ToString());
+			progressBar.DrawProgressBar(players[1].Position, player2energyBar, players[1].Energy.CurrentPercentage, players[1].Energy.Current.ToString() + "/" + players[1].Energy.Max.ToString());
 
 			//actionBar.DrawActionBar(player1actionBar);
 			

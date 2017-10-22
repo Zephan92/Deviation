@@ -80,6 +80,40 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 
 					}
 				},
+				{"Tremor", //this method breaks 5 tiles around the opponent
+				delegate (IBattlefieldController bc, IAttack attack, IExchangePlayer player, BattlefieldZone zone)
+				{
+					var enemyZone = ActionUtilities.GetEnemyBattlefieldZone(zone);
+					attack.InitiateAttack(new List<IExchangePlayer>{ player}, AttackAlignment.Allies );
+
+					Vector3 origin = bc.GetBattlefieldCoordinates(enemyZone);
+					float originX = origin.x;
+					float originZ = origin.z;
+
+					int numTiles = 5;
+					int[,] stunLocations = new int[numTiles, 2];
+					stunLocations = ActionUtilities.InitializeZones(stunLocations, numTiles);
+					for (int i = 0; i < numTiles; i++)
+					{
+						stunLocations = ActionUtilities.PickZone(stunLocations, i);
+						int x = (int) originX + stunLocations[i,0];
+						int z = (int) originZ + stunLocations[i,1];
+
+						System.Action onDelayStart = delegate()
+						{
+							bc.SetGridSpaceColor(z,x,Color.yellow);
+						};
+
+						System.Action onDelayEnd = delegate()
+						{
+							bc.ResetGridSpaceColor(z,x);
+							bc.DamageTile(z,x);
+						};
+
+						bc.ActionWarning(0.5f, onDelayStart, onDelayEnd);
+					}
+				}
+			},
 			};
 		}
 	}

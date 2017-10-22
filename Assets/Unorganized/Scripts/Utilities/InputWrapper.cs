@@ -6,7 +6,7 @@ namespace Assets.Scripts.Utilities
 {
 	public class InputWrapper : IInput
 	{
-		public bool IsKeyPressed(KeyCode key)
+		public bool GetKeyDown(KeyCode key)
 		{
 			switch (key)
 			{
@@ -33,49 +33,31 @@ namespace Assets.Scripts.Utilities
 			}
 		}
 
-		public bool IsPausePressed()
+		public bool GetKey(KeyCode key)
 		{
-			return Input.GetKeyDown(KeyCode.Escape);
-		}
-
-		public bool IsUpPressed()
-		{
-			return Input.GetKeyDown(KeyCode.UpArrow);
-		}
-
-		public bool IsDownPressed()
-		{
-			return Input.GetKeyDown(KeyCode.DownArrow);
-		}
-
-		public bool IsLeftPressed()
-		{
-			return Input.GetKeyDown(KeyCode.LeftArrow);
-		}
-
-		public bool IsRightPressed()
-		{
-			return Input.GetKeyDown(KeyCode.RightArrow);
-		}
-
-		public bool IsAction_Q_Pressed()
-		{
-			return Input.GetKeyDown(KeyCode.Q);
-		}
-
-		public bool IsAction_W_Pressed()
-		{
-			return Input.GetKeyDown(KeyCode.W);
-		}
-
-		public bool IsAction_E_Pressed()
-		{
-			return Input.GetKeyDown(KeyCode.E);
-		}
-
-		public bool IsAction_R_Pressed()
-		{
-			return Input.GetKeyDown(KeyCode.R);
+			switch (key)
+			{
+				case KeyCode.Escape:
+					return Input.GetKey(KeyCode.Escape);
+				case KeyCode.UpArrow:
+					return Input.GetKey(KeyCode.UpArrow);
+				case KeyCode.DownArrow:
+					return Input.GetKey(KeyCode.DownArrow);
+				case KeyCode.LeftArrow:
+					return Input.GetKey(KeyCode.LeftArrow);
+				case KeyCode.RightArrow:
+					return Input.GetKey(KeyCode.RightArrow);
+				case KeyCode.Q:
+					return Input.GetKey(KeyCode.Q);
+				case KeyCode.W:
+					return Input.GetKey(KeyCode.W);
+				case KeyCode.E:
+					return Input.GetKey(KeyCode.E);
+				case KeyCode.R:
+					return Input.GetKey(KeyCode.R);
+				default:
+					return false;
+			}
 		}
 	}
 }

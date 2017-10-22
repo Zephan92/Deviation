@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Enum;
+using UnityEngine;
 
 public interface IExchangePlayer
 {
@@ -8,7 +9,8 @@ public interface IExchangePlayer
 	Mover Mover { get; }
 	Status Status { get; }
 	BattlefieldZone Zone { get; }
-
+	Vector3 Position { get; }
+	Quaternion Rotation { get; }
 	void Init(int energyMin, int energyMax, float energyRate, int healthMin, int healthMax, BattlefieldZone zone, string kitName);
 
 	bool Action(int actionNumber);

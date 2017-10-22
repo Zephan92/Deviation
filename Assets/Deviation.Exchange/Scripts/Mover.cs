@@ -17,6 +17,9 @@ public class Mover : NetworkBehaviour
 	[SyncVar]
 	public float MovementSpeed;
 
+	public int CurrentBattlefieldRow { get { return CurrentRow; } }
+	public int CurrentBattlefieldColumn { get { return _zone == BattlefieldZone.Left ? CurrentColumn : CurrentColumn + 5; } }
+
 	private MovingDetails _movingDetails;
 	private MovingDetails _movingDetailsNext;
 
@@ -81,73 +84,53 @@ public class Mover : NetworkBehaviour
 			}
 		}
 
-		if (_zone == BattlefieldZone.Right)
-		{
-			switch (direction)
-			{
-				case Direction.Up:
-					direction = Direction.Down;
-					break;
-
-				case Direction.Down:
-					direction = Direction.Up;
-					break;
-
-				case Direction.Left:
-					direction = Direction.Right;
-					break;
-
-				case Direction.Right:
-					direction = Direction.Left;
-					break;
-			}
-		}
+		int zoneModifier = _zone == BattlefieldZone.Left ? 1 : -1;
 
 		switch (direction)
 		{
 			case Direction.Up:
-				if (force || !bc.GetBattlefieldState(CurrentRow, CurrentColumn + distance, _zone))
+				if (force || !bc.GetBattlefieldState(CurrentRow, CurrentColumn + distance * zoneModifier, _zone))
 				{
-					destPoint = currentPosition.x + distance;
+					destPoint = currentPosition.x + distance * zoneModifier;
 					destination = new Vector3(destPoint, 0, currentPosition.z);
 					createMoveCoroutine = true;
 				}
 				break;
 
 			case Direction.Down:
-				if (force || !bc.GetBattlefieldState(CurrentRow, CurrentColumn - distance, _zone))
+				if (force || !bc.GetBattlefieldState(CurrentRow, CurrentColumn - distance * zoneModifier, _zone))
 				{
-					destPoint = currentPosition.x - distance;
+					destPoint = currentPosition.x - distance * zoneModifier;
 					destination = new Vector3(destPoint, 0, currentPosition.z);
 					createMoveCoroutine = true;
 				}
 				break;
 
 			case Direction.Left:
-				if (force || !bc.GetBattlefieldState(CurrentRow + distance, CurrentColumn, _zone))
+				if (force || !bc.GetBattlefieldState(CurrentRow + distance * zoneModifier, CurrentColumn, _zone))
 				{
-					destPoint = currentPosition.z + distance;
+					destPoint = currentPosition.z + distance * zoneModifier;
 					destination = new Vector3(currentPosition.x, 0, destPoint);
 					createMoveCoroutine = true;
 				}
 				break;
 
 			case Direction.Right:
-				if (force || !bc.GetBattlefieldState(CurrentRow - distance, CurrentColumn, _zone))
+				if (force || !bc.GetBattlefieldState(CurrentRow - distance * zoneModifier, CurrentColumn, _zone))
 				{
-					destPoint = currentPosition.z - distance;
+					destPoint = currentPosition.z - distance * zoneModifier;
 					destination = new Vector3(currentPosition.x, 0, destPoint);
 					createMoveCoroutine = true;
 				}
 				break;
 		}
 
-		if (createMoveCoroutine && !IsAtBoundary(direction, destPoint))
+		if (createMoveCoroutine && bc.GetBattlefieldBoundaries(_zone).Contains(new Vector2(destination.x, destination.z)))
 		{
 			if (_movingDetails == null)
 			{
 				_movingDetails = new MovingDetails(destination, direction, distance);
-				cm.StartFixedCoroutineThread(MovingAction, ref _movingCoroutine);
+				Move();
 			}
 			else
 			{
@@ -155,6 +138,50 @@ public class Mover : NetworkBehaviour
 			}
 			
 		}
+	}
+
+	public void Move()
+	{
+		Vector3 directionVector;
+
+		switch (_movingDetails.MovingDirection)
+		{
+			case Direction.Up:
+				directionVector = Vector3.forward;
+				break;
+
+			case Direction.Down:
+				directionVector = Vector3.back;
+				break;
+
+			case Direction.Left:
+				directionVector = Vector3.left;
+				break;
+
+			case Direction.Right:
+				directionVector = Vector3.right;
+				break;
+
+			default:
+				directionVector = Vector3.zero;
+				break;
+		}
+
+		_movingDetails.AddDistanceTraveled(MovementSpeed);
+		transform.Translate(directionVector * MovementSpeed);
+		if (!bc.GetGridSpaceBroken(CurrentRow, CurrentColumn, _zone))
+		{
+			bc.SetBattlefieldState(CurrentRow, CurrentColumn, false, _zone);
+			bc.ResetGridSpaceColor(CurrentRow, CurrentColumn, _zone);
+		}
+		var gridLocation = bc.GetGridCoordinates(_movingDetails.Destination, _zone);
+		CurrentRow = (int)gridLocation.y;
+		CurrentColumn = (int)gridLocation.x;
+		bc.SetGridSpaceColor(CurrentRow, CurrentColumn, Color.gray, _zone);
+
+		bc.SetBattlefieldState(CurrentRow, CurrentColumn, true, _zone);
+		transform.position = _movingDetails.Destination;
+		_movingDetails = null;
 	}
 
 	public void MovingAction()
@@ -176,7 +203,7 @@ public class Mover : NetworkBehaviour
 					isAtDestination = true;
 				}
 
-				directionVector = Vector3.right;
+				directionVector = Vector3.forward;
 				break;
 
 			case Direction.Down:
@@ -185,7 +212,7 @@ public class Mover : NetworkBehaviour
 					isAtDestination = true;
 				}
 
-				directionVector = Vector3.left;
+				directionVector = Vector3.back;
 				break;
 
 			case Direction.Left:
@@ -194,7 +221,7 @@ public class Mover : NetworkBehaviour
 					isAtDestination = true;
 				}
 
-				directionVector = Vector3.forward;
+				directionVector = Vector3.left;
 				break;
 
 			case Direction.Right:
@@ -203,7 +230,7 @@ public class Mover : NetworkBehaviour
 					isAtDestination = true;
 				}
 
-				directionVector = Vector3.back;
+				directionVector = Vector3.right;
 				break;
 
 			default:
@@ -217,12 +244,12 @@ public class Mover : NetworkBehaviour
 			if (!bc.GetGridSpaceBroken(CurrentRow, CurrentColumn, _zone))
 			{
 				bc.SetBattlefieldState(CurrentRow, CurrentColumn, false, _zone);
-				bc.ResetGridSpaceColor(CurrentRow, CurrentColumn, _zone);
+				//bc.ResetGridSpaceColor(CurrentRow, CurrentColumn, _zone);
 			}
 			var gridLocation = bc.GetGridCoordinates(_movingDetails.Destination, _zone);
 			CurrentRow = (int) gridLocation.y;
 			CurrentColumn = (int) gridLocation.x;
-			bc.SetGridSpaceColor(CurrentRow, CurrentColumn, Color.gray, _zone);
+			//bc.SetGridSpaceColor(CurrentRow, CurrentColumn, Color.gray, _zone);
 
 			bc.SetBattlefieldState(CurrentRow, CurrentColumn, true, _zone);
 			transform.position = _movingDetails.Destination;
@@ -233,48 +260,6 @@ public class Mover : NetworkBehaviour
 		{
 			_movingDetails.AddDistanceTraveled(MovementSpeed);
 			transform.Translate(directionVector * MovementSpeed);
-		}
-	}
-
-	public bool IsAtBoundary(Direction dir, float destination)
-	{
-		Rect boundaries = bc.GetBattlefieldBoundaries(_zone);
-		float targetBoundary = 0;
-
-		switch (dir)
-		{
-			case Direction.Up:
-				targetBoundary = boundaries.xMax;
-				break;
-
-			case Direction.Down:
-				targetBoundary = boundaries.xMin;
-				break;
-
-			case Direction.Left:
-				targetBoundary = boundaries.yMax;
-				break;
-
-			case Direction.Right:
-				targetBoundary = boundaries.yMin;
-				break;
-
-			default:
-				return true;
-		}
-
-		switch (dir)
-		{
-			case Direction.Up:
-			case Direction.Left:
-				return destination >= targetBoundary;
-
-			case Direction.Down:
-			case Direction.Right:
-				return destination < targetBoundary;
-
-			default:
-				return true;
 		}
 	}
 }

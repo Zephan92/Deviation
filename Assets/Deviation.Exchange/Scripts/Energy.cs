@@ -56,7 +56,7 @@ public class Energy : NetworkBehaviour
 			currentMax = _current;
 		}
 
-		_current = Mathf.Clamp(_current + add, _min, _max);
+		_current = Mathf.Clamp(_current + add, currentMin, currentMax);
 		
 	}
 

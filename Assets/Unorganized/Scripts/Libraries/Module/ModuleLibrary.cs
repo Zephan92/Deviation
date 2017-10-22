@@ -32,13 +32,10 @@ namespace Assets.Scripts.Library
 				name: "Thief",
 				actionNames: new string []
 				{
-					//"OneHitKO",
-					"Drain",
+					"LargeProjectile",
+					"MediumProjectile",
 					"Tremor",
-					//"Disappear",
-					//"Steal",
-					"StunField",
-					"Avalanche",
+					"SmallProjectile",
 				},
 				type: ModuleType.Scavenge,
 				moduleTexture: Resources.Load("ActionTextures/Black") as Texture2D
@@ -49,9 +46,9 @@ namespace Assets.Scripts.Library
 				{
 					"FireBlast",
 					"MiddleAttack",
-					"FireRocket",
+					"SmallProjectile",
 					//"Teleport",
-					"PortalRocket",
+					"SmallProjectile",
 				},
 				type: ModuleType.Scavenge,
 				moduleTexture: Resources.Load("ActionTextures/Purple") as Texture2D

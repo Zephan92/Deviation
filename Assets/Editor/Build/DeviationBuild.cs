@@ -30,7 +30,7 @@ public class DeviationBuild
 
 	public static string PrevPath = null;
 
-	[MenuItem("Tools/Deviation/Build All", false, 0)]
+	[MenuItem("Tools/Deviation/Build All #F12", false, 0)]
 	public static void BuildGame()
 	{
 		var path = GetPath();
