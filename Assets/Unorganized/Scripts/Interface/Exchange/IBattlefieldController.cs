@@ -12,14 +12,18 @@ namespace Assets.Scripts.Interface
 		List<IExchangePlayer> GetPlayers(BattlefieldZone zone = BattlefieldZone.All);
 		void ResetBattlefield();
 		Vector3 GetBattlefieldCoordinates(BattlefieldZone zone);
+		Rect GetBattlefieldBoundaries(BattlefieldZone zone = BattlefieldZone.All);
+		bool IsInsideBattlefieldBoundaries(Vector3 pos, BattlefieldZone zone = BattlefieldZone.All);
+		bool IsInsideBattlefieldBoundaries(int row, int column, BattlefieldZone zone = BattlefieldZone.All);
+		bool GetGridSpaceDamaged(int row, int column, BattlefieldZone zone = BattlefieldZone.All);
 		bool GetGridSpaceBroken(int row, int column, BattlefieldZone zone = BattlefieldZone.All);
 		void SetGridSpaceColor(int row, int column, Color color, BattlefieldZone zone = BattlefieldZone.All);  
 		void ResetGridSpaceColor(int row, int column, BattlefieldZone zone = BattlefieldZone.All);
-		void BreakTile(int row, int column, BattlefieldZone zone = BattlefieldZone.All);
-		void DamageTile(int row, int column, BattlefieldZone zone = BattlefieldZone.All);
+		void BreakTile(int row, int column, BattlefieldZone zone = BattlefieldZone.All, bool force = false);
+		void DamageTile(int row, int column, BattlefieldZone zone = BattlefieldZone.All, bool breakable = false);
 
-		void SetBattlefieldState(int row, int column, bool state, BattlefieldZone zone = BattlefieldZone.All);
-		bool GetBattlefieldState(int row, int column, BattlefieldZone zone = BattlefieldZone.All);
+		void SetGridspaceOccupied(int row, int column, bool state, BattlefieldZone zone = BattlefieldZone.All);
+		bool GetGridspaceOccupied(int row, int column, BattlefieldZone zone = BattlefieldZone.All);
 
 		void DeleteAfterTimeout(float timeout, GameObject gameObjects);
 		void DeleteAfterTimeout(float timeout, GameObject[] battlefieldObjects);
@@ -32,7 +36,8 @@ namespace Assets.Scripts.Interface
 			Action<GameObject> updateAction = null,
 			Action<GameObject> fixedUpdateAction = null,
 			Action onDelayStartAction = null,
-			Action onDelayEndAction = null);
+			Action onDelayEndAction = null,
+			Action<GameObject> onTileEnter = null);
 
 		void SpawnActionObjectAfterTimeout(float delay, float timeout, float deletionTimeout, string resourceName, Vector3 zone, IAttack attack, Quaternion rotation = new Quaternion(),
 			Action<Collider, GameObject, IAttack> onTriggerAction = null,
@@ -40,6 +45,7 @@ namespace Assets.Scripts.Interface
 			Action<GameObject> updateAction = null,
 			Action<GameObject> fixedUpdateAction = null,
 			Action onDelayStartAction = null,
-			Action onDelayEndAction = null);
+			Action onDelayEndAction = null,
+			Action<GameObject> onTileEnter = null);
 	}
 }

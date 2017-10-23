@@ -12,7 +12,7 @@ namespace Assets.Scripts.Exchange.Attacks
 		private Action<GameObject> _startAction;
 		private Action<GameObject> _updateAction;
 		private Action<GameObject> _fixedUpdateAction;
-
+		private Action<GameObject> _onTileEnter;
 		private IAttack _attack;
 
 		public void Start()
@@ -71,6 +71,19 @@ namespace Assets.Scripts.Exchange.Attacks
 		public void SetFixedUpdate(Action<GameObject> action)
 		{
 			_fixedUpdateAction = action;
+		}
+
+		public void SetOnTileEnter(Action<GameObject> action)
+		{
+			_onTileEnter = action;
+		}
+
+		public void OnTileEnter()
+		{
+			if (_onTileEnter != null)
+			{
+				_onTileEnter(gameObject);
+			}
 		}
 
 		public void DisableRenderer()

@@ -4,6 +4,7 @@ using Assets.Scripts.Interface;
 using Assets.Scripts.Utilities;
 using UnityEngine.Networking;
 using Assets.Scripts.Enum;
+using Assets.Scripts.Exchange.Attacks;
 
 public class ActionObjectMover : NetworkBehaviour
 {
@@ -23,22 +24,32 @@ public class ActionObjectMover : NetworkBehaviour
 	private ICoroutineManager cm;
 	private ExchangeBattlefieldController bc;
 	private IEnumerator _movingCoroutine;
+	private ActionObject _actionObject;
+
+	private bool _warningsEnabled = false;
+	private bool _outOfBounds = false;
 
 	public void Awake()
 	{
 		bc = FindObjectOfType<ExchangeBattlefieldController>();
 		cm = FindObjectOfType<CoroutineManager>();
+		_actionObject = GetComponent<ActionObject>();
 	}
 
-	public void SetMovingDetails(int row, int column, BattlefieldZone zone, float movementSpeed)
+	public void Init(int row, int column, float movementSpeed, bool warningsEnabled = false)
 	{
 		CurrentRow = row;
 		CurrentColumn = column;
 		_movementSpeed = movementSpeed;
-
+		_warningsEnabled = warningsEnabled;
 		cm.StartFixedCoroutineThread(MovingAction, ref _movingCoroutine);
-		bc.SetGridSpaceColor(CurrentRow, CurrentColumn, Color.yellow);
-		RpcSetMovingDetails();
+
+		if (_warningsEnabled)
+		{
+			bc.SetGridSpaceColor(CurrentRow, CurrentColumn, Color.yellow);
+		}
+
+		RpcInit();
 	}
 
 	public void MovingAction()
@@ -54,7 +65,7 @@ public class ActionObjectMover : NetworkBehaviour
 		{
 			_realPosition = transform.position;
 			_realRotation = transform.rotation;
-			UpdateWarning();
+			PositionCheck();
 		}
 		else
 		{
@@ -63,39 +74,52 @@ public class ActionObjectMover : NetworkBehaviour
 		}
 	}
 
-	private void UpdateWarning()
+	private void PositionCheck()
 	{
-		bool changedPos = false;
-		int newCurrentRow = CurrentRow;
-		int newCurrentColumn = CurrentColumn;
-
-		if (Mathf.RoundToInt( transform.position.z) != CurrentRow)
+		if (ChangedPos(transform.position))
 		{
-			newCurrentRow = Mathf.RoundToInt(transform.position.z);
-			changedPos = true;
-		}
-
-		if (Mathf.RoundToInt(transform.position.x) != CurrentColumn)
-		{
-			newCurrentColumn = Mathf.RoundToInt(transform.position.x);
-			changedPos = true;
-		}
-
-		if (changedPos)
-		{
-			bc.ResetGridSpaceColor(CurrentRow, CurrentColumn);
-
-			if (bc.GetBattlefieldBoundaries().Contains(new Vector2(newCurrentColumn, newCurrentRow)))
+			if (_warningsEnabled && bc.IsInsideBattlefieldBoundaries(CurrentRow, CurrentColumn))
 			{
-				bc.SetGridSpaceColor(newCurrentRow, newCurrentColumn, Color.yellow);
+				bc.ResetGridSpaceColor(CurrentRow, CurrentColumn);
+			}
+
+			if (bc.IsInsideBattlefieldBoundaries(transform.position))
+			{
+				int newCurrentRow = Mathf.RoundToInt(transform.position.z);
+				int newCurrentColumn = Mathf.RoundToInt(transform.position.x);
+
+				if (_warningsEnabled)
+				{
+					bc.SetGridSpaceColor(newCurrentRow, newCurrentColumn, Color.yellow);
+				}
+
 				CurrentRow = newCurrentRow;
 				CurrentColumn = newCurrentColumn;
+				_actionObject.OnTileEnter();
+			}
+			else
+			{
+				_outOfBounds = true;
 			}
 		}
 	}
 
+	private bool ChangedPos(Vector3 pos)
+	{
+		if (CurrentRow + 0.5f < pos.z || pos.z < CurrentRow - 0.5f)
+		{
+			return true;
+		}
+		else if (CurrentColumn + 0.5f < pos.x || pos.x < CurrentColumn - 0.5f)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
 	[ClientRpc]
-	private void RpcSetMovingDetails()
+	private void RpcInit()
 	{
 		cm.StartFixedCoroutineThread(MovingAction, ref _movingCoroutine);
 	}
@@ -117,7 +141,10 @@ public class ActionObjectMover : NetworkBehaviour
 
 		if (isServer)
 		{
-			bc.ResetGridSpaceColor(CurrentRow, CurrentColumn);
+			if (_warningsEnabled && !_outOfBounds)
+			{
+				bc.ResetGridSpaceColor(CurrentRow, CurrentColumn);
+			}
 		}
 	}
 }

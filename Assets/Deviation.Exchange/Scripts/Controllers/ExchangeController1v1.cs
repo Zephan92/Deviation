@@ -108,8 +108,6 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 
 	private void ExchangeSetup()
 	{
-		tm.RestartTimer("ExchangeTimer");
-
 		if (isServer)
 		{
 			if (AllPlayersConnected)
@@ -130,12 +128,11 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 
 		if (isServer)
 		{
+			bc.Init();
 			foreach (var player in ExchangePlayers)
 			{
-				player.Init(0, 100, 0.001f, 0, 100, (BattlefieldZone) System.Array.IndexOf(ExchangePlayers, player), "InitialKit");
+				player.Init(0, 100, 0.001f, 0, 100, (BattlefieldZone)System.Array.IndexOf(ExchangePlayers, player), "InitialKit");
 			}
-			bc.Init();
-
 			ExchangeState = ExchangeState.Start;
 		}
 
@@ -147,6 +144,8 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 
 	private void ExchangeStart()
 	{
+		tm.RestartTimer("ExchangeTimer");
+
 		if (isServer)
 		{
 			ExchangeState = ExchangeState.Battle;

@@ -22,7 +22,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 					System.Action<GameObject> onStartMethod = delegate(GameObject actionGO)
 					{
 						var mover = actionGO.GetComponent<ActionObjectMover>();
-						mover.SetMovingDetails(player.Mover.CurrentBattlefieldRow, player.Mover.CurrentBattlefieldColumn, zone, 10);
+						mover.Init(player.Mover.CurrentBattlefieldRow, player.Mover.CurrentBattlefieldColumn, 10);
 					};
 
 					System.Action<Collider, GameObject, IAttack> onTriggerEnterMethod = delegate(Collider other, GameObject actionGO, IAttack actionAttack)
@@ -40,7 +40,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 						}
 					};
 
-					bc.SpawnActionObject(0.0f, 10f, "Rocket", player.Position + Vector3.down, attack,
+					bc.SpawnActionObject(0.0f, 10f, "Rocket", player.Position, attack,
 						rotation: Quaternion.Euler(player.Rotation.eulerAngles),
 						onStartAction: onStartMethod,
 						onTriggerAction: onTriggerEnterMethod);
@@ -54,7 +54,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 					System.Action<GameObject> onStartMethod = delegate(GameObject actionGO)
 					{
 						var mover = actionGO.GetComponent<ActionObjectMover>();
-						mover.SetMovingDetails(player.Mover.CurrentBattlefieldRow, player.Mover.CurrentBattlefieldColumn, zone, 4);
+						mover.Init(player.Mover.CurrentBattlefieldRow, player.Mover.CurrentBattlefieldColumn, 4);
 					};
 
 					System.Action<Collider, GameObject, IAttack> onTriggerEnterMethod = delegate(Collider other, GameObject actionGO, IAttack actionAttack)
@@ -72,7 +72,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 						}
 					};
 
-					bc.SpawnActionObject(0.0f, 4f, "Rocket", player.Position + Vector3.down, attack,
+					bc.SpawnActionObject(0.0f, 4f, "Rocket", player.Position, attack,
 						rotation: Quaternion.Euler(player.Rotation.eulerAngles),
 						onStartAction: onStartMethod,
 						onTriggerAction: onTriggerEnterMethod);
@@ -86,7 +86,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 					System.Action<GameObject> onStartMethod = delegate(GameObject actionGO)
 					{
 						var mover = actionGO.GetComponent<ActionObjectMover>();
-						mover.SetMovingDetails(player.Mover.CurrentBattlefieldRow, player.Mover.CurrentBattlefieldColumn, zone, 2);
+						mover.Init(player.Mover.CurrentBattlefieldRow, player.Mover.CurrentBattlefieldColumn, 2);
 					};
 
 					System.Action<Collider, GameObject, IAttack> onTriggerEnterMethod = delegate(Collider other, GameObject actionGO, IAttack actionAttack)
@@ -104,7 +104,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 						}
 					};
 
-					bc.SpawnActionObject(0.0f, 15f, "Rocket", player.Position + Vector3.down, attack,
+					bc.SpawnActionObject(0.0f, 15f, "Rocket", player.Position, attack,
 						rotation: Quaternion.Euler(player.Rotation.eulerAngles),
 						onStartAction: onStartMethod,
 						onTriggerAction: onTriggerEnterMethod);

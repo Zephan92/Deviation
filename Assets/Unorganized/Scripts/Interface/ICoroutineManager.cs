@@ -12,14 +12,14 @@ namespace Assets.Scripts.Interface
 		void StartCoroutineThread(Action method, ref IEnumerator coroutine);
 		void StartCoroutineThread(Action<object[]> method, object[] parameters, ref IEnumerator coroutine);
 
-		void StartFixedCoroutineThread(Action method, ref IEnumerator coroutine);
-		void StartFixedCoroutineThread(Action<object[]> method, object[] parameters, ref IEnumerator coroutine);
+		void StartFixedCoroutineThread(Action method, ref IEnumerator coroutine, float delay = 0.0f);
+		void StartFixedCoroutineThread(Action<object[]> method, object[] parameters, ref IEnumerator coroutine, float delay = 0.0f);
 
-		void StartCoroutineThread_ForLoop(Action<int> method, float interval, ref IEnumerator coroutine);
-		void StartCoroutineThread_ForLoop(Action<int, object[]> method, object[] parameters, float interval, ref IEnumerator coroutine);
+		void StartCoroutineThread_ForLoop(Action<int> method, float interval, ref IEnumerator coroutine, float delay = 0.0f);
+		void StartCoroutineThread_ForLoop(Action<int, object[]> method, object[] parameters, float interval, ref IEnumerator coroutine, float delay = 0.0f);
 
-		void StartCoroutineThread_WhileLoop(Action method, float interval, ref IEnumerator coroutine);
-		void StartCoroutineThread_WhileLoop(Action<object[]> method, object[] parameters, float interval, ref IEnumerator coroutine);
+		void StartCoroutineThread_WhileLoop(Action method, float interval, ref IEnumerator coroutine, float delay = 0.0f);
+		void StartCoroutineThread_WhileLoop(Action<object[]> method, object[] parameters, float interval, ref IEnumerator coroutine, float delay = 0.0f);
 
 		void StartCoroutineThread_AfterTimout(Action method, float interval, ref IEnumerator coroutine);
 		void StartCoroutineThread_AfterTimout(Action<object[]> method, object[] parameters, float interval, ref IEnumerator coroutine);

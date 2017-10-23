@@ -8,8 +8,8 @@ using UnityEngine.Networking;
 
 public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 {
-	private const int INTITIAL_COLUMN = 2;
-	private const int INTITIAL_ROW = 2;
+	private const int INITIAL_COLUMN = 2;
+	private const int INITIAL_ROW = 2;
 
 	[SyncVar]
 	private bool _initialized;
@@ -124,12 +124,13 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 		_kit = KitLibrary.GetKitInstance(kitName);
 		_kit.Player = this;
 		_initialized = true;
+		bc.SetGridspaceOccupied(INITIAL_ROW, INITIAL_COLUMN, true, zone);
 	}
 
 	[ClientRpc]
 	private void RpcInit(BattlefieldZone zone, string kitName)
 	{
-		_mover.Init(zone, INTITIAL_ROW, INTITIAL_COLUMN, 1f);
+		_mover.Init(zone, INITIAL_ROW, INITIAL_COLUMN, 1f);
 		_kit = KitLibrary.GetKitInstance(kitName);
 		_kit.Player = this;
 

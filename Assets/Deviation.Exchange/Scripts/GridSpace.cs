@@ -13,6 +13,9 @@ public class GridSpace : NetworkBehaviour
 	public bool Occupied = false;
 
 	[SyncVar]
+	public bool Damaged = false;
+
+	[SyncVar]
 	public bool Broken = false;
 
 	private CoroutineManager cm;
@@ -25,7 +28,7 @@ public class GridSpace : NetworkBehaviour
 
 	public void Update()
 	{
-		if (Broken && GetCurrentTexture() != Color.green && isServer)
+		if (Damaged && GetCurrentTexture() != Color.green && isServer)
 		{
 			AddBrokenTexture();
 		}
@@ -33,9 +36,9 @@ public class GridSpace : NetworkBehaviour
 
 	public void OnTriggerExit(Collider other)
 	{
-		if (other.tag == "Player" && Broken && isServer)
+		if (other.tag == "Player" && Damaged && isServer)
 		{
-			BreakTile();
+			BreakTile(true);
 		}
 	}
 
@@ -70,8 +73,27 @@ public class GridSpace : NetworkBehaviour
 		}
 	}
 
-	public void BreakTile()
+	public void DamageTile(bool breakable = false)
 	{
+		if (Damaged && breakable)
+		{
+			BreakTile();
+			return;
+		}
+		
+		Damaged = true;	
+	}
+
+	public void BreakTile(bool force = false)
+	{
+		if (Occupied && !force)
+		{
+			Damaged = true;
+			return;
+		}
+
+		Broken = true;
+		Damaged = false;
 		Occupied = true;
 		gameObject.GetComponentInChildren<MeshRenderer>().enabled = false;
 		cm.StartCoroutineThread_AfterTimout(FixTile, 5, ref _coroutine);
@@ -85,6 +107,7 @@ public class GridSpace : NetworkBehaviour
 
 	private void FixTile()
 	{
+		Damaged = false;
 		Occupied = false;
 		Broken = false;
 		gameObject.GetComponentInChildren<MeshRenderer>().enabled = true;

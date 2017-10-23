@@ -67,14 +67,29 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		switch (zone)
 		{
 			case BattlefieldZone.All:
-				return new Rect(0, 0, 10, 5);
+				return new Rect(-0.02f, -0.01f, 10.03f, 5.01f);
 			case BattlefieldZone.Left:
-				return new Rect(0, 0, 5, 5);
+				return new Rect(-0.02f, -0.01f, 5, 5.01f);
 			case BattlefieldZone.Right:
-				return new Rect(5, 0, 5, 5);
+				return new Rect(5, -0.01f, 5, 5.01f);
 			default:
 				throw new System.Exception("Zone was not Left, Right or All.");
 		}
+	}
+
+	public bool IsInsideBattlefieldBoundaries(Vector3 pos, BattlefieldZone zone = BattlefieldZone.All)
+	{
+		return IsInsideBattlefieldBoundaries(pos.x, pos.z, zone);
+	}
+
+	public bool IsInsideBattlefieldBoundaries(float x, float z, BattlefieldZone zone = BattlefieldZone.All)
+	{
+		return GetBattlefieldBoundaries(zone).Contains(new Vector2(x, z));
+	}
+
+	public bool IsInsideBattlefieldBoundaries(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
+	{
+		return GetBattlefieldBoundaries(zone).Contains(new Vector2(column, row));
 	}
 
 	public Vector3 GetBattlefieldCoordinates(BattlefieldZone zone)
@@ -129,7 +144,8 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		Action<GameObject> updateAction = null, 
 		Action<GameObject> fixedUpdateAction = null,
 		Action onDelayStartAction = null,
-		Action onDelayEndAction = null)
+		Action onDelayEndAction = null,
+		Action<GameObject> onTileEnter = null)
 	{
 		ActionWarning(delay, onDelayStartAction, onDelayEndAction);
 
@@ -143,7 +159,8 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 			onTriggerAction,	//5
 			onStartAction,		//6
 			updateAction,		//7
-			fixedUpdateAction	//8
+			fixedUpdateAction,	//8
+			onTileEnter			//9
 		};
 
 		cm.StartCoroutineThread_AfterTimout(() => 
@@ -158,11 +175,12 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		Action<GameObject> updateAction = null,
 		Action<GameObject> fixedUpdateAction = null,
 		Action onDelayStartAction = null,
-		Action onDelayEndAction = null)
+		Action onDelayEndAction = null,
+		Action<GameObject> onTileEnter = null)
 	{
 		cm.StartCoroutineThread_AfterTimout(() =>
 		{
-			SpawnActionObject(delay, deletionTimeout, resourceName, zone, attack, rotation, onTriggerAction, onStartAction, updateAction, fixedUpdateAction, onDelayStartAction, onDelayEndAction);
+			SpawnActionObject(delay, deletionTimeout, resourceName, zone, attack, rotation, onTriggerAction, onStartAction, updateAction, fixedUpdateAction, onDelayStartAction, onDelayEndAction, onTileEnter);
 		}, timeout, ref _coroutine);
 	}
 
@@ -212,6 +230,15 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		else
 		{
 			actionObject.SetFixedUpdate(delegate (GameObject actionGO) { });
+		}
+
+		if (parameters[9] != null)
+		{
+			actionObject.SetOnTileEnter((Action<GameObject>)parameters[9]);
+		}
+		else
+		{
+			actionObject.SetOnTileEnter(delegate (GameObject actionGO) { });
 		}
 	}
 
@@ -264,7 +291,7 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		}
 	}
 
-	public bool GetBattlefieldState(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
+	public bool GetGridspaceOccupied(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
 	{
 		GridSpace gridspace = GetGridSpace(row, column, zone);
 		if (gridspace != null)
@@ -277,8 +304,9 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		}
 	}
 
-	public void SetBattlefieldState(int row, int column, bool state, BattlefieldZone zone = BattlefieldZone.All)
+	public void SetGridspaceOccupied(int row, int column, bool state, BattlefieldZone zone = BattlefieldZone.All)
 	{
+		//Debug.LogErrorFormat("Setting ({0},{1}): {2}",row, column, state);
 		GridSpace gridspace = GetGridSpace(row, column, zone);
 		if (gridspace != null)
 		{
@@ -287,6 +315,19 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		else
 		{
 			Debug.LogErrorFormat("Set Gridspace State tile didn't target a correct gridspace. Row: {0}, Column {1}", row, column);
+		}
+	}
+
+	public bool GetGridSpaceDamaged(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
+	{
+		GridSpace gridspace = GetGridSpace(row, column, zone);
+		if (gridspace != null)
+		{
+			return gridspace.Damaged;
+		}
+		else
+		{
+			return false;
 		}
 	}
 
@@ -329,12 +370,12 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		}
 	}
 
-	public void BreakTile(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
+	public void BreakTile(int row, int column, BattlefieldZone zone = BattlefieldZone.All, bool force = false)
 	{
 		GridSpace gridspace = GetGridSpace(row, column, zone);
 		if (gridspace != null)
 		{
-			gridspace.BreakTile();
+			gridspace.BreakTile(force);
 		}
 		else
 		{
@@ -342,12 +383,12 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		}
 	}
 
-	public void DamageTile(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
+	public void DamageTile(int row, int column, BattlefieldZone zone = BattlefieldZone.All, bool breakable = false)
 	{
 		GridSpace gridspace = GetGridSpace(row, column, zone);
 		if (gridspace != null)
 		{
-			gridspace.Broken = true;
+			gridspace.DamageTile(breakable);
 		}
 		else
 		{
@@ -427,8 +468,8 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 				RpcGridSpaceInit(gridSpaceObject, columnNum, rowNum);
 			}
 		}
-		SetBattlefieldState(2, 2, true, BattlefieldZone.Left);
-		SetBattlefieldState(2, 2, true, BattlefieldZone.Right);
+		SetGridspaceOccupied(2, 2, true, BattlefieldZone.Left);
+		SetGridspaceOccupied(2, 2, true, BattlefieldZone.Right);
 	}
 
 	[ClientRpc]

@@ -33,7 +33,7 @@ namespace Assets.Scripts.Library
 				actionNames: new string []
 				{
 					"LargeProjectile",
-					"MediumProjectile",
+					"ShockWave",
 					"Tremor",
 					"SmallProjectile",
 				},

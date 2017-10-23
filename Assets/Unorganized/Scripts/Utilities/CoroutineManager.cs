@@ -12,19 +12,19 @@ namespace Assets.Scripts.Utilities
 			StartCoroutine(coroutine = Coroutine(method));
 		}
 
-		public void StartFixedCoroutineThread(Action method, ref IEnumerator coroutine)
+		public void StartFixedCoroutineThread(Action method, ref IEnumerator coroutine, float delay = 0.0f)
 		{
-			StartCoroutine(coroutine = FixedCoroutine(method));
+			StartCoroutine(coroutine = FixedCoroutine(method, delay));
 		}
 
-		public void StartCoroutineThread_ForLoop(Action<int> method, float interval, ref IEnumerator coroutine)
+		public void StartCoroutineThread_ForLoop(Action<int> method, float interval, ref IEnumerator coroutine, float delay = 0.0f)
 		{
-			StartCoroutine(coroutine = ForLoop_Coroutine(method, interval));
+			StartCoroutine(coroutine = ForLoop_Coroutine(method, interval, delay));
 		}
 
-		public void StartCoroutineThread_WhileLoop(Action method, float interval, ref IEnumerator coroutine)
+		public void StartCoroutineThread_WhileLoop(Action method, float interval, ref IEnumerator coroutine, float delay = 0.0f)
 		{
-			StartCoroutine(coroutine = WhileLoop_Coroutine(method, interval));
+			StartCoroutine(coroutine = WhileLoop_Coroutine(method, interval, delay));
 		}
 
 		public void StartCoroutineThread_AfterTimout(Action method, float interval, ref IEnumerator coroutine)
@@ -37,19 +37,19 @@ namespace Assets.Scripts.Utilities
 			StartCoroutine(coroutine = Coroutine(method, parameters));
 		}
 
-		public void StartFixedCoroutineThread(Action<object[]> method, object[] parameters, ref IEnumerator coroutine)
+		public void StartFixedCoroutineThread(Action<object[]> method, object[] parameters, ref IEnumerator coroutine, float delay = 0.0f)
 		{
-			StartCoroutine(coroutine = FixedCoroutine(method, parameters));
+			StartCoroutine(coroutine = FixedCoroutine(method, parameters, delay));
 		}
 
-		public void StartCoroutineThread_ForLoop(Action<int, object[]> method, object[] parameters, float interval, ref IEnumerator coroutine)
+		public void StartCoroutineThread_ForLoop(Action<int, object[]> method, object[] parameters, float interval, ref IEnumerator coroutine, float delay = 0.0f)
 		{
-			StartCoroutine(coroutine = ForLoop_Coroutine(method, parameters, interval));
+			StartCoroutine(coroutine = ForLoop_Coroutine(method, parameters, interval, delay));
 		}
 
-		public void StartCoroutineThread_WhileLoop(Action<object[]> method, object[] parameters, float interval, ref IEnumerator coroutine)
+		public void StartCoroutineThread_WhileLoop(Action<object[]> method, object[] parameters, float interval, ref IEnumerator coroutine, float delay = 0.0f)
 		{
-			StartCoroutine(coroutine = WhileLoop_Coroutine(method, parameters, interval));
+			StartCoroutine(coroutine = WhileLoop_Coroutine(method, parameters, interval, delay));
 		}
 
 		public void StartCoroutineThread_AfterTimout(Action<object[]> method, object[] parameters, float interval, ref IEnumerator coroutine)
@@ -82,7 +82,7 @@ namespace Assets.Scripts.Utilities
 			}
 		}
 
-		private IEnumerator FixedCoroutine(Action coroutine)
+		private IEnumerator FixedCoroutine(Action coroutine, float delay)
 		{
 			while (true)
 			{
@@ -91,7 +91,7 @@ namespace Assets.Scripts.Utilities
 			}
 		}
 
-		private IEnumerator ForLoop_Coroutine(Action<int> coroutine, float interval)
+		private IEnumerator ForLoop_Coroutine(Action<int> coroutine, float interval, float delay)
 		{
 			for (int i = 0; ; i++)
 			{
@@ -100,7 +100,7 @@ namespace Assets.Scripts.Utilities
 			}
 		}
 
-		private IEnumerator WhileLoop_Coroutine(Action coroutine, float interval)
+		private IEnumerator WhileLoop_Coroutine(Action coroutine, float interval, float delay)
 		{
 			while(true)
 			{
@@ -124,8 +124,9 @@ namespace Assets.Scripts.Utilities
 			}
 		}
 
-		private IEnumerator FixedCoroutine(Action<object[]> coroutine, object[] parameters)
+		private IEnumerator FixedCoroutine(Action<object[]> coroutine, object[] parameters, float delay)
 		{
+			yield return new WaitForSeconds(delay);
 			while (true)
 			{
 				coroutine(parameters);
@@ -133,8 +134,9 @@ namespace Assets.Scripts.Utilities
 			}
 		}
 
-		private IEnumerator ForLoop_Coroutine(Action<int, object []> coroutine, object [] parameters, float interval)
+		private IEnumerator ForLoop_Coroutine(Action<int, object []> coroutine, object [] parameters, float interval, float delay)
 		{
+			yield return new WaitForSeconds(delay);
 			for (int i = 0; ; i++)
 			{
 				coroutine(i, parameters);
@@ -142,8 +144,9 @@ namespace Assets.Scripts.Utilities
 			}
 		}
 
-		private IEnumerator WhileLoop_Coroutine(Action<object []> coroutine, object[] parameters, float interval)
+		private IEnumerator WhileLoop_Coroutine(Action<object []> coroutine, object[] parameters, float interval, float delay)
 		{
+			yield return new WaitForSeconds(delay);
 			while (true)
 			{
 				coroutine(parameters);

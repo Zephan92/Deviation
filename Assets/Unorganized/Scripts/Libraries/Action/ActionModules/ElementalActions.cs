@@ -40,9 +40,19 @@ namespace Assets.Scripts.Library.Action.ActionModules
 				{"Tremor", new ExchangeAction
 					(
 					name: "Tremor",
-						attack: new Attack(baseDamage: 20, healthDrainModifier: -0.6f,  energyRecoilModifier: -1.8f),
+						attack: new Attack(baseDamage: 20, energyRecoilModifier: -1.8f),
 						actionTexture: Resources.Load("ActionTextures/Purple") as Texture2D,
 						primaryActionName: "Tremor",
+						cooldown: 1f,
+						type: Type
+					)
+				},
+				{"ShockWave", new ExchangeAction
+					(
+					name: "ShockWave",
+						attack: new Attack(baseDamage: 20, healthDrainModifier: -0.6f,  energyRecoilModifier: -1.8f),
+						actionTexture: Resources.Load("ActionTextures/Purple") as Texture2D,
+						primaryActionName: "ShockWave",
 						cooldown: 1f,
 						type: Type
 					)

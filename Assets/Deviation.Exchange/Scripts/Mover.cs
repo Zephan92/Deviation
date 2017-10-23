@@ -41,7 +41,7 @@ public class Mover : NetworkBehaviour
 		{
 			_movingDetails = _movingDetailsNext;
 			_movingDetailsNext = null;
-			cm.StartCoroutineThread(MovingAction, ref _movingCoroutine);
+			Move();
 		}
 	}
 
@@ -89,7 +89,7 @@ public class Mover : NetworkBehaviour
 		switch (direction)
 		{
 			case Direction.Up:
-				if (force || !bc.GetBattlefieldState(CurrentRow, CurrentColumn + distance * zoneModifier, _zone))
+				if (force || !bc.GetGridspaceOccupied(CurrentRow, CurrentColumn + distance * zoneModifier, _zone))
 				{
 					destPoint = currentPosition.x + distance * zoneModifier;
 					destination = new Vector3(destPoint, 0, currentPosition.z);
@@ -98,7 +98,7 @@ public class Mover : NetworkBehaviour
 				break;
 
 			case Direction.Down:
-				if (force || !bc.GetBattlefieldState(CurrentRow, CurrentColumn - distance * zoneModifier, _zone))
+				if (force || !bc.GetGridspaceOccupied(CurrentRow, CurrentColumn - distance * zoneModifier, _zone))
 				{
 					destPoint = currentPosition.x - distance * zoneModifier;
 					destination = new Vector3(destPoint, 0, currentPosition.z);
@@ -107,7 +107,7 @@ public class Mover : NetworkBehaviour
 				break;
 
 			case Direction.Left:
-				if (force || !bc.GetBattlefieldState(CurrentRow + distance * zoneModifier, CurrentColumn, _zone))
+				if (force || !bc.GetGridspaceOccupied(CurrentRow + distance * zoneModifier, CurrentColumn, _zone))
 				{
 					destPoint = currentPosition.z + distance * zoneModifier;
 					destination = new Vector3(currentPosition.x, 0, destPoint);
@@ -116,7 +116,7 @@ public class Mover : NetworkBehaviour
 				break;
 
 			case Direction.Right:
-				if (force || !bc.GetBattlefieldState(CurrentRow - distance * zoneModifier, CurrentColumn, _zone))
+				if (force || !bc.GetGridspaceOccupied(CurrentRow - distance * zoneModifier, CurrentColumn, _zone))
 				{
 					destPoint = currentPosition.z - distance * zoneModifier;
 					destination = new Vector3(currentPosition.x, 0, destPoint);
@@ -125,7 +125,7 @@ public class Mover : NetworkBehaviour
 				break;
 		}
 
-		if (createMoveCoroutine && bc.GetBattlefieldBoundaries(_zone).Contains(new Vector2(destination.x, destination.z)))
+		if (createMoveCoroutine && bc.IsInsideBattlefieldBoundaries(destination, _zone))
 		{
 			if (_movingDetails == null)
 			{
@@ -169,97 +169,26 @@ public class Mover : NetworkBehaviour
 
 		_movingDetails.AddDistanceTraveled(MovementSpeed);
 		transform.Translate(directionVector * MovementSpeed);
-		if (!bc.GetGridSpaceBroken(CurrentRow, CurrentColumn, _zone))
-		{
-			bc.SetBattlefieldState(CurrentRow, CurrentColumn, false, _zone);
-			bc.ResetGridSpaceColor(CurrentRow, CurrentColumn, _zone);
-		}
+		int oldRow = CurrentRow;
+		int oldColumn = CurrentColumn;
 		var gridLocation = bc.GetGridCoordinates(_movingDetails.Destination, _zone);
 		CurrentRow = (int)gridLocation.y;
-		CurrentColumn = (int)gridLocation.x;
-		bc.SetGridSpaceColor(CurrentRow, CurrentColumn, Color.gray, _zone);
-
-		bc.SetBattlefieldState(CurrentRow, CurrentColumn, true, _zone);
+		CurrentColumn = (int)gridLocation.x;//make a gridCoordinate Struct already geeze
 		transform.position = _movingDetails.Destination;
 		_movingDetails = null;
+		CmdUpdateBattlefield(oldRow, oldColumn, CurrentRow, CurrentColumn, _zone);
 	}
 
-	public void MovingAction()
+	[Command]
+	private void CmdUpdateBattlefield(int oldRow, int oldColumn,int newRow, int newColumn, BattlefieldZone zone)
 	{
-		if (_movingDetails == null)
+		if (!bc.GetGridSpaceDamaged(oldRow, oldColumn, zone))
 		{
-			cm.StopCoroutineThread(ref _movingCoroutine);
-			return;
+			bc.SetGridspaceOccupied(oldRow, oldColumn, false, zone);
+			bc.ResetGridSpaceColor(oldRow, oldColumn, zone);
 		}
 
-		bool isAtDestination = false;
-		Vector3 directionVector;
-
-		switch (_movingDetails.MovingDirection)
-		{
-			case Direction.Up:
-				if (transform.position.x >= _movingDetails.Destination.x)
-				{
-					isAtDestination = true;
-				}
-
-				directionVector = Vector3.forward;
-				break;
-
-			case Direction.Down:
-				if (transform.position.x <= _movingDetails.Destination.x)
-				{
-					isAtDestination = true;
-				}
-
-				directionVector = Vector3.back;
-				break;
-
-			case Direction.Left:
-				if (transform.position.z >= _movingDetails.Destination.z)
-				{
-					isAtDestination = true;
-				}
-
-				directionVector = Vector3.left;
-				break;
-
-			case Direction.Right:
-				if (transform.position.z <= _movingDetails.Destination.z)
-				{
-					isAtDestination = true;
-				}
-
-				directionVector = Vector3.right;
-				break;
-
-			default:
-				directionVector = Vector3.zero;
-				isAtDestination = true;
-				break;
-		}
-
-		if (isAtDestination)
-		{
-			if (!bc.GetGridSpaceBroken(CurrentRow, CurrentColumn, _zone))
-			{
-				bc.SetBattlefieldState(CurrentRow, CurrentColumn, false, _zone);
-				//bc.ResetGridSpaceColor(CurrentRow, CurrentColumn, _zone);
-			}
-			var gridLocation = bc.GetGridCoordinates(_movingDetails.Destination, _zone);
-			CurrentRow = (int) gridLocation.y;
-			CurrentColumn = (int) gridLocation.x;
-			//bc.SetGridSpaceColor(CurrentRow, CurrentColumn, Color.gray, _zone);
-
-			bc.SetBattlefieldState(CurrentRow, CurrentColumn, true, _zone);
-			transform.position = _movingDetails.Destination;
-			cm.StopCoroutineThread(ref _movingCoroutine);
-			_movingDetails = null;
-		}
-		else
-		{
-			_movingDetails.AddDistanceTraveled(MovementSpeed);
-			transform.Translate(directionVector * MovementSpeed);
-		}
+		bc.SetGridSpaceColor(newRow, newColumn, Color.gray, zone);
+		bc.SetGridspaceOccupied(newRow, newColumn, true, zone);
 	}
 }
