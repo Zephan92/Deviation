@@ -30,14 +30,15 @@ public class ExchangeNetworkManager : NetworkManager
 
 	private void OnPlayerJoined(UnetMsfPlayer player)
 	{
-		Debug.LogError("Player Joined");
+		//Debug.LogError("Player Joined");
 
 		var prefabPlayerGameObject = Resources.Load("1v1Player") as GameObject;
 		var playerGameObject = Instantiate(prefabPlayerGameObject);
+		playerGameObject.GetComponent<ExchangePlayer>().PeerId = player.PeerId;
 		NetworkServer.AddPlayerForConnection(player.Connection, playerGameObject, (short)player.PeerId);
 
 		playercount++;
-		Debug.LogError(playercount + "/" + GameRoom.MaxPlayers + " Players");
+		//Debug.LogError(playercount + "/" + GameRoom.MaxPlayers + " Players");
 	}
 
 	private void OnPlayerLeft(UnetMsfPlayer player)
@@ -47,10 +48,9 @@ public class ExchangeNetworkManager : NetworkManager
 
 	private void OnServerFull()
 	{
-		ExchangeController1v1.AllPlayersConnected = true;
-
 		Logs.Error("Server is full invoking method ");
 
+		ExchangeController1v1.AllPlayersConnected = true;
 	}
 
 	private void OnServerEmpty()

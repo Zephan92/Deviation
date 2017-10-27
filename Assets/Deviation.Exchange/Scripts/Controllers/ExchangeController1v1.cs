@@ -1,11 +1,11 @@
-﻿using System;
-using Assets.Scripts.Enum;
+﻿using Assets.Scripts.Enum;
 using Assets.Scripts.Interface;
 using Assets.Scripts.Utilities;
 using UnityEngine.Networking;
-using Assets.Deviation.Exchange.Scripts;
 using UnityEngine;
 using System.Collections.Generic;
+using Barebones.MasterServer;
+using System;
 
 public interface IGameController
 {
@@ -16,43 +16,65 @@ public interface IExchangeController1v1 : IGameController
 	ExchangeState ExchangeState { get; set; }
 	IExchangePlayer [] ExchangePlayers { get; set; }
 	void ResetExchange();
+	void ServerResponse(int peerId);
 }
 
 public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 {
-
 	[SyncVar]
 	private ExchangeState _exchangeState;
 
-	public ExchangeState ExchangeState { get { return _exchangeState; } set { _exchangeState = value; } }
+	public ExchangeState ExchangeState
+	{
+		get
+		{
+			return _exchangeState;
+		}
+		set
+		{
+			if (isServer)
+			{
+				Debug.LogError(_exchangeState);
+				_exchangeState = value;
+			}
+		}
+	}
+
 	public static bool AllPlayersConnected;
 	public IExchangePlayer [] ExchangePlayers  { get; set; }
-
+	private PlayerController[] Players { get; set; }
 	private TimerManager tm;
 	private ExchangeBattlefieldController bc;
+	private ICoroutineManager cm;
 
 	private Dictionary<ExchangeState,bool> _stateStatus;
 
+	private ConcurrentDictionary<int, bool> clientReady;
+	private bool _waitingForClients;
+	private System.Collections.IEnumerator _coroutine;
+
 	private void Awake()
 	{
+		clientReady = new ConcurrentDictionary<int, bool>();
 		_stateStatus = new Dictionary<ExchangeState, bool>();
 		if (gameObject.tag != "GameController")
 		{
 			gameObject.tag = "GameController";
 		}
-		_exchangeState = ExchangeState.Setup;
+		
+		ExchangeState = ExchangeState.Setup;
 	}
 
-	// Use this for initialization
-	void Start()
+
+	private void Start()
 	{
 		tm = GetComponent<TimerManager>();
+		cm = GetComponent<CoroutineManager>();
 		bc = FindObjectOfType<ExchangeBattlefieldController>();
 		tm.AddAttackTimer("ExchangeTimer", 600);
 	}
 
-	// Update is called once per frame
-	void FixedUpdate()
+	private void FixedUpdate()
 	{
 		if (CheckStateCompleteStatus())
 		{
@@ -93,9 +115,11 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 		{
 			return;
 		}
+
 		Debug.LogError("Reset Exchange");
 		tm.RestartTimers();
 		bc.ResetBattlefield();
+		_stateStatus = new Dictionary<ExchangeState, bool>();
 		ExchangeState = ExchangeState.Start;
 		RpcResetExchange();
 	}
@@ -108,11 +132,12 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 
 	private void ExchangeSetup()
 	{
-		if (isServer)
+		if (isServer && AllPlayersConnected)
 		{
-			if (AllPlayersConnected)
+			ExchangeState = ExchangeState.PreBattle;
+			if (Players == null)
 			{
-				ExchangeState = ExchangeState.PreBattle;
+				Players = FindObjectsOfType<PlayerController>();
 			}
 		}
 
@@ -124,16 +149,26 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 
 	private void ExchangePreBattle()
 	{
-		ExchangePlayers = FindObjectsOfType<ExchangePlayer>();
+		if (ExchangePlayers == null)
+		{
+			ExchangePlayers = FindObjectsOfType<ExchangePlayer>();
+		}
 
 		if (isServer)
 		{
 			bc.Init();
 			foreach (var player in ExchangePlayers)
 			{
+				if (!clientReady.ContainsKey(player.PeerId))
+				{
+					clientReady.Add(player.PeerId, false);
+				}
+				
 				player.Init(0, 100, 0.001f, 0, 100, (BattlefieldZone)System.Array.IndexOf(ExchangePlayers, player), "InitialKit");
 			}
-			ExchangeState = ExchangeState.Start;
+
+			_stateStatus[ExchangeState] = true;
+			WaitForClients(() => { ExchangeState = ExchangeState.Start; });
 		}
 
 		if (isClient)
@@ -148,7 +183,8 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 
 		if (isServer)
 		{
-			ExchangeState = ExchangeState.Battle;
+			_stateStatus[ExchangeState] = true;
+			WaitForClients(() => { ExchangeState = ExchangeState.Battle; });
 		}
 
 		if (isClient)
@@ -165,7 +201,8 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 		{
 			if (tm.TimerUp("ExchangeTimer"))
 			{
-				ExchangeState = ExchangeState.End;
+				_stateStatus[ExchangeState] = true;
+				WaitForClients(() => { ExchangeState = ExchangeState.End; });
 			}
 		}
 	}
@@ -174,7 +211,8 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 	{
 		if (isServer)
 		{
-			ExchangeState = ExchangeState.PostBattle;
+			_stateStatus[ExchangeState] = true;
+			WaitForClients(() => { ExchangeState = ExchangeState.PostBattle; });
 		}
 
 		if (isClient)
@@ -187,7 +225,8 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 	{
 		if (isServer)
 		{
-			ExchangeState = ExchangeState.Teardown;
+			_stateStatus[ExchangeState] = true;
+			WaitForClients(() => { ExchangeState = ExchangeState.Teardown; });
 		}
 
 		if (isClient)
@@ -216,4 +255,59 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 			return false;
 		}
 	}
+
+
+	private void WaitForClients(Action callback)
+	{
+		if (_waitingForClients)
+		{
+			return;
+		}
+		//Debug.LogErrorFormat("Starting to Wait For Clients");
+
+		_waitingForClients = true;
+		foreach (int peerId in clientReady.GetKeysArray())
+		{
+			clientReady[peerId] = false;
+			foreach (PlayerController playerController in Players)
+			{
+				if (playerController.Player.PeerId == peerId)
+				{
+					//Debug.LogErrorFormat("Sending Request to {0}", peerId);
+					playerController.RpcClientRequest();
+				}
+			}
+		}
+
+		cm.StartCoroutineThread_WhileLoop(WaitForClientsMethod, new object[] { callback }, 0f, ref _coroutine);
+	}
+
+	public void ServerResponse(int peerId)
+	{
+		clientReady[peerId] = true;
+	}
+
+	private void WaitForClientsMethod(object[] callbackParameters)
+	{
+		if (_coroutine == null)
+		{
+			return;
+		}
+
+		foreach (int peerId in clientReady.GetKeysArray())
+		{
+			if (!clientReady[peerId])
+			{
+				//Debug.LogErrorFormat("Peer: {0}. Was not ready", peerId);
+				return;
+			}
+		}
+
+		cm.StopCoroutineThread(ref _coroutine);
+		_coroutine = null;
+		//Debug.LogError("All Clients Are Ready");
+		((Action)callbackParameters[0]).Invoke();
+		_waitingForClients = false;
+	}
+
 }

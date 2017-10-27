@@ -12,6 +12,8 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	private const int INITIAL_ROW = 2;
 
 	[SyncVar]
+	private int _peerId;
+	[SyncVar]
 	private bool _initialized;
 	[SyncVar]
 	private BattlefieldZone _zone;
@@ -22,6 +24,7 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	private Mover _mover;
 	private Status _status;
 
+	public int PeerId { get { return _peerId; } set { _peerId = value; } }
 	public Energy Energy { get { return _energy; } }
 	public Health Health { get { return _health; } }
 	public Mover Mover { get { return _mover; } }

@@ -4,6 +4,7 @@ using UnityEngine;
 public interface IExchangePlayer
 {
 	bool Initialized { get; }
+	int PeerId { get; set; }
 	Energy Energy { get; }
 	Health Health { get; }
 	Mover Mover { get; }

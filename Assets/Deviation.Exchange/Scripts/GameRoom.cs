@@ -42,7 +42,7 @@ namespace Assets.Deviation.Exchange.Scripts
 		[Tooltip("This address will be sent to clients with an access token")]
 		public string PublicIp = "xxx.xxx.xxx.xxx";
 		public string Name = "Room Name";
-		public int MaxPlayers = 5;
+		public int MaxPlayers = 2;
 		public bool IsPublic = true;
 		public string Password = "";
 		public bool AllowUsersRequestAccess = true;

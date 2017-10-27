@@ -149,6 +149,5 @@ public class StandaloneController : MonoBehaviour
 		Logs.Info("Connecting to Game");
 
 		FindObjectOfType<ExchangeRoomConnector>().ConnectToGame(packet);
-
 	}
 }

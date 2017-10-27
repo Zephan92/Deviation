@@ -3,6 +3,7 @@ using Assets.Scripts.Utilities;
 using Assets.Scripts.Enum;
 using Assets.Scripts.Interface;
 using UnityEngine;
+using Barebones.MasterServer;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -108,6 +109,23 @@ public class PlayerController : NetworkBehaviour
 	private void CmdReset()
 	{
 		ec.ResetExchange();
+	}
+
+	[ClientRpc]
+	public void RpcClientRequest()
+	{
+		if (!isLocalPlayer)
+		{
+			return;
+		}
+		CmdServerResponse(Player.PeerId);
+	}
+
+	[Command]
+	private void CmdServerResponse(int peerId)
+	{
+		Debug.LogErrorFormat("Recieved Response from {0}", peerId);
+		ec.ServerResponse(peerId);
 	}
 }
 
