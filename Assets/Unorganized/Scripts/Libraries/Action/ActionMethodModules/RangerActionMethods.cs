@@ -22,7 +22,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 					System.Action<GameObject> onStartMethod = delegate(GameObject actionGO)
 					{
 						var mover = actionGO.GetComponent<ActionObjectMover>();
-						mover.Init(player.Mover.CurrentBattlefieldRow, player.Mover.CurrentBattlefieldColumn, 10);
+						mover.Init(player.Mover.CurrentCoordinate, 10);
 					};
 
 					System.Action<Collider, GameObject, IAttack> onTriggerEnterMethod = delegate(Collider other, GameObject actionGO, IAttack actionAttack)
@@ -54,7 +54,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 					System.Action<GameObject> onStartMethod = delegate(GameObject actionGO)
 					{
 						var mover = actionGO.GetComponent<ActionObjectMover>();
-						mover.Init(player.Mover.CurrentBattlefieldRow, player.Mover.CurrentBattlefieldColumn, 4);
+						mover.Init(player.Mover.CurrentCoordinate, 4);
 					};
 
 					System.Action<Collider, GameObject, IAttack> onTriggerEnterMethod = delegate(Collider other, GameObject actionGO, IAttack actionAttack)
@@ -86,7 +86,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 					System.Action<GameObject> onStartMethod = delegate(GameObject actionGO)
 					{
 						var mover = actionGO.GetComponent<ActionObjectMover>();
-						mover.Init(player.Mover.CurrentBattlefieldRow, player.Mover.CurrentBattlefieldColumn, 2);
+						mover.Init(player.Mover.CurrentCoordinate, 2);
 					};
 
 					System.Action<Collider, GameObject, IAttack> onTriggerEnterMethod = delegate(Collider other, GameObject actionGO, IAttack actionAttack)

@@ -34,8 +34,8 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 		{
 			if (isServer)
 			{
-				Debug.LogError(_exchangeState);
 				_exchangeState = value;
+				Debug.LogError(_exchangeState);
 			}
 		}
 	}
@@ -163,8 +163,10 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 				{
 					clientReady.Add(player.PeerId, false);
 				}
-				
-				player.Init(0, 100, 0.001f, 0, 100, (BattlefieldZone)System.Array.IndexOf(ExchangePlayers, player), "InitialKit");
+
+				BattlefieldZone zone = (BattlefieldZone)System.Array.IndexOf(ExchangePlayers, player);
+				Debug.LogErrorFormat("Initializing Player: {0}. {1}", player.PeerId, zone);
+				player.Init(0, 100, 0.001f, 0, 100, zone, "InitialKit");
 			}
 
 			_stateStatus[ExchangeState] = true;

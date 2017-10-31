@@ -12,18 +12,13 @@ using Assets.Scripts.Exchange.Attacks;
 
 public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldController
 {
-	private const int BATTLEFIELD_ROW_COUNT = 5;
-	private const int BATTLEFIELD_LOCAL_COLUMN_COUNT = 5;
-	private const int BATTLEFIELD_COLUMN_COUNT = 10;
-
-	public GridSpace[,] Grid;
 	public GameObject BattlefieldGO;
 	private Dictionary<BattlefieldZone, List<IExchangePlayer>> _playerDict;
 
 	//make multiple of these
 	private IEnumerator _coroutine;
-
 	private ICoroutineManager cm;
+	public IGridManager gm { get; set; }
 
 	public void Start()
 	{
@@ -31,10 +26,10 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		{
 			BattlefieldGO = gameObject;
 		}
-		Grid = new GridSpace[BATTLEFIELD_COLUMN_COUNT, BATTLEFIELD_ROW_COUNT];
 		_playerDict = new Dictionary<BattlefieldZone, List<IExchangePlayer>>();
 
 		cm = FindObjectOfType<CoroutineManager>();
+		gm = FindObjectOfType<GridManager>();
 	}
 
 	public void Init()
@@ -60,36 +55,6 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		{
 			return _playerDict[zone];
 		}
-	}
-
-	public Rect GetBattlefieldBoundaries(BattlefieldZone zone = BattlefieldZone.All)
-	{
-		switch (zone)
-		{
-			case BattlefieldZone.All:
-				return new Rect(-0.02f, -0.01f, 10.03f, 5.01f);
-			case BattlefieldZone.Left:
-				return new Rect(-0.02f, -0.01f, 5, 5.01f);
-			case BattlefieldZone.Right:
-				return new Rect(5, -0.01f, 5, 5.01f);
-			default:
-				throw new System.Exception("Zone was not Left, Right or All.");
-		}
-	}
-
-	public bool IsInsideBattlefieldBoundaries(Vector3 pos, BattlefieldZone zone = BattlefieldZone.All)
-	{
-		return IsInsideBattlefieldBoundaries(pos.x, pos.z, zone);
-	}
-
-	public bool IsInsideBattlefieldBoundaries(float x, float z, BattlefieldZone zone = BattlefieldZone.All)
-	{
-		return GetBattlefieldBoundaries(zone).Contains(new Vector2(x, z));
-	}
-
-	public bool IsInsideBattlefieldBoundaries(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
-	{
-		return GetBattlefieldBoundaries(zone).Contains(new Vector2(column, row));
 	}
 
 	public Vector3 GetBattlefieldCoordinates(BattlefieldZone zone)
@@ -244,10 +209,7 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 
 	public void ResetBattlefield()
 	{
-		foreach (GridSpace gridspace in Grid)
-		{
-			gridspace.ReInit();
-		}
+		gm.ResetGrid();
 
 		foreach (IExchangePlayer player in GetPlayers())
 		{
@@ -257,142 +219,6 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		foreach (ActionObject actionObject  in FindObjectsOfType<ActionObject>())
 		{
 			Destroy(actionObject.gameObject);
-		}
-	}
-
-	public Vector2 GetGridCoordinates(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
-	{
-		int gridColumn = 0;
-		switch (zone)
-		{
-			case BattlefieldZone.All:
-			case BattlefieldZone.Left:
-				gridColumn = column;
-				break;
-			case BattlefieldZone.Right:
-				gridColumn = column + 5;
-				break;
-		}
-
-		return new Vector2(gridColumn, row);
-	}
-
-	public Vector2 GetGridCoordinates(Vector3 pos, BattlefieldZone zone = BattlefieldZone.All)
-	{
-		switch (zone)
-		{
-			case BattlefieldZone.All:
-			case BattlefieldZone.Left:
-				return GetGridCoordinates(Mathf.RoundToInt(pos.z), Mathf.RoundToInt(pos.x));
-			case BattlefieldZone.Right:
-				return GetGridCoordinates(Mathf.RoundToInt(pos.z), Mathf.RoundToInt(pos.x) - 5);
-			default:
-				return GetGridCoordinates(Mathf.RoundToInt(pos.z), Mathf.RoundToInt(pos.x));
-		}
-	}
-
-	public bool GetGridspaceOccupied(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
-	{
-		GridSpace gridspace = GetGridSpace(row, column, zone);
-		if (gridspace != null)
-		{
-			return gridspace.Occupied;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	public void SetGridspaceOccupied(int row, int column, bool state, BattlefieldZone zone = BattlefieldZone.All)
-	{
-		//Debug.LogErrorFormat("Setting ({0},{1}): {2}",row, column, state);
-		GridSpace gridspace = GetGridSpace(row, column, zone);
-		if (gridspace != null)
-		{
-			gridspace.Occupied = state;
-		}
-		else
-		{
-			Debug.LogErrorFormat("Set Gridspace State tile didn't target a correct gridspace. Row: {0}, Column {1}", row, column);
-		}
-	}
-
-	public bool GetGridSpaceDamaged(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
-	{
-		GridSpace gridspace = GetGridSpace(row, column, zone);
-		if (gridspace != null)
-		{
-			return gridspace.Damaged;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	public bool GetGridSpaceBroken(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
-	{
-		GridSpace gridspace = GetGridSpace(row, column, zone);
-		if (gridspace != null)
-		{
-			return gridspace.Broken;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	public void ResetGridSpaceColor(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
-	{
-		GridSpace gridspace = GetGridSpace(row, column, zone);
-		if (gridspace != null)
-		{
-			gridspace.ResetTexture();
-		}
-		else
-		{
-			Debug.LogErrorFormat("Reset Gridspace Color tile didn't target a correct gridspace. Row: {0}, Column {1}", row, column);
-		}
-	}
-
-	public void SetGridSpaceColor(int row, int column, Color color, BattlefieldZone zone = BattlefieldZone.All)
-	{
-		GridSpace gridspace = GetGridSpace(row, column, zone);
-		if (gridspace != null)
-		{
-			gridspace.UpdateTexture(color);
-		}
-		else
-		{
-			Debug.LogErrorFormat("Set Gridspace Color tile didn't target a correct gridspace. Row: {0}, Column {1}", row, column);
-		}
-	}
-
-	public void BreakTile(int row, int column, BattlefieldZone zone = BattlefieldZone.All, bool force = false)
-	{
-		GridSpace gridspace = GetGridSpace(row, column, zone);
-		if (gridspace != null)
-		{
-			gridspace.BreakTile(force);
-		}
-		else
-		{
-			Debug.LogErrorFormat("Break tile didn't target a correct gridspace. Row: {0}, Column {1}", row, column);
-		}
-	}
-
-	public void DamageTile(int row, int column, BattlefieldZone zone = BattlefieldZone.All, bool breakable = false)
-	{
-		GridSpace gridspace = GetGridSpace(row, column, zone);
-		if (gridspace != null)
-		{
-			gridspace.DamageTile(breakable);
-		}
-		else
-		{
-			Debug.LogErrorFormat("Damage tile didn't target a correct gridspace. Row: {0}, Column {1}", row, column);
 		}
 	}
 
@@ -442,9 +268,9 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 			return;
 		}
 
-		for (int columnNum = 0; columnNum < BATTLEFIELD_COLUMN_COUNT; columnNum++)
+		for (int columnNum = 0; columnNum < ExchangeConstants.BATTLEFIELD_COLUMN_COUNT; columnNum++)
 		{
-			for (int rowNum = 0; rowNum < BATTLEFIELD_ROW_COUNT; rowNum++)
+			for (int rowNum = 0; rowNum < ExchangeConstants.BATTLEFIELD_ROW_COUNT; rowNum++)
 			{
 				var gridSpaceGameObject = Resources.Load("GridSpace") as GameObject;
 				var gridSpaceObject = Instantiate(gridSpaceGameObject, BattlefieldGO.transform);
@@ -453,7 +279,7 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 				NetworkServer.Spawn(gridSpaceObject);
 				var gridspace = gridSpaceObject.GetComponent<GridSpace>();
 				
-				if (columnNum < BATTLEFIELD_LOCAL_COLUMN_COUNT)
+				if (columnNum < ExchangeConstants.BATTLEFIELD_LOCAL_COLUMN_COUNT)
 				{
 					gridspace.Zone = BattlefieldZone.Left;
 				}
@@ -464,58 +290,8 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 				}
 
 				gridspace.ResetTexture();
-				GridSpaceInit(gridSpaceObject, columnNum, rowNum);
-				RpcGridSpaceInit(gridSpaceObject, columnNum, rowNum);
+				gm.InitGridspace(gridSpaceObject, BattlefieldGO, rowNum, columnNum);
 			}
-		}
-		SetGridspaceOccupied(2, 2, true, BattlefieldZone.Left);
-		SetGridspaceOccupied(2, 2, true, BattlefieldZone.Right);
-	}
-
-	[ClientRpc]
-	private void RpcGridSpaceInit(GameObject go, int column, int row)
-	{
-		GridSpaceInit(go, column, row);
-	}
-
-	private void GridSpaceInit(GameObject go, int column, int row)
-	{
-		go.transform.parent = BattlefieldGO.transform;
-		var gridspace = go.GetComponent<GridSpace>();
-		Grid[column, row] = gridspace;
-	}
-
-	private GridSpace GetGridSpace(int row, int column, BattlefieldZone zone = BattlefieldZone.All)
-	{
-		switch (zone)
-		{
-			case BattlefieldZone.All:
-				if (BATTLEFIELD_ROW_COUNT <= row || BATTLEFIELD_COLUMN_COUNT <= column)
-				{
-					return null;
-				}
-				break;
-			case BattlefieldZone.Left:
-			case BattlefieldZone.Right:
-				if (BATTLEFIELD_ROW_COUNT <= row || BATTLEFIELD_LOCAL_COLUMN_COUNT <= column)
-				{
-					return null;
-				}
-				break;
-			default:
-				return null;
-		}
-		var coordinates = GetGridCoordinates(row, column, zone);
-		if (coordinates.x >= 0 &&
-			coordinates.x < Grid.GetLength(0) &&
-			coordinates.y >= 0 &&
-			coordinates.y < Grid.GetLength(1))
-		{
-			return Grid[(int)coordinates.x, (int)coordinates.y];
-		}
-		else
-		{
-			return null;
 		}
 	}
 }

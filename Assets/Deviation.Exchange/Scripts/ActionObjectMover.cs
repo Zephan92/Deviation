@@ -13,16 +13,44 @@ public class ActionObjectMover : NetworkBehaviour
 	[SyncVar]
 	private Quaternion _realRotation;
 	[SyncVar]
-	public int CurrentRow;
+	public int _currentRow;
 	[SyncVar]
-	public int CurrentColumn;
+	public int _currentColumn;
 	[SyncVar]
 	private bool _stopped = false;
 	[SyncVar]
 	public float _movementSpeed;
 
+	public void UpdateRow(int value)
+	{
+		_currentRow = value;
+		_currentCoordinate.Row = value;
+	}
+
+	public void UpdateColumn(int value)
+	{
+		_currentColumn = value;
+		_currentCoordinate.Column = value;
+	}
+
+	private GridCoordinate _currentCoordinate;
+
+	public GridCoordinate CurrentCoordinate
+	{
+		get
+		{
+			return _currentCoordinate;
+		}
+		set
+		{
+			_currentCoordinate = value;
+			_currentColumn = value.Column;
+			_currentRow = value.Row;
+		}
+	}
+
 	private ICoroutineManager cm;
-	private ExchangeBattlefieldController bc;
+	private IGridManager gm;
 	private IEnumerator _movingCoroutine;
 	private ActionObject _actionObject;
 
@@ -31,22 +59,21 @@ public class ActionObjectMover : NetworkBehaviour
 
 	public void Awake()
 	{
-		bc = FindObjectOfType<ExchangeBattlefieldController>();
+		gm = FindObjectOfType<GridManager>();
 		cm = FindObjectOfType<CoroutineManager>();
 		_actionObject = GetComponent<ActionObject>();
 	}
 
-	public void Init(int row, int column, float movementSpeed, bool warningsEnabled = false)
+	public void Init(GridCoordinate currentCoordinate, float movementSpeed, bool warningsEnabled = false)
 	{
-		CurrentRow = row;
-		CurrentColumn = column;
+		CurrentCoordinate = currentCoordinate;
 		_movementSpeed = movementSpeed;
 		_warningsEnabled = warningsEnabled;
 		cm.StartFixedCoroutineThread(MovingAction, ref _movingCoroutine);
 
 		if (_warningsEnabled)
 		{
-			bc.SetGridSpaceColor(CurrentRow, CurrentColumn, Color.yellow);
+			gm.SetGridSpaceColor(CurrentCoordinate, Color.yellow);
 		}
 
 		RpcInit();
@@ -78,39 +105,30 @@ public class ActionObjectMover : NetworkBehaviour
 	{
 		if (ChangedPos(transform.position))
 		{
-			if (_warningsEnabled && bc.IsInsideBattlefieldBoundaries(CurrentRow, CurrentColumn))
+			GridCoordinate newCoordinate = new GridCoordinate(transform.position);
+
+			if (_warningsEnabled && CurrentCoordinate.Valid())
 			{
-				bc.ResetGridSpaceColor(CurrentRow, CurrentColumn);
+				gm.ResetGridSpaceColor(CurrentCoordinate);
 			}
 
-			if (bc.IsInsideBattlefieldBoundaries(transform.position))
+			if (_warningsEnabled && newCoordinate.Valid())
 			{
-				int newCurrentRow = Mathf.RoundToInt(transform.position.z);
-				int newCurrentColumn = Mathf.RoundToInt(transform.position.x);
-
-				if (_warningsEnabled)
-				{
-					bc.SetGridSpaceColor(newCurrentRow, newCurrentColumn, Color.yellow);
-				}
-
-				CurrentRow = newCurrentRow;
-				CurrentColumn = newCurrentColumn;
-				_actionObject.OnTileEnter();
+				gm.SetGridSpaceColor(newCoordinate, Color.yellow);
 			}
-			else
-			{
-				_outOfBounds = true;
-			}
+
+			CurrentCoordinate = newCoordinate;
+			_actionObject.OnTileEnter();
 		}
 	}
 
 	private bool ChangedPos(Vector3 pos)
 	{
-		if (CurrentRow + 0.5f < pos.z || pos.z < CurrentRow - 0.5f)
+		if (CurrentCoordinate.Row + 0.5f < pos.z || pos.z < CurrentCoordinate.Row - 0.5f)
 		{
 			return true;
 		}
-		else if (CurrentColumn + 0.5f < pos.x || pos.x < CurrentColumn - 0.5f)
+		else if (CurrentCoordinate.Column + 0.5f < pos.x || pos.x < CurrentCoordinate.Column - 0.5f)
 		{
 			return true;
 		}
@@ -141,9 +159,9 @@ public class ActionObjectMover : NetworkBehaviour
 
 		if (isServer)
 		{
-			if (_warningsEnabled && !_outOfBounds)
+			if (_warningsEnabled && CurrentCoordinate.Valid())
 			{
-				bc.ResetGridSpaceColor(CurrentRow, CurrentColumn);
+				gm.ResetGridSpaceColor(CurrentCoordinate);
 			}
 		}
 	}

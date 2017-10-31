@@ -97,18 +97,19 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 						for (int i = 0; i < numTiles; i++)
 						{
 							stunLocations = ActionUtilities.PickZone(stunLocations, i);
-							int x = (int) originX + stunLocations[i,0];
-							int z = (int) originZ + stunLocations[i,1];
+							int column = (int) originX + stunLocations[i,0];
+							int row = (int) originZ + stunLocations[i,1];
+							GridCoordinate coordinate = new GridCoordinate(row, column);
 
 							System.Action onDelayStart = delegate()
 							{
-								bc.SetGridSpaceColor(z,x,Color.yellow);
+								bc.gm.SetGridSpaceColor(coordinate,Color.yellow);
 							};
 
 							System.Action onDelayEnd = delegate()
 							{
-								bc.ResetGridSpaceColor(z,x);
-								bc.DamageTile(z,x);
+								bc.gm.ResetGridSpaceColor(coordinate);
+								bc.gm.DamageTile(coordinate);
 							};
 
 							bc.ActionWarning(0.5f, onDelayStart, onDelayEnd);
@@ -124,21 +125,21 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 						{
 							actionGO.GetComponent<ActionObject>().DisableRenderer();
 							var mover = actionGO.GetComponent<ActionObjectMover>();
-							mover.Init(player.Mover.CurrentRow, player.Mover.CurrentColumn, 15, true);
+							mover.Init(player.Mover.CurrentCoordinate, 15, true);
 						};
 
 						System.Action<GameObject> onTileEnterMethod = delegate(GameObject actionGO)
 						{
 							var mover = actionGO.GetComponent<ActionObjectMover>();
 
-							if(bc.GetGridSpaceBroken(mover.CurrentRow, mover.CurrentColumn))
+							if(bc.gm.GetGridSpaceBroken(mover.CurrentCoordinate))
 							{
 								mover.StopObject();
 							}
 
-							if (!bc.IsInsideBattlefieldBoundaries(mover.CurrentRow, mover.CurrentColumn, zone))
+							if (!mover.CurrentCoordinate.Valid(zone) && mover.CurrentCoordinate.Valid())
 							{
-								bc.DamageTile(mover.CurrentRow, mover.CurrentColumn, breakable: true);
+								bc.gm.DamageTile(mover.CurrentCoordinate, breakable: true);
 							}
 						};
 

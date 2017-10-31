@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Enum;
+using Assets.Scripts.Interface;
 using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Library;
 using Assets.Scripts.Utilities;
@@ -8,9 +9,6 @@ using UnityEngine.Networking;
 
 public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 {
-	private const int INITIAL_COLUMN = 2;
-	private const int INITIAL_ROW = 2;
-
 	[SyncVar]
 	private int _peerId;
 	[SyncVar]
@@ -36,7 +34,8 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	public Quaternion Rotation { get { return transform.rotation; } }
 
 	private ExchangeBattlefieldController bc;
-	private TimerManager tm;
+	private ITimerManager tm;
+	private IGridManager gm;
 
 	private Dictionary<int, bool> _actionsDisabled;
 
@@ -44,6 +43,7 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	{
 		bc = FindObjectOfType<ExchangeBattlefieldController>();
 		tm = FindObjectOfType<TimerManager>();
+		gm = FindObjectOfType<GridManager>();
 		_energy = GetComponent<Energy>();
 		_health = GetComponent<Health>();
 		_mover = GetComponent<Mover>();
@@ -98,7 +98,7 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 		int attackCost = (int)(action.Attack.EnergyRecoilModifier * action.Attack.BaseDamage);
 		int potentialEnergy = _energy.Current + attackCost;
 		if (tm.TimerUp(action.Name, (int)_zone) && potentialEnergy >= _energy.Min)
-		{
+		{			
 			CmdAction(actionNumber);
 			tm.StartTimer(action.Name, (int)_zone);
 			success = true;
@@ -127,13 +127,13 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 		_kit = KitLibrary.GetKitInstance(kitName);
 		_kit.Player = this;
 		_initialized = true;
-		bc.SetGridspaceOccupied(INITIAL_ROW, INITIAL_COLUMN, true, zone);
+		gm.SetGridspaceOccupied(new GridCoordinate(ExchangeConstants.PLAYER_INITIAL_ROW, ExchangeConstants.PLAYER_INITIAL_COLUMN, zone, true), true, zone);
 	}
 
 	[ClientRpc]
 	private void RpcInit(BattlefieldZone zone, string kitName)
 	{
-		_mover.Init(zone, INITIAL_ROW, INITIAL_COLUMN, 1f);
+		_mover.Init(zone, 1f);
 		_kit = KitLibrary.GetKitInstance(kitName);
 		_kit.Player = this;
 

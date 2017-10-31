@@ -24,6 +24,7 @@ public class Energy : NetworkBehaviour
 	[SyncVar]
 	private bool _regenBlock;
 
+	
 	public void Init(int min, int max, float rate)
 	{
 		_min = min;
@@ -55,9 +56,8 @@ public class Energy : NetworkBehaviour
 		{
 			currentMax = _current;
 		}
-
-		_current = Mathf.Clamp(_current + add, currentMin, currentMax);
 		
+		_current = Mathf.Clamp(_current + add, currentMin, currentMax);
 	}
 
 	public void ReInit()
@@ -67,6 +67,11 @@ public class Energy : NetworkBehaviour
 
 	public void Restore()
 	{
+		if (!isServer)
+		{
+			return;
+		}
+
 		_energy += _max * _rate;
 		if (_energy > 1 || _energy < -1)
 		{

@@ -37,20 +37,21 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 					for (int i = 0; i < numStuns; i++)
 					{
 						stunLocations = ActionUtilities.PickZone(stunLocations, i);
-						int x = (int) originX + stunLocations[i,0];
-						int z = (int) originZ + stunLocations[i,1];
+						int column = (int) originX + stunLocations[i,0];
+						int row = (int) originZ + stunLocations[i,1];
+						GridCoordinate coordinate = new GridCoordinate(row,column);
 
 						System.Action onDelayStart = delegate()
 						{
-							bc.SetGridSpaceColor(z,x,Color.yellow);
+							bc.gm.SetGridSpaceColor(coordinate,Color.yellow);
 						};
 
 						System.Action onDelayEnd = delegate()
 						{
-							bc.ResetGridSpaceColor(z,x);
+							bc.gm.ResetGridSpaceColor(coordinate);
 						};
 
-						bc.SpawnActionObject(0.5f, 4f, "StunTrigger", new Vector3(x, 0, z), attack, 
+						bc.SpawnActionObject(0.5f, 4f, "StunTrigger", new Vector3(coordinate.Column, 0, coordinate.Row), attack, 
 							onTriggerAction: onTriggerEnterMethod, 
 							onDelayStartAction: onDelayStart, 
 							onDelayEndAction: onDelayEnd );

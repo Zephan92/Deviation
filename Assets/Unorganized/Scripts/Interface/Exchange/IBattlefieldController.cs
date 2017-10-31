@@ -9,22 +9,14 @@ namespace Assets.Scripts.Interface
 {
 	public interface IBattlefieldController
 	{
+		IGridManager gm { get; set; }
 		List<IExchangePlayer> GetPlayers(BattlefieldZone zone = BattlefieldZone.All);
 		void ResetBattlefield();
 		Vector3 GetBattlefieldCoordinates(BattlefieldZone zone);
-		Rect GetBattlefieldBoundaries(BattlefieldZone zone = BattlefieldZone.All);
-		bool IsInsideBattlefieldBoundaries(Vector3 pos, BattlefieldZone zone = BattlefieldZone.All);
-		bool IsInsideBattlefieldBoundaries(int row, int column, BattlefieldZone zone = BattlefieldZone.All);
-		bool GetGridSpaceDamaged(int row, int column, BattlefieldZone zone = BattlefieldZone.All);
-		bool GetGridSpaceBroken(int row, int column, BattlefieldZone zone = BattlefieldZone.All);
-		void SetGridSpaceColor(int row, int column, Color color, BattlefieldZone zone = BattlefieldZone.All);  
-		void ResetGridSpaceColor(int row, int column, BattlefieldZone zone = BattlefieldZone.All);
-		void BreakTile(int row, int column, BattlefieldZone zone = BattlefieldZone.All, bool force = false);
-		void DamageTile(int row, int column, BattlefieldZone zone = BattlefieldZone.All, bool breakable = false);
-
-		void SetGridspaceOccupied(int row, int column, bool state, BattlefieldZone zone = BattlefieldZone.All);
-		bool GetGridspaceOccupied(int row, int column, BattlefieldZone zone = BattlefieldZone.All);
-
+		//Rect GetBattlefieldBoundaries(BattlefieldZone zone = BattlefieldZone.All);
+		//bool IsInsideBattlefieldBoundaries(Vector3 pos, BattlefieldZone zone = BattlefieldZone.All);
+		//bool IsInsideBattlefieldBoundaries(int row, int column, BattlefieldZone zone = BattlefieldZone.All);
+	
 		void DeleteAfterTimeout(float timeout, GameObject gameObjects);
 		void DeleteAfterTimeout(float timeout, GameObject[] battlefieldObjects);
 

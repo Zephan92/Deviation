@@ -124,7 +124,7 @@ public class PlayerController : NetworkBehaviour
 	[Command]
 	private void CmdServerResponse(int peerId)
 	{
-		Debug.LogErrorFormat("Recieved Response from {0}", peerId);
+		//Debug.LogErrorFormat("Recieved Response from {0}", peerId);
 		ec.ServerResponse(peerId);
 	}
 }

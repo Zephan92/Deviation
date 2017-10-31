@@ -5,18 +5,18 @@ namespace Assets.Scripts.DTO.Exchange
 {
 	public class MovingDetails
 	{
-		public Vector3 Destination;
+		public GridCoordinate Destination;
 		public Direction MovingDirection;
 		private float _distanceTraveled = 0;
 		private float _distanceToDestination = 0;
 
-		public MovingDetails(Vector3 dest, Direction dir)
+		public MovingDetails(GridCoordinate dest, Direction dir)
 		{
 			Destination = dest;
 			MovingDirection = dir;
 		}
 
-		public MovingDetails(Vector3 dest, Direction dir, float distanceToDestination)
+		public MovingDetails(GridCoordinate dest, Direction dir, float distanceToDestination)
 		{
 			Destination = dest;
 			MovingDirection = dir;

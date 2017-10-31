@@ -10,28 +10,55 @@ public class Mover : NetworkBehaviour
 {
 	[SyncVar]
 	private bool _rooted;
+
 	[SyncVar]
-	public int CurrentRow;
+	private int _currentRow;
+
 	[SyncVar]
-	public int CurrentColumn;
+	private int _currentColumn;
+
 	[SyncVar]
 	public float MovementSpeed;
 
-	public int CurrentBattlefieldRow { get { return CurrentRow; } }
-	public int CurrentBattlefieldColumn { get { return _zone == BattlefieldZone.Left ? CurrentColumn : CurrentColumn + 5; } }
+	public void UpdateRow(int value)
+	{
+		_currentRow = value;
+		_currentCoordinate.Row = value;
+	}
+
+	public void UpdateColumn(int value)
+	{
+		_currentColumn = value;
+		_currentCoordinate.Column = value;
+	}
+
+	private GridCoordinate _currentCoordinate;
+
+	public GridCoordinate CurrentCoordinate
+	{
+		get
+		{
+			return _currentCoordinate;
+		}
+		set
+		{
+			_currentCoordinate = value;
+			_currentColumn = value.Column;
+			_currentRow = value.Row;
+		}
+	}
 
 	private MovingDetails _movingDetails;
 	private MovingDetails _movingDetailsNext;
 
 	private ICoroutineManager cm;
-	private ExchangeBattlefieldController bc;
+	private IGridManager gm;
 
 	private BattlefieldZone _zone;
-	private IEnumerator _movingCoroutine;
 
 	public void Awake()
 	{
-		bc = FindObjectOfType<ExchangeBattlefieldController>();
+		gm = FindObjectOfType<GridManager>();
 		cm = FindObjectOfType<CoroutineManager>();	
 	}
 
@@ -45,10 +72,9 @@ public class Mover : NetworkBehaviour
 		}
 	}
 
-	public void Init(BattlefieldZone zone, int row, int column, float movementSpeed)
+	public void Init(BattlefieldZone zone, float movementSpeed)
 	{
-		CurrentRow = row;
-		CurrentColumn = column;
+		CurrentCoordinate = new GridCoordinate(ExchangeConstants.PLAYER_INITIAL_ROW, ExchangeConstants.PLAYER_INITIAL_COLUMN, zone, true);
 		MovementSpeed = movementSpeed;
 		_zone = zone;
 		_rooted = false;
@@ -66,10 +92,10 @@ public class Mover : NetworkBehaviour
 			return;
 		}
 
-		Vector3 currentPosition = transform.position;
+		GridCoordinate currentPosition = new GridCoordinate(transform.position);
 		bool createMoveCoroutine = false;
 
-		Vector3 destination = Vector3.zero;
+		GridCoordinate destination = new GridCoordinate();
 		float destPoint = 0f;
 
 		if (_movingDetails != null)
@@ -89,43 +115,27 @@ public class Mover : NetworkBehaviour
 		switch (direction)
 		{
 			case Direction.Up:
-				if (force || !bc.GetGridspaceOccupied(CurrentRow, CurrentColumn + distance * zoneModifier, _zone))
-				{
-					destPoint = currentPosition.x + distance * zoneModifier;
-					destination = new Vector3(destPoint, 0, currentPosition.z);
-					createMoveCoroutine = true;
-				}
+				destPoint = currentPosition.Column + distance * zoneModifier;
+				destination = new GridCoordinate(currentPosition.Row, destPoint, _zone);
 				break;
 
 			case Direction.Down:
-				if (force || !bc.GetGridspaceOccupied(CurrentRow, CurrentColumn - distance * zoneModifier, _zone))
-				{
-					destPoint = currentPosition.x - distance * zoneModifier;
-					destination = new Vector3(destPoint, 0, currentPosition.z);
-					createMoveCoroutine = true;
-				}
+				destPoint = currentPosition.Column - distance * zoneModifier;
+				destination = new GridCoordinate(currentPosition.Row, destPoint, _zone);
 				break;
 
 			case Direction.Left:
-				if (force || !bc.GetGridspaceOccupied(CurrentRow + distance * zoneModifier, CurrentColumn, _zone))
-				{
-					destPoint = currentPosition.z + distance * zoneModifier;
-					destination = new Vector3(currentPosition.x, 0, destPoint);
-					createMoveCoroutine = true;
-				}
+				destPoint = currentPosition.Row + distance * zoneModifier;
+				destination = new GridCoordinate(destPoint, currentPosition.Column, _zone);
 				break;
 
 			case Direction.Right:
-				if (force || !bc.GetGridspaceOccupied(CurrentRow - distance * zoneModifier, CurrentColumn, _zone))
-				{
-					destPoint = currentPosition.z - distance * zoneModifier;
-					destination = new Vector3(currentPosition.x, 0, destPoint);
-					createMoveCoroutine = true;
-				}
+				destPoint = currentPosition.Row - distance * zoneModifier;
+				destination = new GridCoordinate(destPoint, currentPosition.Column, _zone);
 				break;
 		}
 
-		if (createMoveCoroutine && bc.IsInsideBattlefieldBoundaries(destination, _zone))
+		if (destination.Valid(_zone) && !gm.GetGridspaceOccupied(destination, _zone))
 		{
 			if (_movingDetails == null)
 			{
@@ -136,7 +146,6 @@ public class Mover : NetworkBehaviour
 			{
 				_movingDetailsNext = new MovingDetails(destination, direction, distance);
 			}
-			
 		}
 	}
 
@@ -169,26 +178,25 @@ public class Mover : NetworkBehaviour
 
 		_movingDetails.AddDistanceTraveled(MovementSpeed);
 		transform.Translate(directionVector * MovementSpeed);
-		int oldRow = CurrentRow;
-		int oldColumn = CurrentColumn;
-		var gridLocation = bc.GetGridCoordinates(_movingDetails.Destination, _zone);
-		CurrentRow = (int)gridLocation.y;
-		CurrentColumn = (int)gridLocation.x;//make a gridCoordinate Struct already geeze
-		transform.position = _movingDetails.Destination;
+		GridCoordinate oldCoordinate = CurrentCoordinate;
+		CurrentCoordinate = _movingDetails.Destination;
+		transform.position = _movingDetails.Destination.Position_Vector3();
 		_movingDetails = null;
-		CmdUpdateBattlefield(oldRow, oldColumn, CurrentRow, CurrentColumn, _zone);
+		CmdUpdateBattlefield(oldCoordinate.Row, oldCoordinate.Column, CurrentCoordinate.Row, CurrentCoordinate.Column, _zone);
 	}
 
 	[Command]
 	private void CmdUpdateBattlefield(int oldRow, int oldColumn,int newRow, int newColumn, BattlefieldZone zone)
 	{
-		if (!bc.GetGridSpaceDamaged(oldRow, oldColumn, zone))
+		GridCoordinate oldCoordinate = new GridCoordinate(oldRow, oldColumn, zone);
+		GridCoordinate newCoordinate = new GridCoordinate(newRow, newColumn, zone);
+		if (!gm.GetGridSpaceDamaged(oldCoordinate, zone))
 		{
-			bc.SetGridspaceOccupied(oldRow, oldColumn, false, zone);
-			bc.ResetGridSpaceColor(oldRow, oldColumn, zone);
+			gm.SetGridspaceOccupied(oldCoordinate, false, zone);
+			gm.ResetGridSpaceColor(oldCoordinate, zone);
 		}
 
-		bc.SetGridSpaceColor(newRow, newColumn, Color.gray, zone);
-		bc.SetGridspaceOccupied(newRow, newColumn, true, zone);
+		gm.SetGridSpaceColor(newCoordinate, Color.gray, zone);
+		gm.SetGridspaceOccupied(newCoordinate, true, zone);
 	}
 }

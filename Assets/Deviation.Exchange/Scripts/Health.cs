@@ -66,6 +66,11 @@ public class Health : NetworkBehaviour
 
 	public void Restore()
 	{
+		if (!isServer)
+		{
+			return;
+		}
+
 		_health += _max * _rate;
 		if (_health > 1 || _health < -1)
 		{
