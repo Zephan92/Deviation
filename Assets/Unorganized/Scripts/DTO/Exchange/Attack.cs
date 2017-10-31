@@ -84,7 +84,7 @@ namespace Assets.Scripts.DTO.Exchange
 		{
 			foreach (IExchangePlayer player in targets)
 			{
-				player.Energy.Add(GetDamage(energyModifier)));
+				player.Energy.Add(GetDamage(energyModifier));
 				player.Health.Add(GetDamage(healthModifier));
 			}
 		}
