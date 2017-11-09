@@ -42,6 +42,7 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 
 	public static bool AllPlayersConnected;
 	public IExchangePlayer [] ExchangePlayers  { get; set; }
+	private InitExchangePlayerPacket[] _playerInitData;
 	private PlayerController[] Players { get; set; }
 	private TimerManager tm;
 	private ExchangeBattlefieldController bc;
@@ -55,6 +56,7 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 
 	private void Awake()
 	{
+		_playerInitData = new InitExchangePlayerPacket[2];
 		clientReady = new ConcurrentDictionary<int, bool>();
 		_stateStatus = new Dictionary<ExchangeState, bool>();
 		if (gameObject.tag != "GameController")
@@ -119,6 +121,12 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 		Debug.LogError("Reset Exchange");
 		tm.RestartTimers();
 		bc.ResetBattlefield();
+
+		foreach (IExchangePlayer player in ExchangePlayers)
+		{
+			player.Init(0, 100, 0.001f, 0, 100, player.Zone, player.Kit.ActionsGuids);
+		}
+
 		_stateStatus = new Dictionary<ExchangeState, bool>();
 		ExchangeState = ExchangeState.Start;
 		RpcResetExchange();
@@ -159,14 +167,21 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 			bc.Init();
 			foreach (var player in ExchangePlayers)
 			{
+				int playerIndex = System.Array.IndexOf(ExchangePlayers, player);
 				if (!clientReady.ContainsKey(player.PeerId))
 				{
 					clientReady.Add(player.PeerId, false);
 				}
 
-				BattlefieldZone zone = (BattlefieldZone)System.Array.IndexOf(ExchangePlayers, player);
-				Debug.LogErrorFormat("Initializing Player: {0}. {1}", player.PeerId, zone);
-				player.Init(0, 100, 0.001f, 0, 100, zone, "InitialKit");
+				Msf.Connection.SendMessage((short)ExchangePlayerOpCodes.GetExchangePlayerInfo, (status, response) =>
+				{
+					InitExchangePlayerPacket playerInitData = response.Deserialize(new InitExchangePlayerPacket());
+					_playerInitData[playerIndex] = playerInitData;
+					Debug.LogError("Init Exchange Player Packet Data: " + playerInitData);
+					BattlefieldZone zone = (BattlefieldZone)playerIndex;
+					Debug.LogErrorFormat("Initializing Player: {0}. {1}", player.PeerId, zone);
+					player.Init(0, 100, 0.001f, 0, 100, zone, playerInitData.ActionModule.ActionGuids);
+				});
 			}
 
 			_stateStatus[ExchangeState] = true;

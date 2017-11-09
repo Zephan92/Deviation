@@ -1,8 +1,10 @@
-﻿using Assets.Scripts.Enum;
+﻿using Assets.Scripts.DTO.Exchange;
+using Assets.Scripts.Enum;
 using Assets.Scripts.Interface;
 using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Library;
 using Assets.Scripts.Utilities;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -64,10 +66,12 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 		}
 	}
 
-	public void Init(int energyMin, int energyMax, float energyRate, int healthMin, int healthMax, BattlefieldZone zone, string kitName)
+	public void Init(int energyMin, int energyMax, float energyRate, int healthMin, int healthMax, BattlefieldZone zone, Guid[] actionGuids)
 	{
-		ServerInit(energyMin, energyMax, energyRate, healthMin, healthMax, zone, kitName);
-		RpcInit(zone, kitName);
+		Debug.LogError(actionGuids);
+		_kit = new Kit(actionGuids);
+		ServerInit(energyMin, energyMax, energyRate, healthMin, healthMax, zone);
+		RpcInit(zone, _kit.ActionsNames);
 	}
 
 	public void DisableAction(bool disabled, int actionNumber = -1)
@@ -93,7 +97,7 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 		}
 
 		bool success = false;
-		IExchangeAction action = _kit.GetCurrentModule().Actions[actionNumber];
+		IExchangeAction action = _kit.Actions[actionNumber];
 
 		int attackCost = (int)(action.Attack.EnergyRecoilModifier * action.Attack.BaseDamage);
 		int potentialEnergy = _energy.Current + attackCost;
@@ -110,11 +114,11 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	[Command]
 	private void CmdAction(int actionNumber)
 	{
-		IExchangeAction action = _kit.GetCurrentModule().Actions[actionNumber];
+		IExchangeAction action = _kit.Actions[actionNumber];
 		action.InitiateAttack(bc, _zone);
 	}
 
-	private void ServerInit(int energyMin, int energyMax, float energyRate, int healthMin, int healthMax, BattlefieldZone zone, string kitName)
+	private void ServerInit(int energyMin, int energyMax, float energyRate, int healthMin, int healthMax, BattlefieldZone zone)
 	{
 		if (!isServer)
 		{
@@ -124,17 +128,16 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 		_energy.Init(energyMin, energyMax, energyRate);
 		_health.Init(healthMin, healthMax);
 		_zone = zone;
-		_kit = KitLibrary.GetKitInstance(kitName);
 		_kit.Player = this;
 		_initialized = true;
 		gm.SetGridspaceOccupied(new GridCoordinate(ExchangeConstants.PLAYER_INITIAL_ROW, ExchangeConstants.PLAYER_INITIAL_COLUMN, zone, true), true, zone);
 	}
 
 	[ClientRpc]
-	private void RpcInit(BattlefieldZone zone, string kitName)
+	private void RpcInit(BattlefieldZone zone, string[] actionNames)
 	{
 		_mover.Init(zone, 1f);
-		_kit = KitLibrary.GetKitInstance(kitName);
+		_kit = new Kit(actionNames);
 		_kit.Player = this;
 
 		CreateTimersForKitActions(zone);
@@ -164,17 +167,13 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	private void CreateTimersForKitActions(BattlefieldZone zone)
 	{
 		IKit kit = _kit;
-		IModule currentModule = _kit.GetCurrentModule();
 
-		for (int i = 0; i < kit.ModuleCount; i++)
+		for (int i = 0; i < kit.Actions.Length; i++)
 		{
-			foreach (IExchangeAction action in currentModule.Actions)
+			foreach (IExchangeAction action in kit.Actions)
 			{
 				tm.AddAttackTimer(action.Name, action.Cooldown, (int) zone);
 			}
-
-			currentModule = kit.GetRightModule();
-			kit.CycleModuleRight();
 		}
 	}
 }

@@ -1,10 +1,13 @@
 ﻿using Assets.Scripts.Enum;
 using UnityEngine;
+using System;
+using Assets.Scripts.Interface.DTO;
 
 public interface IExchangePlayer
 {
 	bool Initialized { get; }
 	int PeerId { get; set; }
+	IKit Kit { get; }
 	Energy Energy { get; }
 	Health Health { get; }
 	Mover Mover { get; }
@@ -12,7 +15,7 @@ public interface IExchangePlayer
 	BattlefieldZone Zone { get; }
 	Vector3 Position { get; }
 	Quaternion Rotation { get; }
-	void Init(int energyMin, int energyMax, float energyRate, int healthMin, int healthMax, BattlefieldZone zone, string kitName);
+	void Init(int energyMin, int energyMax, float energyRate, int healthMin, int healthMax, BattlefieldZone zone, Guid[] actionGuids);
 
 	bool Action(int actionNumber);
 

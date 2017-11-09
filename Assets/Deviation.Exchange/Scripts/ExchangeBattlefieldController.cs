@@ -211,11 +211,6 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 	{
 		gm.ResetGrid();
 
-		foreach (IExchangePlayer player in GetPlayers())
-		{
-			player.Init(0, 100, 0.001f, 0, 100, player.Zone, "InitialKit");
-		}
-
 		foreach (ActionObject actionObject  in FindObjectsOfType<ActionObject>())
 		{
 			Destroy(actionObject.gameObject);
