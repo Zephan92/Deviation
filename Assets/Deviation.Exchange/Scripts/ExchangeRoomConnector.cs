@@ -82,7 +82,7 @@ namespace Assets.Deviation.Exchange.Scripts
 			RoomAccess = null;
 
 			// Just in case
-			NetworkManager.maxConnections = 999;
+			NetworkManager.maxConnections = 10;
 
 			Logger.Debug("Trying to connect to server at address: " + access.RoomIp + ":" + access.RoomPort);
 

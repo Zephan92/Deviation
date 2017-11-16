@@ -53,6 +53,7 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 	private ConcurrentDictionary<int, bool> clientReady;
 	private bool _waitingForClients;
 	private System.Collections.IEnumerator _coroutine;
+	private int ExchangeDataId;
 
 	private void Awake()
 	{
@@ -65,6 +66,8 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 		}
 		
 		ExchangeState = ExchangeState.Setup;
+
+		ExchangeDataId = 0;
 	}
 
 
@@ -173,14 +176,25 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 					clientReady.Add(player.PeerId, false);
 				}
 
-				Msf.Connection.SendMessage((short)ExchangePlayerOpCodes.GetExchangePlayerInfo, (status, response) =>
-				{
-					InitExchangePlayerPacket playerInitData = response.Deserialize(new InitExchangePlayerPacket());
-					_playerInitData[playerIndex] = playerInitData;
-					Debug.LogError("Init Exchange Player Packet Data: " + playerInitData);
-					BattlefieldZone zone = (BattlefieldZone)playerIndex;
-					Debug.LogErrorFormat("Initializing Player: {0}. {1}", player.PeerId, zone);
-					player.Init(0, 100, 0.001f, 0, 100, zone, playerInitData.ActionModule.ActionGuids);
+				Msf.Server.Auth.GetPeerAccountInfo(player.PeerId, (info, error) => {
+					if (info == null)
+					{
+						Debug.LogErrorFormat("GetPeerAccountInfo, failed to get username. Peerid: {0}. Error {1}", error, player.PeerId);
+						return;
+					}
+
+					Msf.Connection.SendMessage(
+						(short)ExchangePlayerOpCodes.GetExchangePlayerInfo, 
+						new ExchangePlayerPacket(ExchangeDataId, info.Username), 
+						(status, response) =>
+					{
+						InitExchangePlayerPacket playerInitData = response.Deserialize(new InitExchangePlayerPacket());
+						_playerInitData[playerIndex] = playerInitData;
+						Debug.LogError("Init Exchange Player Packet Data: " + playerInitData);
+						BattlefieldZone zone = (BattlefieldZone)playerIndex;
+						Debug.LogErrorFormat("Initializing Player: {0}. {1}", player.PeerId, zone);
+						player.Init(0, 100, 0.001f, 0, 100, zone, playerInitData.ActionModule.GetActionGuids());
+					});
 				});
 			}
 

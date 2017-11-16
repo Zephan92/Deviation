@@ -68,7 +68,6 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 
 	public void Init(int energyMin, int energyMax, float energyRate, int healthMin, int healthMax, BattlefieldZone zone, Guid[] actionGuids)
 	{
-		Debug.LogError(actionGuids);
 		_kit = new Kit(actionGuids);
 		ServerInit(energyMin, energyMax, energyRate, healthMin, healthMax, zone);
 		RpcInit(zone, _kit.ActionsNames);

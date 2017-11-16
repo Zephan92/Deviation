@@ -12,7 +12,8 @@ public class DeviationBuild
 	/// Have in mind that if you change it, it might take "a while" 
 	/// for the editor to pick up changes 
 	/// </summary>
-	public static string Client = "Assets/Deviation.Client/DeviationClient.unity";
+	public static string ClientLogin = "Assets/Deviation.Client/DeviationClient - Login.unity";
+	public static string Client = "Assets/Deviation.Client/DeviationClient - Client.unity";
 	public static string Standalone = "Assets/Deviation.Client/DeviationStandalone.unity";
 	public static string MasterServer = "Assets/Deviation.MasterServer/MasterServer.unity";
 	public static string Exchange1v1Scene = "Assets/Deviation.Exchange/Exchange.1v1/GameServer/Scenes/1v1Exchange.unity";
@@ -61,7 +62,9 @@ public class DeviationBuild
 			UnityEngine.Debug.Log("Shutting down: " + process.ProcessName);
 			process.Kill();
 		}
-		var commandLineArgs = " -msfStartMaster -batchmode  -nographics";
+
+		var commandLineArgs = " -msfStartMaster ";
+		//var commandLineArgs = " -msfStartMaster -batchmode  -nographics";
 		var exePath = GetServerLocation("MasterServer");
 		UnityEngine.Debug.Log(exePath + commandLineArgs);
 
@@ -157,6 +160,7 @@ public class DeviationBuild
 
 		var clientScenes = new[]
 		{
+			ClientLogin,
 			Client
 		};
 

@@ -16,7 +16,7 @@ public class StandaloneController : MonoBehaviour
 
 	public void Login()
 	{
-		Msf.Client.Auth.LogInAsGuest((successful, error) => { });
+		Msf.Client.Auth.LogInAsGuest((successful, error) => {});
 		Msf.Client.Auth.LoggedIn += JoinServer;
 	}
 
@@ -112,20 +112,8 @@ public class StandaloneController : MonoBehaviour
 		}
 	}
 
-	public void OnFinalizationDataRetrieved(Dictionary<string, string> data)
+	protected void OnPassReceived(RoomAccessPacket packet, string errorMessage)
 	{
-		if (!data.ContainsKey(MsfDictKeys.RoomId))
-		{
-			throw new Exception("Game server finalized, but didn't include room id");
-		}
-
-		var roomId = int.Parse(data[MsfDictKeys.RoomId]);
-		Msf.Client.Rooms.GetAccess(roomId, OnPassReceived);
-	}
-
-	protected virtual void OnPassReceived(RoomAccessPacket packet, string errorMessage)
-	{
-
 		var loadingPromise = Msf.Events.FireWithPromise(Msf.EventNames.ShowLoading, "Joining lobby");
 
 		if (packet == null)

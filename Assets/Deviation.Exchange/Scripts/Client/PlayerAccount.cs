@@ -24,5 +24,9 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			Name = name;
 			Alias = alias;
 		}
+		public override string ToString()
+		{
+			return String.Format("PlayerAccount - ID: {0}. Name: {1}. Alias: {2}.", Id, Name, Alias);
+		}
 	}
 }

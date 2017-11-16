@@ -1,219 +1,200 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Diagnostics;
-using System;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
+using UnityEngine;
 using Barebones.MasterServer;
-using System.Runtime.InteropServices;
+using Barebones.Networking;
+using UnityEngine.UI;
+using Assets.Scripts.Utilities;
 
-public class ClientController : MonoBehaviour
+namespace Assets.Deviation.Exchange.Scripts.Client
 {
-	private int Width = 1280;
-	private int Height = 720;
-
-	EventSystem system;
-	public InputField Username;
-	public InputField Password;
-	private Button[] buttons;
-	public RectTransform draggableZonePanel;
-
-	const int SWP_SHOWWINDOW = 0x0040;
-	const int GWL_STYLE = -16;
-	const int WS_BORDER = 1;
-	int Windowed;
-
-	POINT oldPos;
-	bool borderless = false;
-	IntPtr _currentWindow;
-	bool _forceBorderless = true;
-
-	void Start()
+	public class ClientController : MonoBehaviour
 	{
-		Windowed = (int) GetWindowLong(GetClientWindow(), GWL_STYLE);
+		public PlayerAccountPacket playerAccount;
+		public Button JoinQueueButton;
+		public Button LeaveQueueButton;
+		public Button ChangeQueueButton;
+		public Button JoinExchangeMatchButton;
+		public Button DeclineExchangeMatchButton;
 
-		system = EventSystem.current;
-		buttons = FindObjectsOfType<Button>();
+		public Text Timer;
 
-		foreach (Button button in buttons)
+		public bool lookingForMatch = false;
+		private int exchangeId = -1;
+		private TimerManager tm;
+
+		public void Awake()
 		{
-			if (button.name.Equals("Sign In Button") &&          
-				button.interactable)
-			{
-				button.interactable = false;
-			}
+			tm = GetComponent<TimerManager>();
+			tm.AddAttackTimer("JoinMatch", 10f);
+
+			Msf.Client.SetHandler((short)Exchange1v1MatchMakingOpCodes.RespondMatchFound, HandleMatchFound);
+			Msf.Client.SetHandler((short)Exchange1v1MatchMakingOpCodes.RespondChangeQueuePool, HandleChangeQueue);
 		}
-	}
 
-	void Update()
-	{
-		if (Input.GetKeyDown(KeyCode.Tab) && system.currentSelectedGameObject != null)
+		public void Start()
 		{
-			Selectable next = system.currentSelectedGameObject.GetComponent<Selectable>().FindSelectableOnDown();
+			GetPlayerAccount();
+		}
 
-			if (next != null)
+		public void Update()
+		{
+			if (exchangeId > 0)
 			{
-				InputField inputfield = next.GetComponent<InputField>();
-				if (inputfield != null)
+				tm.UpdateCountdowns();
+
+				if (tm.TimerUp("JoinMatch"))
 				{
-					inputfield.OnPointerClick(new PointerEventData(system));
+					DeclineExchange();
 				}
-
-				system.SetSelectedGameObject(next.gameObject, new BaseEventData(system));
 			}
 		}
 
-		foreach (Button button in buttons)
+		public void FixedUpdate()
 		{
-			if (button.name.Equals("Sign In Button") &&
-				!button.interactable &&
-				!Username.text.Equals("") && 
-				!Password.text.Equals(""))
+			if (exchangeId > 0)
 			{
-				button.interactable = true;
-			}
-		}
-
-		var worldCorners = new Vector3[4];
-		draggableZonePanel.GetWorldCorners(worldCorners);
-		Rect draggableZone = new Rect(
-			worldCorners[0].x,
-			worldCorners[0].y,
-			worldCorners[2].x - worldCorners[0].x,
-			worldCorners[2].y - worldCorners[0].y);
-
-		if (Input.GetMouseButtonDown(0) && draggableZone.Contains(Input.mousePosition))
-		{
-			POINT lpPoint;
-			GetCursorPos(out lpPoint);
-			oldPos = lpPoint;
-			StartCoroutine(Test());
-		}
-
-		if (!borderless && _forceBorderless)
-		{
-			ChangeStyle(WS_BORDER);
-			borderless = true;
-		}
-	}
-
-	public void Login()
-	{
-		Msf.Client.Auth.LogIn(Username.text, Password.text, (successful, error) =>
-		{
-			UnityEngine.Debug.Log("Is successful: " + successful + "; Error (if exists): " + error);
-		});
-	}
-
-	public void CreateAccount()
-	{
-		Application.OpenURL("http://unity3d.com/");
-	}
-
-	public void QuitClient()
-	{
-		Application.Quit();
-	}
-
-	public void OpenStandalone()
-	{
-		UnityEngine.Debug.Log("Opening Standalone");
-		var commandLineArgs = "-show-screen-selector false -screen-height 900 -screen-width 1600";
-		var exePath = Environment.GetEnvironmentVariable("DeviationStandalone", EnvironmentVariableTarget.User) + "/DeviationStandalone.exe";
-		Process.Start(exePath, commandLineArgs);
-	}
-
-	public IEnumerator Test()
-	{
-		while(Input.GetMouseButton(0))
-		{
-			RECT rct;
-			GetWindowRect(GetActiveWindow(), out rct);
-			POINT lpPoint;
-			GetCursorPos(out lpPoint);
-			int newX = rct.Left + lpPoint.x - oldPos.x;
-			int newY = rct.Top + lpPoint.y - oldPos.y;
-			SetWindowPos(GetClientWindow(), 0, newX, newY, Width, Height, SWP_SHOWWINDOW);
-			oldPos = lpPoint;
-			yield return null;
-		}
-	}
-
-	public void MinimizeClient()
-	{
-		ShowWindow(GetClientWindow(), 2);
-	}
-
-	public IntPtr GetClientWindow()
-	{
-		if (_currentWindow != null)
-		{
-			_currentWindow = GetActiveWindow();
-		}
-
-		return _currentWindow;
-	}
-
-	public void ToggleBorderless()
-	{
-		if (!Application.isEditor)
-		{
-			_forceBorderless = borderless ? false : true;
-
-			if (borderless)
-			{
-				ChangeStyle(Windowed);
-				borderless = false;
+				Timer.text = "Timer: " + (int)tm.GetRemainingCooldown("JoinMatch");
 			}
 			else
 			{
-				ChangeStyle(WS_BORDER);
-				borderless = true;
+				Timer.text = "Timer: " + 10;
 			}
 		}
-	}
 
-	public void ChangeStyle(int windowStyle)
-	{
-		if (!Application.isEditor)
+		private void GetPlayerAccount()
 		{
-			RECT rct;
-			GetWindowRect(GetClientWindow(), out rct);
-			SetWindowLong(GetClientWindow(), GWL_STYLE, windowStyle);
-			SetWindowPos(GetClientWindow(), 0, rct.Left, rct.Top, Width, Height, SWP_SHOWWINDOW);
+			UnityEngine.Debug.Log("Get Player Account");
+
+			Msf.Client.Connection.SendMessage((short)ExchangePlayerOpCodes.GetPlayerAccount, Msf.Client.Auth.AccountInfo.Username, (status, response) =>
+			{
+				playerAccount = response.Deserialize(new PlayerAccountPacket());
+				JoinQueueButton.interactable = true;
+			});
 		}
-	}
 
-	[DllImport("user32.dll")]
-	private static extern bool ShowWindow(IntPtr hwnd, int nCmdShow);
-	[DllImport("user32.dll")]
-	private static extern IntPtr GetActiveWindow();
-	[DllImport("user32.dll")]
-	static extern IntPtr SetWindowLong(IntPtr hwnd, int _nIndex, int dwNewLong);
-	[DllImport("user32.dll")]
-	static extern UInt32 GetWindowLong(IntPtr hWnd, int _nIndex);
-	[DllImport("user32.dll")]
-	static extern bool SetWindowPos(IntPtr hWnd, int hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
-	[DllImport("user32.dll")]
-	static extern IntPtr GetForegroundWindow();
-	[DllImport("user32.dll")]
-	static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
-	[DllImport("user32.dll")]
-	public static extern bool GetCursorPos(out POINT lpPoint);
+		public void HandleMatchFound(IIncommingMessage message)
+		{
+			MatchFoundPacket packet = message.Deserialize(new MatchFoundPacket());
+			LeaveQueueButton.interactable = false;
+			ChangeQueueButton.interactable = false;
+			JoinExchangeMatchButton.interactable = true;
+			DeclineExchangeMatchButton.interactable = true;
+			exchangeId = packet.ExchangeId;
+			tm.RestartTimer("JoinMatch");
+		}
 
-	[StructLayout(LayoutKind.Sequential)]
-	public struct RECT
-	{
-		public int Left;        // x position of upper-left corner
-		public int Top;         // y position of upper-left corner
-		public int Right;       // x position of lower-right corner
-		public int Bottom;      // y position of lower-right corner
-	}
+		public void HandleChangeQueue(IIncommingMessage message)
+		{
+			ExchangeMatchMakingPacket packet = message.Deserialize(new ExchangeMatchMakingPacket());
+			ChangeQueueButton.interactable = true;
+		}
 
-	[StructLayout(LayoutKind.Sequential)]
-	public struct POINT
-	{
-		public int x;
-		public int y;
+		public void SearchForExchangeMatch()
+		{
+			var packet = new ExchangeMatchMakingPacket(playerAccount.Id, QueueTypes.Exchange1v1, PlayerClass.Default);
+
+			Msf.Connection.SendMessage((short)Exchange1v1MatchMakingOpCodes.RequestJoinQueue, packet, (status, data) =>
+			{
+				if (status == ResponseStatus.Error)
+				{
+					UnityEngine.Debug.LogErrorFormat("RequestJoinQueue failed to join exchange queue. Error {1}", data);
+				}
+				else if (status == ResponseStatus.Success)
+				{
+					UnityEngine.Debug.Log("Looking for Match");
+					lookingForMatch = true;
+					LeaveQueueButton.interactable = true;
+					JoinQueueButton.interactable = false;
+				}
+			});
+		}
+
+		public void ChangeQueue()
+		{
+			var packet = new ExchangeMatchMakingPacket(playerAccount.Id, QueueTypes.Exchange1v1, PlayerClass.Default);
+
+			Msf.Connection.SendMessage((short)Exchange1v1MatchMakingOpCodes.RequestChangeQueuePool, packet, (status, data) =>
+			{
+				if (status == ResponseStatus.Error)
+				{
+					UnityEngine.Debug.LogErrorFormat("RequestJoin1v1Queue failed to leave exchange queue. Error {1}", data);
+				}
+				else if (status == ResponseStatus.Success)
+				{
+					UnityEngine.Debug.Log("Changing Queue");
+					ChangeQueueButton.interactable = false;
+				}
+			});
+		}
+
+		public void LeaveQueue()
+		{
+			var packet = new ExchangeMatchMakingPacket(playerAccount.Id, QueueTypes.Exchange1v1, PlayerClass.Default);
+
+			Msf.Connection.SendMessage((short)Exchange1v1MatchMakingOpCodes.RequestLeaveQueue, packet, (status, data) =>
+			{
+				if (status == ResponseStatus.Error)
+				{
+					UnityEngine.Debug.LogErrorFormat("RequestJoin1v1Queue failed to leave exchange queue. Error {1}", data);
+				}
+				else if (status == ResponseStatus.Success)
+				{
+					UnityEngine.Debug.Log("Leaving Queue");
+					lookingForMatch = false;
+					LeaveQueueButton.interactable = false;
+					JoinQueueButton.interactable = true;
+				}
+			});
+		}
+
+		public void JoinExchange()
+		{//todo open standalone with correct params
+			JoinExchangeMatchButton.interactable = false;
+			DeclineExchangeMatchButton.interactable = false;
+
+			//wait for other player
+			StartExchange(exchangeId);
+			//should communicate differently but this works
+			var commandLineArgs = "-show-screen-selector false -screen-height 900 -screen-width 1600 -exchangeId " + exchangeId;
+			var exePath = Environment.GetEnvironmentVariable("DeviationStandalone", EnvironmentVariableTarget.User) + "/DeviationStandalone.exe";
+			Process.Start(exePath, commandLineArgs);
+		}
+
+		private void StartExchange(int exchangeId)
+		{
+			Guid characterGuid = GetPlayerCharacter();
+			ActionModulePacket module = GetPlayerActionModule();
+			InitExchangePlayerPacket packet = new InitExchangePlayerPacket(exchangeId, playerAccount, characterGuid, module);
+		}
+
+		public void DeclineExchange()
+		{
+			JoinExchangeMatchButton.interactable = false;
+			DeclineExchangeMatchButton.interactable = false;
+			JoinQueueButton.interactable = true;
+			exchangeId = -1;
+			tm.RestartTimer("JoinMatch");
+
+			//let server/other player know
+		}
+
+		private Guid GetPlayerCharacter()
+		{
+			return Guid.NewGuid();
+		}
+
+		private ActionModulePacket GetPlayerActionModule()
+		{
+			var q = new Guid("688b267a-fde1-4250-91a0-300aa3343147");
+			var w = new Guid("dacb468b-658f-4daa-9400-cd3f005d06bd");
+			var e = new Guid("d504df35-dc93-4f84-829e-01e202878341");
+			var r = new Guid("36a1cf13-8b79-4800-8574-7cec0c405594");
+			//this would go get the actions the player chose
+			return new ActionModulePacket(q, w, e, r);
+		}
 	}
 }
