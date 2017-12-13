@@ -14,6 +14,8 @@ public class DeviationBuild
 	/// </summary>
 	public static string ClientLogin = "Assets/Deviation.Client/DeviationClient - Login.unity";
 	public static string Client = "Assets/Deviation.Client/DeviationClient - Client.unity";
+	public static string ClientMatch = "Assets/Deviation.Client/DeviationClient - Match.unity";
+
 	public static string Standalone = "Assets/Deviation.Client/DeviationStandalone.unity";
 	public static string MasterServer = "Assets/Deviation.MasterServer/MasterServer.unity";
 	public static string Exchange1v1Scene = "Assets/Deviation.Exchange/Exchange.1v1/GameServer/Scenes/1v1Exchange.unity";
@@ -149,39 +151,20 @@ public class DeviationBuild
 			process.Kill();
 		}
 
-		foreach (var process in Process.GetProcessesByName("DeviationStandalone"))
-		{
-			UnityEngine.Debug.Log("Shutting down: " + process.ProcessName);
-			process.Kill();
-		}
-
 		string clientExePath = path + "/DeviationClient.exe";
-		string standaloneExePath = path + "/DeviationStandalone.exe";
-
 		var clientScenes = new[]
 		{
 			ClientLogin,
-			Client
-		};
-
-		var standaloneScenes = new[]
-		{
+			Client,
+			ClientMatch,
 			Standalone,
-
-			// Add all the game scenes
 			Exchange1v1Scene,
-
 		};
+
 		AddServerLocationsToDict("DeviationClient", clientExePath);
-		AddServerLocationsToDict("DeviationStandalone", standaloneExePath);
 
 		UnityEngine.Debug.Log("Building DeviationClient");
 		BuildPipeline.BuildPlayer(clientScenes, clientExePath, TargetPlatform, BuildOptions);
-
-		UnityEngine.Debug.Log("Building DeviationStandalone");
-		BuildPipeline.BuildPlayer(standaloneScenes, standaloneExePath, TargetPlatform, BuildOptions);
-
-
 	}
 
 	/// <summary>

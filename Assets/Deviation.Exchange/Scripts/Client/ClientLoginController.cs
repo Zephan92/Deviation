@@ -7,6 +7,7 @@ using UnityEngine.EventSystems;
 using Barebones.MasterServer;
 using System.Runtime.InteropServices;
 using UnityEngine.SceneManagement;
+using Assets.Deviation.Exchange.Scripts.Client;
 
 public class ClientLoginController : MonoBehaviour
 {
@@ -16,9 +17,11 @@ public class ClientLoginController : MonoBehaviour
 
 	private EventSystem system;
 	private Button[] buttons;
+	private ClientDataController cdc;
 
 	void Start()
 	{
+		cdc = FindObjectOfType<ClientDataController>();
 		system = EventSystem.current;
 
 		if (PlayerPrefs.HasKey("RememberUsername"))
@@ -71,7 +74,8 @@ public class ClientLoginController : MonoBehaviour
 			if (button.name.Equals("Sign In Button") &&
 				!button.interactable &&
 				!Username.text.Equals("") && 
-				!Password.text.Equals(""))
+				!Password.text.Equals("") &&
+				Msf.Client.Connection.IsConnected)
 			{
 				button.interactable = true;
 			}
@@ -85,8 +89,8 @@ public class ClientLoginController : MonoBehaviour
 		Msf.Client.Auth.LogInAsGuest((successful, error) =>
 		{
 			UnityEngine.Debug.Log("Is successful: " + successful + "; Error (if exists): " + error);
+			cdc.GetPlayerAccount();
 			SceneManager.LoadScene("DeviationClient - Client");
-
 		});
 
 		//Msf.Client.Auth.LogIn(Username.text, Password.text, (successful, error) =>

@@ -9,6 +9,7 @@ using Assets.Deviation.Exchange.Scripts.Client;
 using Assets.Deviation.Exchange.Scripts.Interface;
 using Assets.Deviation.Exchange.Scripts;
 using Assets.Deviation.Exchange;
+using System.IO;
 
 public class ActionModulePacket : SerializablePacket
 {
@@ -173,6 +174,11 @@ public class InitExchangePlayerPacket : SerializablePacket
 		ActionModule = reader.ReadPacket(new ActionModulePacket());
 	}
 
+	public void FromBytes()
+	{
+
+	}
+
 	public override string ToString()
 	{
 		return String.Format("ExchangeId: {0}.\n\nPlayerAccount: {1}\nCharacterGuid: {2}\nActionModule: {3}", ExchangeId, PlayerAccount, CharacterGuid, ActionModule);
@@ -183,6 +189,7 @@ public enum ExchangePlayerOpCodes
 {
 	GetPlayerAccount = 0,
 	GetExchangePlayerInfo = 4,
+	CreateExchangeData = 8,
 	// (OpCodes should be unique. MSF internal opCodes 
 	// start from 32000, so you can use anything from 0 to 32000
 }
@@ -198,6 +205,7 @@ public class Exchange1v1Module : ServerModuleBehaviour
 		Debug.Log("Exchange Player Module initialized");
 		server.SetHandler((short)ExchangePlayerOpCodes.GetPlayerAccount, HandleGetPlayerAccount);
 		server.SetHandler((short)ExchangePlayerOpCodes.GetExchangePlayerInfo, HandleGetExchangePlayerInfo);
+		server.SetHandler((short)ExchangePlayerOpCodes.CreateExchangeData, HandleCreateExchangeData);
 	}
 
 	private void HandleGetExchangePlayerInfo(IIncommingMessage message)
@@ -210,14 +218,38 @@ public class Exchange1v1Module : ServerModuleBehaviour
 	private void HandleGetPlayerAccount(IIncommingMessage message)
 	{
 		PlayerAccountPacket account = GetPlayerAccount(message.AsString());
-		message.Respond(account);
+		if (account != null)
+		{
+			message.Respond(account, ResponseStatus.Success);
+		}
+		else
+		{
+			message.Respond("Player Account Didn't Exist", ResponseStatus.Error);
+		}
+	}
+
+	private void HandleCreateExchangeData(IIncommingMessage message)
+	{
+		InitExchangePlayerPacket packet = message.Deserialize(new InitExchangePlayerPacket());
+		eda.CreateExchangeData(packet);
+		message.Respond("Success", ResponseStatus.Success);
 	}
 
 	private InitExchangePlayerPacket GetExchangePlayerInfo(string username, int exchangeDataId)
 	{
 		PlayerAccountPacket playerAccount = GetPlayerAccount(username);
+		
 		ExchangeDataEntry data = eda.GetExchange1v1Entry(exchangeDataId, playerAccount.Id);
-		return new InitExchangePlayerPacket(exchangeDataId, playerAccount, data.CharacterGuid, data.ActionGuids);
+
+		if (data != null)
+		{
+			return new InitExchangePlayerPacket(exchangeDataId, playerAccount, new Guid(data.CharacterGuid), data.ActionGuids);
+		}
+		else
+		{
+			Debug.LogError("ExchangeDataEntry was empty");
+			return null;
+		}
 	}
 
 	private PlayerAccountPacket GetPlayerAccount(string username)
@@ -232,7 +264,16 @@ public class Exchange1v1Module : ServerModuleBehaviour
 		{
 			playerAccount = pda.CreatePlayer(username);
 		}
-		return new PlayerAccountPacket(playerAccount);
+
+		if (playerAccount != null)
+		{
+			return new PlayerAccountPacket(playerAccount);
+		}
+		else
+		{
+			Debug.LogError("Player Account was null");
+			return null;
+		}
 	}
 }
 

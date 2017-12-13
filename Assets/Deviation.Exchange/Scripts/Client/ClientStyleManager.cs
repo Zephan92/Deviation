@@ -11,7 +11,6 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		private int Height = 720;
 		public RectTransform draggableZonePanel;
 
-
 		const int SWP_SHOWWINDOW = 0x0040;
 		const int GWL_STYLE = -16;
 		const int WS_BORDER = 1;
@@ -44,10 +43,13 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 
 			if (Input.GetMouseButtonDown(0) && draggableZone.Contains(Input.mousePosition))
 			{
-				POINT lpPoint;
-				GetCursorPos(out lpPoint);
-				oldPos = lpPoint;
-				StartCoroutine(DragClient());
+				if (!Application.isEditor)
+				{
+					POINT lpPoint;
+					GetCursorPos(out lpPoint);
+					oldPos = lpPoint;
+					StartCoroutine(DragClient());
+				}
 			}
 
 			if ((!borderless || GetClientWindow() == IntPtr.Zero || Screen.width != Width || Screen.height != Height) && _forceBorderless)
@@ -74,7 +76,10 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 
 		public void MinimizeClient()
 		{
-			ShowWindow(GetClientWindow(), 2);
+			if (!Application.isEditor)
+			{
+				ShowWindow(GetClientWindow(), 2);
+			}
 		}
 
 		public IntPtr GetClientWindow()

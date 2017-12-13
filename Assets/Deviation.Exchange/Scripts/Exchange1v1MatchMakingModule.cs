@@ -80,9 +80,11 @@ namespace Assets.Deviation.Exchange
 		RequestChangeQueuePool = 136,
 		RespondMatchFound = 140,
 		RespondChangeQueuePool = 144,
-
-		// (OpCodes should be unique. MSF internal opCodes 
-		// start from 32000, so you can use anything from 0 to 32000
+		RequestJoinMatch = 148,
+		RequestDeclineMatch = 152,
+		RespondMatchReady = 156,
+		RespondMatchDisbanded = 160,
+		RespondRoomId = 164,
 	}
 
 	public class ExchangeMatchMakingPacket : SerializablePacket
@@ -104,15 +106,15 @@ namespace Assets.Deviation.Exchange
 		public override void ToBinaryWriter(EndianBinaryWriter writer)
 		{
 			writer.Write(PlayerId);
-			writer.Write((short) Queue);
-			writer.Write((short) PlayerClass);
+			writer.Write((short)Queue);
+			writer.Write((short)PlayerClass);
 		}
 
 		public override void FromBinaryReader(EndianBinaryReader reader)
 		{
 			PlayerId = reader.ReadInt64();
-			Queue = (QueueTypes) reader.ReadInt16();
-			PlayerClass = (PlayerClass) reader.ReadInt16();
+			Queue = (QueueTypes)reader.ReadInt16();
+			PlayerClass = (PlayerClass)reader.ReadInt16();
 		}
 
 		public override string ToString()
@@ -120,6 +122,103 @@ namespace Assets.Deviation.Exchange
 			return String.Format("ExchangeMatchMakingPacket - PlayerId: {0}. Queue: {1}. PlayerClass: {2}", PlayerId, Queue, PlayerClass);
 		}
 	}
+
+	public class MatchFoundPlayer
+	{
+		public long Id;
+		public IPeer Peer;
+		public bool Accepted;
+
+		public MatchFoundPlayer(long id, IPeer peer)
+		{
+			Id = id;
+			Peer = peer;
+			Accepted = false;
+		}
+	}
+
+	public class MatchFound
+	{
+		public int ExchangeId;
+		public QueueTypes Queue;
+		public PlayerClass PlayerClass;
+		public MatchFoundPacket Packet;
+		public List<MatchFoundPlayer> Players;
+		public DateTime MatchFoundStart;
+		public SpawnTask SpawnTask;
+
+		public MatchFound(int exchangeId, IPeer player1, long player1Id, IPeer player2, long player2Id, QueueTypes queue, PlayerClass playerClass)
+		{
+			ExchangeId = exchangeId;
+			Queue = queue;
+			PlayerClass = playerClass;
+			Packet = new MatchFoundPacket(exchangeId, player1Id, player2Id, queue);
+			Players = new List<MatchFoundPlayer> { new MatchFoundPlayer(player1Id, player1), new MatchFoundPlayer(player2Id, player2) };
+			MatchFoundStart = DateTime.UtcNow;
+		}
+
+		public bool MatchFoundTimerUp()
+		{
+			return DateTime.UtcNow - TimeSpan.FromSeconds(10) >= MatchFoundStart;
+		}
+
+		public void InformPlayers()
+		{
+			foreach (MatchFoundPlayer player in Players)
+			{
+				player.Peer.SendMessage((short)Exchange1v1MatchMakingOpCodes.RespondMatchFound, Packet);
+			}
+		}
+
+		public void GiveRoomIdToPlayers(int roomId)
+		{
+			foreach (MatchFoundPlayer player in Players)
+			{
+				player.Peer.SendMessage((short)Exchange1v1MatchMakingOpCodes.RespondRoomId, roomId);
+			}
+		}
+
+		public List<MatchFoundPlayer> Rematch()
+		{
+			List<MatchFoundPlayer> retval = new List<MatchFoundPlayer>();
+
+			foreach (MatchFoundPlayer player in Players)
+			{
+				if (player.Accepted)
+				{
+					retval.Add(player);
+				}
+			}
+
+			return retval;
+		}
+
+		public void AcceptMatch(long playerId)
+		{
+			foreach (MatchFoundPlayer player in Players)
+			{
+				if (player.Id == playerId)
+				{
+					player.Accepted = true;
+					return;
+				}
+			}
+		}
+
+		public bool MatchReady()
+		{
+			foreach (MatchFoundPlayer player in Players)
+			{
+				if (!player.Accepted)
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+	}
+
 
 	public class MatchFoundPacket : SerializablePacket
 	{
@@ -173,10 +272,13 @@ namespace Assets.Deviation.Exchange
 		public override void Initialize(IServer server)
 		{
 			base.Initialize(server);
+
 			Debug.Log("Exchange 1v1 Match Making Module initialized");
 			server.SetHandler((short)Exchange1v1MatchMakingOpCodes.RequestJoinQueue, HandleRequestJoin1v1Queue);
 			server.SetHandler((short)Exchange1v1MatchMakingOpCodes.RequestLeaveQueue, HandleRequestLeave1v1Queue);
 			server.SetHandler((short)Exchange1v1MatchMakingOpCodes.RequestChangeQueuePool, HandleRequestChange1v1QueuePool);
+			server.SetHandler((short)Exchange1v1MatchMakingOpCodes.RequestJoinMatch, HandleRequestJoinMatch);
+			server.SetHandler((short)Exchange1v1MatchMakingOpCodes.RequestDeclineMatch, HandleRequestDeclineMatch);			
 		}
 
 		private void HandleRequestJoin1v1Queue(IIncommingMessage message)
@@ -217,6 +319,22 @@ namespace Assets.Deviation.Exchange
 			var packet = message.Deserialize(new ExchangeMatchMakingPacket());
 			Debug.LogErrorFormat("HandleRequestChange1v1QueuePool: {0}", packet);
 			matchMaker.ChangeQueuePool(packet);
+			message.Respond(ResponseStatus.Success);
+		}
+
+		private void HandleRequestJoinMatch(IIncommingMessage message)
+		{
+			var packet = message.Deserialize(new MatchFoundPacket());
+			Debug.LogErrorFormat("HandleRequestJoinMatch: {0}", packet);
+			matchMaker.JoinMatch(packet.ExchangeId, packet.Player1Id);
+			message.Respond(ResponseStatus.Success);
+		}
+
+		private void HandleRequestDeclineMatch(IIncommingMessage message)
+		{
+			var packet = message.Deserialize(new MatchFoundPacket());
+			Debug.LogErrorFormat("HandleRequestDeclineMatch: {0}", packet);
+			matchMaker.DeclineMatch(packet.ExchangeId, packet.Player1Id);
 			message.Respond(ResponseStatus.Success);
 		}
 	}

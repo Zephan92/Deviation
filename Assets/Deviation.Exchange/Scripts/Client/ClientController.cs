@@ -8,12 +8,13 @@ using Barebones.MasterServer;
 using Barebones.Networking;
 using UnityEngine.UI;
 using Assets.Scripts.Utilities;
+using System.Collections;
+using UnityEngine.SceneManagement;
 
 namespace Assets.Deviation.Exchange.Scripts.Client
 {
 	public class ClientController : MonoBehaviour
 	{
-		public PlayerAccountPacket playerAccount;
 		public Button JoinQueueButton;
 		public Button LeaveQueueButton;
 		public Button ChangeQueueButton;
@@ -22,27 +23,42 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 
 		public Text Timer;
 
-		public bool lookingForMatch = false;
-		private int exchangeId = -1;
 		private TimerManager tm;
+		private ClientDataController cdc;
 
 		public void Awake()
 		{
 			tm = GetComponent<TimerManager>();
-			tm.AddAttackTimer("JoinMatch", 10f);
+			tm.AddAttackTimer("JoinMatch", 10.5f);
+
+			cdc = FindObjectOfType<ClientDataController>();
 
 			Msf.Client.SetHandler((short)Exchange1v1MatchMakingOpCodes.RespondMatchFound, HandleMatchFound);
 			Msf.Client.SetHandler((short)Exchange1v1MatchMakingOpCodes.RespondChangeQueuePool, HandleChangeQueue);
+			Msf.Client.SetHandler((short)Exchange1v1MatchMakingOpCodes.RespondMatchReady, HandleMatchReady);
+			Msf.Client.SetHandler((short)Exchange1v1MatchMakingOpCodes.RespondMatchDisbanded, HandleMatchDisbanded);
 		}
 
 		public void Start()
 		{
-			GetPlayerAccount();
+			if (cdc.PlayerAccount != null)
+			{
+				JoinQueueButton.interactable = true;
+			}
+			else
+			{
+				cdc.PlayerAccountRecieved += () => 
+				{
+					JoinQueueButton.interactable = true;
+				};
+			}
+
+			cdc.State = ClientState.Client;
 		}
 
 		public void Update()
 		{
-			if (exchangeId > 0)
+			if (cdc.Exchange != null)
 			{
 				tm.UpdateCountdowns();
 
@@ -55,58 +71,73 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 
 		public void FixedUpdate()
 		{
-			if (exchangeId > 0)
+			if (cdc.Exchange != null)
 			{
-				Timer.text = "Timer: " + (int)tm.GetRemainingCooldown("JoinMatch");
+				Timer.text = "Timer: " + (int) tm.GetRemainingCooldown("JoinMatch");
 			}
 			else
 			{
-				Timer.text = "Timer: " + 10;
+				Timer.text = "Timer: 10";
 			}
-		}
-
-		private void GetPlayerAccount()
-		{
-			UnityEngine.Debug.Log("Get Player Account");
-
-			Msf.Client.Connection.SendMessage((short)ExchangePlayerOpCodes.GetPlayerAccount, Msf.Client.Auth.AccountInfo.Username, (status, response) =>
-			{
-				playerAccount = response.Deserialize(new PlayerAccountPacket());
-				JoinQueueButton.interactable = true;
-			});
 		}
 
 		public void HandleMatchFound(IIncommingMessage message)
 		{
-			MatchFoundPacket packet = message.Deserialize(new MatchFoundPacket());
+			UnityEngine.Debug.Log("HandleMatchFound: Setting Player Account");
+			MatchFoundPacket exchange = message.Deserialize(new MatchFoundPacket());
+			exchange.Player1Id = cdc.PlayerAccount.Id;
+			exchange.Player2Id = -1;
+			cdc.Exchange = exchange;
+
 			LeaveQueueButton.interactable = false;
 			ChangeQueueButton.interactable = false;
 			JoinExchangeMatchButton.interactable = true;
 			DeclineExchangeMatchButton.interactable = true;
-			exchangeId = packet.ExchangeId;
 			tm.RestartTimer("JoinMatch");
 		}
 
 		public void HandleChangeQueue(IIncommingMessage message)
 		{
+			UnityEngine.Debug.Log("HandleChangeQueue: Enabling Change Queue Button");
 			ExchangeMatchMakingPacket packet = message.Deserialize(new ExchangeMatchMakingPacket());
 			ChangeQueueButton.interactable = true;
 		}
 
+		public void HandleMatchReady(IIncommingMessage message)
+		{
+			UnityEngine.Debug.Log("HandleMatchReady: Starting Match Exchange");
+			SceneManager.LoadScene("DeviationClient - Match");
+		}
+
+		public void HandleMatchDisbanded(IIncommingMessage message)
+		{
+			UnityEngine.Debug.Log("HandleMatchDisbanded: Match Disbanded, Looking For New Match");
+
+			MatchFoundPacket packet = message.Deserialize(new MatchFoundPacket());
+			LeaveQueueButton.interactable = true;
+			JoinQueueButton.interactable = false;
+			ChangeQueueButton.interactable = false;
+			JoinExchangeMatchButton.interactable = false;
+			DeclineExchangeMatchButton.interactable = false;
+			tm.PauseTimer("JoinMatch");
+			cdc.Exchange = null;
+		}
+
 		public void SearchForExchangeMatch()
 		{
-			var packet = new ExchangeMatchMakingPacket(playerAccount.Id, QueueTypes.Exchange1v1, PlayerClass.Default);
+			UnityEngine.Debug.Log("SearchForExchangeMatch");
+
+			var packet = new ExchangeMatchMakingPacket(cdc.PlayerAccount.Id, QueueTypes.Exchange1v1, PlayerClass.Default);
 
 			Msf.Connection.SendMessage((short)Exchange1v1MatchMakingOpCodes.RequestJoinQueue, packet, (status, data) =>
 			{
 				if (status == ResponseStatus.Error)
 				{
-					UnityEngine.Debug.LogErrorFormat("RequestJoinQueue failed to join exchange queue. Error {1}", data);
+					UnityEngine.Debug.LogErrorFormat("RequestJoinQueue failed. Error {1}", data);
 				}
 				else if (status == ResponseStatus.Success)
 				{
 					UnityEngine.Debug.Log("Looking for Match");
-					lookingForMatch = true;
 					LeaveQueueButton.interactable = true;
 					JoinQueueButton.interactable = false;
 				}
@@ -115,13 +146,15 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 
 		public void ChangeQueue()
 		{
-			var packet = new ExchangeMatchMakingPacket(playerAccount.Id, QueueTypes.Exchange1v1, PlayerClass.Default);
+			UnityEngine.Debug.Log("ChangeQueue");
+
+			var packet = new ExchangeMatchMakingPacket(cdc.PlayerAccount.Id, QueueTypes.Exchange1v1, PlayerClass.Default);
 
 			Msf.Connection.SendMessage((short)Exchange1v1MatchMakingOpCodes.RequestChangeQueuePool, packet, (status, data) =>
 			{
 				if (status == ResponseStatus.Error)
 				{
-					UnityEngine.Debug.LogErrorFormat("RequestJoin1v1Queue failed to leave exchange queue. Error {1}", data);
+					UnityEngine.Debug.LogErrorFormat("RequestChangeQueuePool failed. Error {1}", data);
 				}
 				else if (status == ResponseStatus.Success)
 				{
@@ -133,68 +166,65 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 
 		public void LeaveQueue()
 		{
-			var packet = new ExchangeMatchMakingPacket(playerAccount.Id, QueueTypes.Exchange1v1, PlayerClass.Default);
+			UnityEngine.Debug.Log("LeaveQueue");
+
+			var packet = new ExchangeMatchMakingPacket(cdc.PlayerAccount.Id, QueueTypes.Exchange1v1, PlayerClass.Default);
 
 			Msf.Connection.SendMessage((short)Exchange1v1MatchMakingOpCodes.RequestLeaveQueue, packet, (status, data) =>
 			{
 				if (status == ResponseStatus.Error)
 				{
-					UnityEngine.Debug.LogErrorFormat("RequestJoin1v1Queue failed to leave exchange queue. Error {1}", data);
+					UnityEngine.Debug.LogErrorFormat("RequestLeaveQueue failed. Error {1}", data);
 				}
 				else if (status == ResponseStatus.Success)
 				{
 					UnityEngine.Debug.Log("Leaving Queue");
-					lookingForMatch = false;
 					LeaveQueueButton.interactable = false;
 					JoinQueueButton.interactable = true;
+					ChangeQueueButton.interactable = false;
 				}
 			});
 		}
 
 		public void JoinExchange()
-		{//todo open standalone with correct params
-			JoinExchangeMatchButton.interactable = false;
-			DeclineExchangeMatchButton.interactable = false;
-
-			//wait for other player
-			StartExchange(exchangeId);
-			//should communicate differently but this works
-			var commandLineArgs = "-show-screen-selector false -screen-height 900 -screen-width 1600 -exchangeId " + exchangeId;
-			var exePath = Environment.GetEnvironmentVariable("DeviationStandalone", EnvironmentVariableTarget.User) + "/DeviationStandalone.exe";
-			Process.Start(exePath, commandLineArgs);
-		}
-
-		private void StartExchange(int exchangeId)
 		{
-			Guid characterGuid = GetPlayerCharacter();
-			ActionModulePacket module = GetPlayerActionModule();
-			InitExchangePlayerPacket packet = new InitExchangePlayerPacket(exchangeId, playerAccount, characterGuid, module);
+			UnityEngine.Debug.Log("JoinExchange");
+
+			Msf.Connection.SendMessage((short)Exchange1v1MatchMakingOpCodes.RequestJoinMatch, cdc.Exchange, (status, data) => 
+			{
+				if (status == ResponseStatus.Error)
+				{
+					UnityEngine.Debug.LogErrorFormat("RequestJoinMatch failed. Error {1}", data);
+				}
+				else if (status == ResponseStatus.Success)
+				{
+					JoinExchangeMatchButton.interactable = false;
+					DeclineExchangeMatchButton.interactable = false;
+					ChangeQueueButton.interactable = false;
+					tm.PauseTimer("JoinMatch");
+				}
+			});
 		}
 
 		public void DeclineExchange()
 		{
-			JoinExchangeMatchButton.interactable = false;
-			DeclineExchangeMatchButton.interactable = false;
-			JoinQueueButton.interactable = true;
-			exchangeId = -1;
-			tm.RestartTimer("JoinMatch");
+			UnityEngine.Debug.Log("DeclineExchange");
 
-			//let server/other player know
-		}
-
-		private Guid GetPlayerCharacter()
-		{
-			return Guid.NewGuid();
-		}
-
-		private ActionModulePacket GetPlayerActionModule()
-		{
-			var q = new Guid("688b267a-fde1-4250-91a0-300aa3343147");
-			var w = new Guid("dacb468b-658f-4daa-9400-cd3f005d06bd");
-			var e = new Guid("d504df35-dc93-4f84-829e-01e202878341");
-			var r = new Guid("36a1cf13-8b79-4800-8574-7cec0c405594");
-			//this would go get the actions the player chose
-			return new ActionModulePacket(q, w, e, r);
+			Msf.Connection.SendMessage((short)Exchange1v1MatchMakingOpCodes.RequestDeclineMatch, cdc.Exchange, (status, data) => {
+				if (status == ResponseStatus.Error)
+				{
+					UnityEngine.Debug.LogErrorFormat("RequestDeclineMatch failed. Error {1}", data);
+				}
+				else if (status == ResponseStatus.Success)
+				{
+					JoinExchangeMatchButton.interactable = false;
+					DeclineExchangeMatchButton.interactable = false;
+					ChangeQueueButton.interactable = false;
+					JoinQueueButton.interactable = true;
+					tm.PauseTimer("JoinMatch");
+					cdc.Exchange = null;
+				}
+			});
 		}
 	}
 }

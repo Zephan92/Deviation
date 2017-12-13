@@ -1,4 +1,5 @@
-﻿using LiteDB;
+﻿using Barebones.Networking;
+using LiteDB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +10,10 @@ namespace Assets.Deviation.Exchange
 {
 	public class ExchangeDataEntry
 	{
-		[BsonId]
-		public int Id { get; set; }
+		public int ExchangeId { get; set; }
 		public long PlayerId { get; set; }
 		public ActionModulePacket ActionGuids;
-		public Guid CharacterGuid;
+		public string CharacterGuid;
 
 		public ExchangeDataEntry()
 		{
@@ -22,51 +22,80 @@ namespace Assets.Deviation.Exchange
 
 		public ExchangeDataEntry(int id, long playerId, ActionModulePacket actionGuids, Guid characterGuid)
 		{
-			Id = id;
+			ExchangeId = id;
 			PlayerId = playerId;
 			ActionGuids = actionGuids;
-			CharacterGuid = characterGuid;
+			CharacterGuid = characterGuid.ToString();
+		}
+
+		public ExchangeDataEntry(InitExchangePlayerPacket packet)
+		{
+			ExchangeId = packet.ExchangeId;
+			PlayerId = packet.PlayerAccount.Id;
+			ActionGuids = packet.ActionModule;
+			CharacterGuid = packet.CharacterGuid.ToString();
 		}
 
 		public override string ToString()
 		{
-			return String.Format("ExchangeData - ID: {0}. PlayerID: {1}. ActionGuids: {2}. CharacterGuid {3}",Id, PlayerId, ActionGuids, CharacterGuid);
+			return String.Format("ExchangeData - ExchangeId: {0}. PlayerID: {1}. ActionGuids: {2}. CharacterGuid {3}", ExchangeId, PlayerId, ActionGuids, CharacterGuid);
 		}
 	}
 
 	public class ExchangeDataAccess
 	{
-		LiteDatabase db = new LiteDatabase(@"exchangeData.db");
-		LiteCollection<ExchangeDataEntry> _exchangeData;
-
-		string collectionName = "players";
-
-		public ExchangeDataAccess()
-		{
-			_exchangeData = db.GetCollection<ExchangeDataEntry>(collectionName);
-		}
+		private Dictionary<int, List<ExchangeDataEntry>> _exchangeData = new Dictionary<int, List<ExchangeDataEntry>>();
 
 		public List<ExchangeDataEntry> GetExchange1v1Data(int exchangeDataId)
 		{
-			return _exchangeData.Find(x => x.Id == exchangeDataId).ToList();
+			return _exchangeData[exchangeDataId];
 		}
 
 		public ExchangeDataEntry GetExchange1v1Entry(int exchangeDataId, long playerId)
 		{
-			return _exchangeData.FindOne(x => x.Id == exchangeDataId && x.PlayerId == playerId);
+			if (_exchangeData.ContainsKey(exchangeDataId))
+			{
+				foreach (var entry in _exchangeData[exchangeDataId])
+				{
+					if (entry.PlayerId == playerId)
+					{
+						return entry;
+					}
+				}
+			}
+
+			return null;
 		}
 
 		public ExchangeDataEntry CreateExchangeData(int exchangeDataId, long playerId, ActionModulePacket actionModule, Guid characterGuid)
 		{
 			ExchangeDataEntry exchange = new ExchangeDataEntry(exchangeDataId, playerId, actionModule, characterGuid);
-			Debug.LogErrorFormat("Creating Exchange Data and Inserting into DB. {0}", exchange);
-			_exchangeData.Insert(exchange);
+			InsertExchangeData(exchange);
 			return exchange;
 		}
 
-		public void DeleteExchangeData(long exchangeDataId)
+		public ExchangeDataEntry CreateExchangeData(InitExchangePlayerPacket packet)
 		{
-			_exchangeData.Delete(x => x.Id == exchangeDataId);
+			ExchangeDataEntry exchange = new ExchangeDataEntry(packet);
+			InsertExchangeData(exchange);
+			return exchange;
+		}
+
+		public void DeleteExchangeData(int exchangeId)
+		{
+			_exchangeData.Remove(exchangeId);
+		}
+
+		private void InsertExchangeData(ExchangeDataEntry entry)
+		{
+			if (_exchangeData.ContainsKey(entry.ExchangeId))
+			{
+				_exchangeData[entry.ExchangeId].Add(entry);
+			}
+			else
+			{
+				_exchangeData.Add(entry.ExchangeId, new List<ExchangeDataEntry>() { entry });
+			}
 		}
 	}
 }

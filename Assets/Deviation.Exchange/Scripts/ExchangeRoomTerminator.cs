@@ -33,7 +33,7 @@ public class ExchangeRoomTerminator : MonoBehaviour
 	private bool _hasFirstPlayerShowedUp = false;
 
 	// Use this for initialization
-	void Awake()
+	void Start()
 	{
 		Room = FindObjectOfType<GameRoom>();
 

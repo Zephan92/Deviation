@@ -70,7 +70,7 @@ namespace Assets.Deviation.Exchange.Scripts
 
 		public PlayerAccount GetPlayer(string name)
 		{
-			return _players.FindOne(x => x.Name == name);
+			return _players.FindOne(x => x.Name.Equals(name));
 		}
 	}
 }
