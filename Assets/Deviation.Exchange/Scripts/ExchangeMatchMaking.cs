@@ -258,7 +258,7 @@ namespace Assets.Deviation.Exchange
 				{MsfDictKeys.SceneName, "1v1Exchange"}
 			};
 
-			match.SpawnTask = spawners.Spawn(settings);
+			match.SpawnTask = spawners.Spawn(settings, "", "-exchangeId " + match.ExchangeId.ToString());
 			spawns.Add(match.ExchangeId, match);
 		}
 

@@ -38,12 +38,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			}
 		}
 
-		private MatchFoundPacket _exchange;
-		public MatchFoundPacket Exchange
-		{
-			get { return _exchange; }
-			set { _exchange = value; Debug.LogErrorFormat("Exchange is being set to: {0}", value); }
-		}
+		public MatchFoundPacket Exchange;
 
 		public int RoomId = -1;
 		
@@ -85,7 +80,6 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		public void HandleReceiveRoomId(IIncommingMessage message)
 		{
 			instance.RoomId = message.AsInt();
-			UnityEngine.Debug.Log("Receieved Room ID: " + RoomId);
 		}
 
 		public void GetPlayerAccount()

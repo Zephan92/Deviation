@@ -8,4 +8,5 @@ public static class ExchangeConstants
 	public static int BATTLEFIELD_COLUMN_COUNT = 10;
 	public static int PLAYER_INITIAL_COLUMN = 2;
 	public static int PLAYER_INITIAL_ROW = 2;
+	public static int PLAYER_COUNT = 2;
 }

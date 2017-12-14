@@ -12,6 +12,8 @@ using UnityEngine.Networking;
 public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 {
 	[SyncVar]
+	private long _playerId;
+	[SyncVar]
 	private int _peerId;
 	[SyncVar]
 	private bool _initialized;
@@ -25,6 +27,8 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	private Status _status;
 
 	public int PeerId { get { return _peerId; } set { _peerId = value; } }
+	public long PlayerId { get { return _playerId; } set { _playerId = value; } }
+
 	public Energy Energy { get { return _energy; } }
 	public Health Health { get { return _health; } }
 	public Mover Mover { get { return _mover; } }
@@ -66,9 +70,10 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 		}
 	}
 
-	public void Init(int energyMin, int energyMax, float energyRate, int healthMin, int healthMax, BattlefieldZone zone, Guid[] actionGuids)
+	public void Init(int energyMin, int energyMax, float energyRate, int healthMin, int healthMax, BattlefieldZone zone, long playerId, Guid[] actionGuids)
 	{
 		_kit = new Kit(actionGuids);
+		_playerId = playerId;
 		ServerInit(energyMin, energyMax, energyRate, healthMin, healthMax, zone);
 		RpcInit(zone, _kit.ActionsNames);
 	}

@@ -26,7 +26,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 					id: new Guid("bc98cc04-14fc-428c-a295-4fe3fc4e7c3a"),
 					name: "Portal Rocket",
 					attack: new Attack(baseDamage: 15, energyRecoilModifier: -3.0f),
-					actionTexture: Resources.Load("ActionTextures/Yellow") as Texture2D,
+					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
 					primaryActionName: "PortalAttack",
 					cooldown: 1f,
 					type: Type
@@ -36,7 +36,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 					id: new Guid("c07fb055-9144-4be0-be45-c8e0742381c9"),
 					name: "Teleport",
 					attack: new Attack(baseDamage: 10, healthDrainModifier: -0.0f),
-					actionTexture: Resources.Load("ActionTextures/Purple") as Texture2D,
+					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
 					primaryActionName: "Teleport",
 					cooldown: 1f,
 					type: Type

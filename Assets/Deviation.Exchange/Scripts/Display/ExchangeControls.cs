@@ -1,6 +1,8 @@
-﻿using Assets.Scripts.Controllers;
+﻿using Assets.Deviation.Exchange.Scripts.Client;
+using Assets.Scripts.Controllers;
 using Assets.Scripts.Interface;
 using Assets.Scripts.Utilities;
+using Barebones.MasterServer;
 using UnityEngine;
 
 namespace Assets.Scripts.Exchange.Display
@@ -21,7 +23,8 @@ namespace Assets.Scripts.Exchange.Display
 		public Texture2D emptyTex;
 		public Texture2D fullEnergyTex;
 		public Texture2D fullHealthTex;
-
+		public Texture2D outerActionBarTex;
+		public Texture2D cooldownTex;
 		public Material fontMaterial;
 
 		public bool toggle;
@@ -41,26 +44,29 @@ namespace Assets.Scripts.Exchange.Display
 
 		private Canvas exchangeCanvas;
 
-		private IExchangePlayer [] players;
+		private IExchangePlayer [] _players;
+		private IExchangePlayer _currentPlayer;
 		private ITimerManager tm;
 		private IExchangeController1v1 _ec;
+		private ClientDataController cdc;
+
 		public void Awake()
 		{
 			_ec = FindObjectOfType<ExchangeController1v1>();
+			cdc = FindObjectOfType<ClientDataController>();
 			outlineTex = Resources.Load("User Interface/Black") as Texture2D;
 			emptyTex = Resources.Load("User Interface/White") as Texture2D;
 			fullEnergyTex = Resources.Load("User Interface/Purple") as Texture2D;
 			fullHealthTex = Resources.Load("User Interface/Green") as Texture2D;
+			outerActionBarTex = Resources.Load("User Interface/Green") as Texture2D;
+			cooldownTex = Resources.Load("AbilityIcons/CooldownTexture")as Texture2D;
 			progressBar = new ProgressBar();
-			//actionBar = new ActionBar();
+			actionBar = new ActionBar();
 			exchangeTimer = new ExchangeTimer();
 			player1energyBar = new ProgressBarDetails(outlineTex, emptyTex, fullEnergyTex, HealthPosition, BarSize);
 			player1healthBar = new ProgressBarDetails(outlineTex, emptyTex, fullHealthTex, EnergyPosition, BarSize);
 			player2energyBar = new ProgressBarDetails(outlineTex, emptyTex, fullEnergyTex, HealthPosition1, BarSize);
 			player2healthBar = new ProgressBarDetails(outlineTex, emptyTex, fullHealthTex, EnergyPosition1, BarSize);
-			//actionTextures = new Texture2D[4] { Players[1].Actions[0].ActionTexture, ec.Players[1].Actions[1].ActionTexture, ec.Players[1].Actions[2].ActionTexture, ec.Players[1].Actions[3].ActionTexture };
-			//actionNames = new string[] { ec.Players[1].Actions[0].Name, ec.Players[1].Actions[1].Name, ec.Players[1].Actions[2].Name, ec.Players[1].Actions[3].Name };
-			//player1actionBar = new ActionBarDetails(ec.Players[1].CurrentModule.ModuleTexture, actionTextures, outlineTex, ActionBarPosition, ActionBarSize, actionNames, tm);
 			exchangeTimerDetails = new ExchangeTimerDetails(outlineTex, ExchangeTimerPosition, ExchangeTimerSize);
 		}
 
@@ -96,26 +102,32 @@ namespace Assets.Scripts.Exchange.Display
 				return;
 			}
 
-			if (_ec.ExchangePlayers == null)
-			{
-				return;
-			}
-
-			if (players == null)
+			if (_players == null && cdc != null)
 			{
 				var playerObjects = FindObjectsOfType<ExchangePlayer>();
 
-				if (playerObjects.Length == 2)
+				if (playerObjects.Length == ExchangeConstants.PLAYER_COUNT)
 				{
-					players = playerObjects;
+					foreach (var player in playerObjects)
+					{
+						long id = cdc.PlayerAccount.Id;
+						if (player.PlayerId == id)
+						{
+							_currentPlayer = player;
+						}
+					}
+
+					if (_currentPlayer != null)
+					{
+						_players = playerObjects;
+					}
 				}
 			}
-
 		}
 
 		public void OnGUI()
 		{
-			if (_ec == null || tm == null || players == null)
+			if (_ec == null | tm == null | _players == null | _currentPlayer == null)
 			{
 				return;
 			}
@@ -148,18 +160,31 @@ namespace Assets.Scripts.Exchange.Display
 			player1healthBar = new ProgressBarDetails(outlineTex, emptyTex, fullHealthTex, EnergyPosition, BarSize);
 			player2energyBar = new ProgressBarDetails(outlineTex, emptyTex, fullEnergyTex, HealthPosition1, BarSize);
 			player2healthBar = new ProgressBarDetails(outlineTex, emptyTex, fullHealthTex, EnergyPosition1, BarSize);
-			//actionTextures = new Texture2D[4] { ec.Players[1].Actions[0].ActionTexture, ec.Players[1].Actions[1].ActionTexture , ec.Players[1].Actions[2].ActionTexture , ec.Players[1].Actions[3].ActionTexture };
-			//actionNames = new string[] { ec.Players[1].Actions[0].Name, ec.Players[1].Actions[1].Name, ec.Players[1].Actions[2].Name, ec.Players[1].Actions[3].Name };
+			actionTextures = new Texture2D[4]
+			{
+				_currentPlayer.Kit.Actions[0].ActionTexture,
+				_currentPlayer.Kit.Actions[1].ActionTexture,
+				_currentPlayer.Kit.Actions[2].ActionTexture,
+				_currentPlayer.Kit.Actions[3].ActionTexture
+			};
+			actionNames = new string[]
+			{
+				_currentPlayer.Kit.Actions[0].Name,
+				_currentPlayer.Kit.Actions[1].Name,
+				_currentPlayer.Kit.Actions[2].Name,
+				_currentPlayer.Kit.Actions[3].Name
+			};
 
-			//player1actionBar = new ActionBarDetails(ec.Players[1].CurrentModule.ModuleTexture, actionTextures, outlineTex, ActionBarPosition, ActionBarSize, actionNames, tm);
+			player1actionBar = new ActionBarDetails(outerActionBarTex, actionTextures, cooldownTex, ActionBarPosition, ActionBarSize, actionNames, tm);
 			exchangeTimerDetails = new ExchangeTimerDetails(emptyTex, ExchangeTimerPosition, ExchangeTimerSize);
 
-			progressBar.DrawProgressBar(players[0].Position, player1healthBar, players[0].Health.CurrentPercentage, players[0].Health.Current.ToString() + "/" + players[0].Health.Max.ToString());
-			progressBar.DrawProgressBar(players[0].Position, player1energyBar, players[0].Energy.CurrentPercentage, players[0].Energy.Current.ToString() + "/" + players[0].Energy.Max.ToString());
-			progressBar.DrawProgressBar(players[1].Position, player2healthBar, players[1].Health.CurrentPercentage, players[1].Health.Current.ToString() + "/" + players[1].Health.Max.ToString());
-			progressBar.DrawProgressBar(players[1].Position, player2energyBar, players[1].Energy.CurrentPercentage, players[1].Energy.Current.ToString() + "/" + players[1].Energy.Max.ToString());
+			foreach (IExchangePlayer player in _players)
+			{
+				progressBar.DrawProgressBar(player.Position, player1healthBar, player.Health.CurrentPercentage, player.Health.Current.ToString() + "/" + player.Health.Max.ToString());
+				progressBar.DrawProgressBar(player.Position, player1energyBar, player.Energy.CurrentPercentage, player.Energy.Current.ToString() + "/" + player.Energy.Max.ToString());
+			}
 
-			//actionBar.DrawActionBar(player1actionBar);
+			actionBar.DrawActionBar(player1actionBar);
 			
 			exchangeTimer.DrawExchangeTimer(exchangeTimerDetails, ((int)tm.GetRemainingCooldown("ExchangeTimer")).ToString());
 			GUI.Label(new Rect(Vector2.one, exchangeTimerDetails.Size - new Vector2(1, 1)), _ec.ExchangeState.ToString(), new GUIStyle());

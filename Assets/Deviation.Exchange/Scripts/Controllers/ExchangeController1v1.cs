@@ -14,9 +14,10 @@ public interface IGameController
 public interface IExchangeController1v1 : IGameController
 {
 	ExchangeState ExchangeState { get; set; }
-	IExchangePlayer [] ExchangePlayers { get; set; }
-	void ResetExchange();
 	void ServerResponse(int peerId);
+	IExchangePlayer GetPlayerByPeerId(int peerId);
+	void ResetExchange();
+
 }
 
 public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
@@ -35,13 +36,13 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 			if (isServer)
 			{
 				_exchangeState = value;
-				Debug.LogError(_exchangeState);
+				Debug.Log(_exchangeState);
 			}
 		}
 	}
 
 	public static bool AllPlayersConnected;
-	public IExchangePlayer [] ExchangePlayers  { get; set; }
+	private IExchangePlayer [] _exchangePlayers;
 	private InitExchangePlayerPacket[] _playerInitData;
 	private PlayerController[] Players { get; set; }
 	private TimerManager tm;
@@ -67,7 +68,7 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 		
 		ExchangeState = ExchangeState.Setup;
 
-		ExchangeDataId = 0;
+		ExchangeDataId = Msf.Args.ExtractValueInt("-exchangeId");
 	}
 
 
@@ -125,9 +126,9 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 		tm.RestartTimers();
 		bc.ResetBattlefield();
 
-		foreach (IExchangePlayer player in ExchangePlayers)
+		foreach (IExchangePlayer player in _exchangePlayers)
 		{
-			player.Init(0, 100, 0.001f, 0, 100, player.Zone, player.Kit.ActionsGuids);
+			player.Init(0, 100, 0.001f, 0, 100, player.Zone, player.PlayerId, player.Kit.ActionsGuids);
 		}
 
 		_stateStatus = new Dictionary<ExchangeState, bool>();
@@ -160,17 +161,14 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 
 	private void ExchangePreBattle()
 	{
-		if (ExchangePlayers == null)
-		{
-			ExchangePlayers = FindObjectsOfType<ExchangePlayer>();
-		}
-
 		if (isServer)
 		{
 			bc.Init();
-			foreach (var player in ExchangePlayers)
+			_exchangePlayers = FindObjectsOfType<ExchangePlayer>();
+
+			foreach (var player in _exchangePlayers)
 			{
-				int playerIndex = System.Array.IndexOf(ExchangePlayers, player);
+				int playerIndex = System.Array.IndexOf(_exchangePlayers, player);
 				if (!clientReady.ContainsKey(player.PeerId))
 				{
 					clientReady.Add(player.PeerId, false);
@@ -190,10 +188,8 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 					{
 						InitExchangePlayerPacket playerInitData = response.Deserialize(new InitExchangePlayerPacket());
 						_playerInitData[playerIndex] = playerInitData;
-						Debug.LogError("Init Exchange Player Packet Data: " + playerInitData);
 						BattlefieldZone zone = (BattlefieldZone)playerIndex;
-						Debug.LogErrorFormat("Initializing Player: {0}. {1}", player.PeerId, zone);
-						player.Init(0, 100, 0.001f, 0, 100, zone, playerInitData.ActionModule.GetActionGuids());
+						player.Init(0, 100, 0.001f, 0, 100, zone, playerInitData.PlayerAccount.Id, playerInitData.ActionModule.GetActionGuids());
 					});
 				});
 			}
@@ -272,6 +268,27 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 		{
 			Application.Quit();
 		}
+	}
+
+	public IExchangePlayer GetPlayerByPeerId(int peerId)
+	{
+		if (_exchangePlayers == null || _exchangePlayers.Length != ExchangeConstants.PLAYER_COUNT)
+		{
+			_exchangePlayers = FindObjectsOfType<ExchangePlayer>();
+			Debug.LogError("Exchange Players Count: " + _exchangePlayers.Length);
+			return null;
+		}
+
+		foreach (IExchangePlayer player in _exchangePlayers)
+		{
+			if (player.PeerId == peerId)
+			{
+				Debug.LogError("Exchange Players Peer Id: " + player.PeerId);
+				return player;
+			}
+		}
+
+		return null;
 	}
 
 	private bool CheckStateCompleteStatus()

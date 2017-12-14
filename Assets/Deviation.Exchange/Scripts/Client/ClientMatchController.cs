@@ -43,8 +43,6 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		{
 			if (cdc.State == ClientState.Match && cdc.Exchange != null)
 			{
-				UnityEngine.Debug.LogErrorFormat("Ready");
-
 				Guid characterGuid = GetPlayerCharacter();
 				ActionModulePacket module = GetPlayerActionModule();
 				InitExchangePlayerPacket packet = new InitExchangePlayerPacket(cdc.Exchange.ExchangeId, cdc.PlayerAccount, characterGuid, module);
@@ -56,8 +54,6 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 					}
 					else if(response == ResponseStatus.Success)
 					{
-						UnityEngine.Debug.LogErrorFormat("CreateExchangeData: Success");
-
 						ReadyButton.interactable = false;
 						StartCoroutine(StartExchange());
 					}
@@ -67,7 +63,6 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 
 		private IEnumerator StartExchange()
 		{
-			UnityEngine.Debug.LogErrorFormat("Start Exchange: Waiting on Room Id: {0}", cdc.RoomId);
 			yield return new WaitUntil(() => cdc.RoomId != -1);
 			SceneManager.LoadScene("DeviationStandalone");
 		}

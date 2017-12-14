@@ -71,14 +71,15 @@ namespace Assets.Scripts.Exchange.Display
 				if(timeLeft > 0)
 				{
 					float cooldownPercentage = timeLeft / totalTime;
-					Rect cooldownDimensions = new Rect(new Vector2(actionOffset, 0), new Vector2(actionSize.x * cooldownPercentage, actionSize.y));
-					string cooldownLabel = (1 + (int) timeLeft).ToString();
-					Color color = Color.white;
-					color.a = 0.8f;
-					GUI.color = color;
-					GUI.DrawTexture(cooldownDimensions, details.CooldownTexture);
-					GUI.color = Color.white;
-					GUI.Label(textureDimensions, cooldownLabel, cooldownLabelStyle);
+					Rect cooldownDimensions = new Rect(textureDimensions.position, new Vector2(cooldownPercentage, 1f));
+					Rect cooldownPosition = new Rect(textureDimensions.position, new Vector2(textureDimensions.size.x * cooldownPercentage, textureDimensions.size.y));
+					//string cooldownLabel = (1 + (int) timeLeft).ToString();
+					//Color color = Color.white;
+					//color.a = 0.8f;
+					//GUI.color = color;
+					GUI.DrawTextureWithTexCoords(cooldownPosition, details.CooldownTexture, cooldownDimensions, true);
+					//GUI.color = Color.white;
+					//GUI.Label(textureDimensions, cooldownLabel, cooldownLabelStyle);
 				}
 
 				actionOffset += details.Size.x * 0.25f;

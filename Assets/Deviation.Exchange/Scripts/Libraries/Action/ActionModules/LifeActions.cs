@@ -26,7 +26,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 					id: new Guid("33a4911e-73cb-4138-be21-f6728dd2756e"),
 					name: "Drain",
 					attack: new Attack(baseDamage: 35, healthRecoilModifier: 0.2f, energyRecoilModifier: -1.2f),
-					actionTexture: Resources.Load("ActionTextures/Blue") as Texture2D,
+					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
 					primaryActionName: "Drain",
 					cooldown: 3f,
 					type: Type
