@@ -15,6 +15,7 @@ public interface IGridManager
 	void DamageTile(GridCoordinate coordinate, BattlefieldZone zone = BattlefieldZone.All, bool breakable = false);
 	void SetGridspaceOccupied(GridCoordinate coordinate, bool state, BattlefieldZone zone = BattlefieldZone.All);
 	bool GetGridspaceOccupied(GridCoordinate coordinate, BattlefieldZone zone = BattlefieldZone.All);
+	GridCoordinate ConvertToLocalGridCoordinate(GridCoordinate gridCoordinate, BattlefieldZone zone);
 }
 
 public class GridManager : NetworkBehaviour, IGridManager
@@ -143,6 +144,11 @@ public class GridManager : NetworkBehaviour, IGridManager
 		{
 			Debug.LogErrorFormat("Damage tile didn't target a correct gridspace. GridCoordinate: {0}", coordinate.ToString());
 		}
+	}
+
+	public GridCoordinate ConvertToLocalGridCoordinate(GridCoordinate gridCoordinate, BattlefieldZone zone)
+	{
+		return new GridCoordinate(gridCoordinate.Row, gridCoordinate.LocalColumn, zone, true);
 	}
 
 	private GridSpace GetGridSpace(GridCoordinate coordinate, BattlefieldZone zone = BattlefieldZone.All)

@@ -110,7 +110,8 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		Action<GameObject> fixedUpdateAction = null,
 		Action onDelayStartAction = null,
 		Action onDelayEndAction = null,
-		Action<GameObject> onTileEnter = null)
+		Action<GameObject> onTileEnterAction = null,
+		Action<GameObject> onDestroyAction = null)
 	{
 		ActionWarning(delay, onDelayStartAction, onDelayEndAction);
 
@@ -125,7 +126,8 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 			onStartAction,		//6
 			updateAction,		//7
 			fixedUpdateAction,	//8
-			onTileEnter			//9
+			onTileEnterAction,	//9
+			onDestroyAction,	//10
 		};
 
 		cm.StartCoroutineThread_AfterTimout(() => 
@@ -141,11 +143,12 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		Action<GameObject> fixedUpdateAction = null,
 		Action onDelayStartAction = null,
 		Action onDelayEndAction = null,
-		Action<GameObject> onTileEnter = null)
+		Action<GameObject> onTileEnter = null,
+		Action<GameObject> onDestroyAction = null)
 	{
 		cm.StartCoroutineThread_AfterTimout(() =>
 		{
-			SpawnActionObject(delay, deletionTimeout, resourceName, zone, attack, rotation, onTriggerAction, onStartAction, updateAction, fixedUpdateAction, onDelayStartAction, onDelayEndAction, onTileEnter);
+			SpawnActionObject(delay, deletionTimeout, resourceName, zone, attack, rotation, onTriggerAction, onStartAction, updateAction, fixedUpdateAction, onDelayStartAction, onDelayEndAction, onTileEnter, onDestroyAction);
 		}, timeout, ref _coroutine);
 	}
 
@@ -204,6 +207,15 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		else
 		{
 			actionObject.SetOnTileEnter(delegate (GameObject actionGO) { });
+		}
+
+		if (parameters[10] != null)
+		{
+			actionObject.SetOnDestroy((Action<GameObject>)parameters[10]);
+		}
+		else
+		{
+			actionObject.SetOnDestroy(delegate (GameObject actionGO) { });
 		}
 	}
 

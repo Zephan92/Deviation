@@ -14,6 +14,7 @@ public interface IExchangePlayer
 	Mover Mover { get; }
 	Status Status { get; }
 	BattlefieldZone Zone { get; }
+	BattlefieldZone EnemyZone { get; }
 	Vector3 Position { get; }
 	Quaternion Rotation { get; }
 	void Init(int energyMin, int energyMax, float energyRate, int healthMin, int healthMax, BattlefieldZone zone, long playerId, Guid[] actionGuids);

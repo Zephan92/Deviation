@@ -41,13 +41,58 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 					//attack.InitiateAttack();
 				}
 			},
-			{"Disappear",  //this is a generic attack that does no battlefield affects
+			{"Ambush", //this makes you appear behind a random enemy and slash
 				delegate (IBattlefieldController bc, IAttack attack, IExchangePlayer player, BattlefieldZone zone)
 				{
-					//IPlayer enemy = player.Enemies[0];
-					//attack.Attacker = player;
-					//attack.Defender = enemy;
-					//attack.InitiateRecoil();
+					var enemies = bc.GetPlayers(player.EnemyZone);
+					var target = enemies[Random.Range(0, enemies.Count)];
+
+					GridCoordinate ambushCoordinate = target.Mover.CurrentCoordinate;
+
+					System.Action<GameObject> onDestoyMethod = delegate(GameObject actionGo)
+					{
+						if(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Down, 1).Valid(player.EnemyZone))
+						{
+							bc.gm.SetGridspaceOccupied(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Down, 1), false, player.EnemyZone);
+						}
+					};
+
+					System.Action onDelayStart = delegate()
+					{
+						bc.gm.SetGridSpaceColor(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Left, 1), Color.yellow, player.EnemyZone);
+						bc.gm.SetGridSpaceColor(ambushCoordinate, Color.yellow, player.EnemyZone);
+						bc.gm.SetGridSpaceColor(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Right, 1), Color.yellow, player.EnemyZone);
+					};
+
+					System.Action onDelayEnd = delegate()
+					{
+						bc.gm.ResetGridSpaceColor(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Left, 1), player.EnemyZone);
+						bc.gm.ResetGridSpaceColor(ambushCoordinate,  player.EnemyZone);
+						bc.gm.ResetGridSpaceColor(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Right, 1), player.EnemyZone);
+
+						List<IExchangePlayer> enemiesHit = new List<IExchangePlayer>();
+
+						foreach(var enemy in enemies)
+						{
+							if(	enemy.Mover.CurrentCoordinate.Equals(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Left, 1)) ||
+								enemy.Mover.CurrentCoordinate.Equals(ambushCoordinate) ||
+								enemy.Mover.CurrentCoordinate.Equals(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Right, 1)))
+							{
+								enemiesHit.Add(enemy);
+							}
+						}
+
+						attack.InitiateAttack(enemiesHit, AttackAlignment.Enemies);
+					};
+
+					bc.ActionWarning(2f, onDelayStart, onDelayEnd);
+
+					if(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Down, 1).Valid(player.EnemyZone))
+					{
+						bc.gm.SetGridspaceOccupied(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Down, 1), true, player.EnemyZone);
+					}
+					bc.SpawnActionObject(0.0f, 2f, "PlayerPlaceholder", target.Position, attack, rotation: Quaternion.Euler(target.Rotation.eulerAngles),
+						onDestroyAction: onDestoyMethod);
 				}
 			},
 			{"WallPush", // this method spawns a wall and pushes the opponent to the middle if it hits them dealing some damage

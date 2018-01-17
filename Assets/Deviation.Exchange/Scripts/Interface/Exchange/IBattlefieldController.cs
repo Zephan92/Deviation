@@ -29,7 +29,8 @@ namespace Assets.Scripts.Interface
 			Action<GameObject> fixedUpdateAction = null,
 			Action onDelayStartAction = null,
 			Action onDelayEndAction = null,
-			Action<GameObject> onTileEnter = null);
+			Action<GameObject> onTileEnter = null, 
+			Action<GameObject> onDestroyAction = null);
 
 		void SpawnActionObjectAfterTimeout(float delay, float timeout, float deletionTimeout, string resourceName, Vector3 zone, IAttack attack, Quaternion rotation = new Quaternion(),
 			Action<Collider, GameObject, IAttack> onTriggerAction = null,
@@ -38,6 +39,7 @@ namespace Assets.Scripts.Interface
 			Action<GameObject> fixedUpdateAction = null,
 			Action onDelayStartAction = null,
 			Action onDelayEndAction = null,
-			Action<GameObject> onTileEnter = null);
+			Action<GameObject> onTileEnter = null,
+			Action<GameObject> onDestroyAction = null);
 	}
 }

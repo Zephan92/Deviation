@@ -12,7 +12,9 @@ namespace Assets.Scripts.Exchange.Attacks
 		private Action<GameObject> _startAction;
 		private Action<GameObject> _updateAction;
 		private Action<GameObject> _fixedUpdateAction;
-		private Action<GameObject> _onTileEnter;
+		private Action<GameObject> _onTileEnterAction;
+		private Action<GameObject> _onDestoryAction;
+
 		private IAttack _attack;
 
 		public void Start()
@@ -48,6 +50,14 @@ namespace Assets.Scripts.Exchange.Attacks
 			}
 		}
 
+		public void OnDestroy()
+		{
+			if (_onDestoryAction != null)
+			{
+				_onDestoryAction(gameObject);
+			}
+		}
+
 		public void SetStart(Action<GameObject> action)
 		{
 			_startAction = action;
@@ -75,15 +85,20 @@ namespace Assets.Scripts.Exchange.Attacks
 
 		public void SetOnTileEnter(Action<GameObject> action)
 		{
-			_onTileEnter = action;
+			_onTileEnterAction = action;
 		}
 
 		public void OnTileEnter()
 		{
-			if (_onTileEnter != null)
+			if (_onTileEnterAction != null)
 			{
-				_onTileEnter(gameObject);
+				_onTileEnterAction(gameObject);
 			}
+		}
+
+		public void SetOnDestroy(Action<GameObject> action)
+		{
+			_onDestoryAction = action;
 		}
 
 		public void DisableRenderer()

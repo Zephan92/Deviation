@@ -22,29 +22,48 @@ public class Mover : NetworkBehaviour
 
 	public void UpdateRow(int value)
 	{
+		if (isClient)
+		{
+			CmdUpdateRow(value);
+		}
+
 		_currentRow = value;
-		_currentCoordinate.Row = value;
+		
+	}
+
+	[Command]
+	private void CmdUpdateRow(int value)
+	{
+		_currentRow = value;
 	}
 
 	public void UpdateColumn(int value)
 	{
+		if (isClient)
+		{
+			CmdUpdateColumn(value);
+		}
+		
 		_currentColumn = value;
-		_currentCoordinate.Column = value;
 	}
 
-	private GridCoordinate _currentCoordinate;
+	[Command]
+	private void CmdUpdateColumn(int value)
+	{
+		_currentColumn = value;
+	}
 
 	public GridCoordinate CurrentCoordinate
 	{
 		get
 		{
-			return _currentCoordinate;
+			return new GridCoordinate(_currentRow, _currentColumn, _zone);
 		}
 		set
 		{
-			_currentCoordinate = value;
-			_currentColumn = value.Column;
-			_currentRow = value.Row;
+			UpdateColumn(value.Column);
+			UpdateRow(value.Row);
+			UpdateZone(value.Zone);
 		}
 	}
 
@@ -55,6 +74,22 @@ public class Mover : NetworkBehaviour
 	private IGridManager gm;
 
 	private BattlefieldZone _zone;
+
+	public void UpdateZone(BattlefieldZone value)
+	{
+		if (isClient)
+		{
+			CmdUpdateZone(value);
+		}
+
+		_zone = value;
+	}
+
+	[Command]
+	private void CmdUpdateZone(BattlefieldZone value)
+	{
+		_zone = value;
+	}
 
 	public void Awake()
 	{
@@ -87,52 +122,27 @@ public class Mover : NetworkBehaviour
 
 	public void Move(Direction direction, int distance, bool force = false)
 	{
+		GridCoordinate destination;
+
 		if (_rooted)
 		{
 			return;
 		}
 
-		GridCoordinate currentPosition = new GridCoordinate(transform.position);
-		bool createMoveCoroutine = false;
-
-		GridCoordinate destination = new GridCoordinate();
-		float destPoint = 0f;
-
 		if (_movingDetails != null)
 		{
 			if (_movingDetails.GetDistanceTraveledPercentage() >= 0.5f)
 			{
-				currentPosition = _movingDetails.Destination;
+				destination = CurrentCoordinate.GetAdjacentGridCoordinate(direction, distance, _movingDetails.Destination, true);
 			}
 			else
 			{
 				return;
 			}
 		}
-
-		int zoneModifier = _zone == BattlefieldZone.Left ? 1 : -1;
-
-		switch (direction)
+		else
 		{
-			case Direction.Up:
-				destPoint = currentPosition.Column + distance * zoneModifier;
-				destination = new GridCoordinate(currentPosition.Row, destPoint, _zone);
-				break;
-
-			case Direction.Down:
-				destPoint = currentPosition.Column - distance * zoneModifier;
-				destination = new GridCoordinate(currentPosition.Row, destPoint, _zone);
-				break;
-
-			case Direction.Left:
-				destPoint = currentPosition.Row + distance * zoneModifier;
-				destination = new GridCoordinate(destPoint, currentPosition.Column, _zone);
-				break;
-
-			case Direction.Right:
-				destPoint = currentPosition.Row - distance * zoneModifier;
-				destination = new GridCoordinate(destPoint, currentPosition.Column, _zone);
-				break;
+			destination = CurrentCoordinate.GetAdjacentGridCoordinate(direction, distance);
 		}
 
 		if (destination.Valid(_zone) && !gm.GetGridspaceOccupied(destination, _zone))
@@ -181,8 +191,8 @@ public class Mover : NetworkBehaviour
 		GridCoordinate oldCoordinate = CurrentCoordinate;
 		CurrentCoordinate = _movingDetails.Destination;
 		transform.position = _movingDetails.Destination.Position_Vector3();
+		CmdUpdateBattlefield(oldCoordinate.Row, oldCoordinate.Column, _movingDetails.Destination.Row, _movingDetails.Destination.Column, _zone);
 		_movingDetails = null;
-		CmdUpdateBattlefield(oldCoordinate.Row, oldCoordinate.Column, CurrentCoordinate.Row, CurrentCoordinate.Column, _zone);
 	}
 
 	[Command]

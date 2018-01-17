@@ -74,10 +74,12 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 
 		private ActionModulePacket GetPlayerActionModule()
 		{
-			var q = new Guid("688b267a-fde1-4250-91a0-300aa3343147");
-			var w = new Guid("dacb468b-658f-4daa-9400-cd3f005d06bd");
-			var e = new Guid("d504df35-dc93-4f84-829e-01e202878341");
-			var r = new Guid("36a1cf13-8b79-4800-8574-7cec0c405594");
+			var q = new Guid("688b267a-fde1-4250-91a0-300aa3343147");//ShockWave
+			var w = new Guid("258175b1-89e0-4f16-91e2-b65cb1e11c58");//Ambush
+			//var w = new Guid("dacb468b-658f-4daa-9400-cd3f005d06bd");//Stun Field
+
+			var e = new Guid("d504df35-dc93-4f84-829e-01e202878341");//Tremor
+			var r = new Guid("36a1cf13-8b79-4800-8574-7cec0c405594");//Small Projectile
 			//this would go get the actions the player chose
 			return new ActionModulePacket(q, w, e, r);
 		}

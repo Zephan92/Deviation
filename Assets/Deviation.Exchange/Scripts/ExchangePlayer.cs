@@ -34,6 +34,7 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	public Mover Mover { get { return _mover; } }
 	public Status Status { get { return _status; } }
 	public BattlefieldZone Zone { get { return _zone; } }
+	public BattlefieldZone EnemyZone { get { return _zone == BattlefieldZone.Left ? BattlefieldZone.Right : BattlefieldZone.Left; } }
 	public bool Initialized { get { return _initialized;  } }
 	public IKit Kit { get { return _kit; } }
 	public Vector3 Position { get { return transform.position; } }
@@ -128,7 +129,7 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 		{
 			return;
 		}
-
+		_mover.Init(zone, 1f);
 		_energy.Init(energyMin, energyMax, energyRate);
 		_health.Init(healthMin, healthMax);
 		_zone = zone;

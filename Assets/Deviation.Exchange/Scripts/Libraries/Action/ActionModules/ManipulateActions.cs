@@ -36,11 +36,11 @@ namespace Assets.Scripts.Library.Action.ActionModules
 				new ExchangeAction
 				(
 					id: new Guid("258175b1-89e0-4f16-91e2-b65cb1e11c58"),
-					name: "Disappear",
-					attack: new Attack(baseDamage: 15, healthDrainModifier: -0f),
+					name: "Ambush",
+					attack: new Attack(baseDamage: 15, healthDrainModifier: -1f),
 					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
-					primaryActionName: "Disappear",
-					cooldown: 1f,
+					primaryActionName: "Ambush",
+					cooldown: 2f,
 					type: Type
 				),
 				new ExchangeAction

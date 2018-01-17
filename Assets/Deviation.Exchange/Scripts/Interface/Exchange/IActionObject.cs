@@ -13,5 +13,6 @@ namespace Assets.Scripts.Interface.Exchange
 		void SetAttack(IAttack attack);
 		void DisableRenderer();
 		void SetOnTileEnter(Action<GameObject> action);
+		void SetOnDestroy(Action<GameObject> action);
 	}
 }
