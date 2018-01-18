@@ -2,7 +2,7 @@
 {
 	public interface ITimerManager
 	{
-		void AddAttackTimer(string TimerName, float Cooldown, int playerNumber = -1);
+		void AddTimer(string TimerName, float Cooldown, int playerNumber = -1);
 		bool TimerUp(string TimerName, int playerNumber = -1);
 		float GetRemainingCooldown(string TimerName, int playerNumber = -1);
 		void StartTimer(string TimerName, int playerNumber = -1);

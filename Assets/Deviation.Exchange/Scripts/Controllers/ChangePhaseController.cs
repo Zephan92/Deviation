@@ -24,7 +24,7 @@ namespace Assets.Scripts.Controllers
 
 		public void Start()
 		{
-			tm.AddAttackTimer("ChangePhase", 45.0f);
+			tm.AddTimer("ChangePhase", 45.0f);
 			tm.StartTimer("ChangePhase");
 			PhaseStarted = true;
 		}

@@ -77,7 +77,7 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 		tm = GetComponent<TimerManager>();
 		cm = GetComponent<CoroutineManager>();
 		bc = FindObjectOfType<ExchangeBattlefieldController>();
-		tm.AddAttackTimer("ExchangeTimer", 600);
+		tm.AddTimer("ExchangeTimer", 600);
 	}
 
 	private void FixedUpdate()

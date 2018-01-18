@@ -5,6 +5,7 @@ using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Library;
 using Assets.Scripts.Utilities;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -43,19 +44,23 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	private ExchangeBattlefieldController bc;
 	private ITimerManager tm;
 	private IGridManager gm;
-
-	private Dictionary<int, bool> _actionsDisabled;
+	private ICoroutineManager cm;
+	private IEnumerator _coroutine;
+	private ConcurrentDictionary<int, bool> _actionsDisabled;
+	private Renderer [] _renderers;
 
 	public void Start()
 	{
 		bc = FindObjectOfType<ExchangeBattlefieldController>();
 		tm = FindObjectOfType<TimerManager>();
 		gm = FindObjectOfType<GridManager>();
+		cm = FindObjectOfType<CoroutineManager>();
 		_energy = GetComponent<Energy>();
 		_health = GetComponent<Health>();
 		_mover = GetComponent<Mover>();
 		_status = GetComponent<Status>();
-		_actionsDisabled = new Dictionary<int, bool>();
+		_renderers = GetComponentsInChildren<Renderer>();
+		_actionsDisabled = new ConcurrentDictionary<int, bool>();
 		_actionsDisabled.Add(0, false);
 		_actionsDisabled.Add(1, false);
 		_actionsDisabled.Add(2, false);
@@ -79,11 +84,44 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 		RpcInit(zone, _kit.ActionsNames);
 	}
 
+	public void Hide(float interval)
+	{
+		RpcHide(interval);
+
+		ToggleRenderer(false);
+		_mover.SetRoot(true);
+		cm.StartCoroutineThread_AfterTimout(UnHide, interval, ref _coroutine);
+	}
+
+	[ClientRpc]
+	private void RpcHide(float interval)
+	{
+		_mover.SetRoot(true);
+		DisableAction(true);
+		ToggleRenderer(false);
+		cm.StartCoroutineThread_AfterTimout(UnHide, interval, ref _coroutine);
+	}
+
+	private void UnHide()
+	{
+		DisableAction(false);
+		_mover.SetRoot(false);
+		ToggleRenderer(true);
+	}
+
+	public void ToggleRenderer(bool value)
+	{
+		foreach (var rend in _renderers)
+		{
+			rend.enabled = value;
+		}
+	}
+
 	public void DisableAction(bool disabled, int actionNumber = -1)
 	{
 		if (actionNumber == -1)
 		{
-			foreach (int keyNumber in _actionsDisabled.Keys)
+			foreach (int keyNumber in _actionsDisabled.GetKeysArray())
 			{
 				_actionsDisabled[keyNumber] = disabled;
 			}
@@ -96,11 +134,10 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 
 	public bool Action(int actionNumber)
 	{
-		if (!isLocalPlayer || _actionsDisabled[actionNumber])
+		if (!isLocalPlayer || _actionsDisabled[actionNumber] || !tm.TimerUp("ActionDelay", (int)_zone))
 		{
 			return false;
 		}
-
 		bool success = false;
 		IExchangeAction action = _kit.Actions[actionNumber];
 
@@ -111,6 +148,7 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 			CmdAction(actionNumber);
 			tm.StartTimer(action.Name, (int)_zone);
 			success = true;
+			tm.StartTimer("ActionDelay", (int)_zone);
 		}
 
 		return success;
@@ -172,12 +210,13 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	private void CreateTimersForKitActions(BattlefieldZone zone)
 	{
 		IKit kit = _kit;
+		tm.AddTimer("ActionDelay", 0.1f, (int) zone);
 
 		for (int i = 0; i < kit.Actions.Length; i++)
 		{
 			foreach (IExchangeAction action in kit.Actions)
 			{
-				tm.AddAttackTimer(action.Name, action.Cooldown, (int) zone);
+				tm.AddTimer(action.Name, action.Cooldown, (int) zone);
 			}
 		}
 	}

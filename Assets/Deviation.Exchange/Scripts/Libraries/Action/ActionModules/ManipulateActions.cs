@@ -40,7 +40,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 					attack: new Attack(baseDamage: 15, healthDrainModifier: -1f),
 					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
 					primaryActionName: "Ambush",
-					cooldown: 2f,
+					cooldown: 1f,
 					type: Type
 				),
 				new ExchangeAction

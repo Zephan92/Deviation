@@ -59,18 +59,40 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 
 					System.Action onDelayStart = delegate()
 					{
-						bc.gm.SetGridSpaceColor(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Left, 1), Color.yellow, player.EnemyZone);
-						bc.gm.SetGridSpaceColor(ambushCoordinate, Color.yellow, player.EnemyZone);
-						bc.gm.SetGridSpaceColor(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Right, 1), Color.yellow, player.EnemyZone);
+						if(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Left, 1).Valid())
+						{
+							bc.gm.ResetGridSpaceColor(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Left, 1), player.EnemyZone);
+						}
+
+						if(ambushCoordinate.Valid())
+						{
+							bc.gm.SetGridSpaceColor(ambushCoordinate, Color.yellow, player.EnemyZone);
+						}
+
+						if(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Right, 1).Valid())
+						{
+							bc.gm.SetGridSpaceColor(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Right, 1), Color.yellow, player.EnemyZone);
+						}
 					};
 
 					System.Action onDelayEnd = delegate()
 					{
-						bc.gm.ResetGridSpaceColor(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Left, 1), player.EnemyZone);
-						bc.gm.ResetGridSpaceColor(ambushCoordinate,  player.EnemyZone);
-						bc.gm.ResetGridSpaceColor(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Right, 1), player.EnemyZone);
-
 						List<IExchangePlayer> enemiesHit = new List<IExchangePlayer>();
+
+						if(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Left, 1).Valid())
+						{
+							bc.gm.ResetGridSpaceColor(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Left, 1), player.EnemyZone);
+						}
+
+						if(ambushCoordinate.Valid())
+						{
+							bc.gm.ResetGridSpaceColor(ambushCoordinate,  player.EnemyZone);
+						}
+
+						if(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Right, 1).Valid())
+						{
+							bc.gm.ResetGridSpaceColor(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Right, 1), player.EnemyZone);
+						}
 
 						foreach(var enemy in enemies)
 						{
@@ -85,13 +107,13 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 						attack.InitiateAttack(enemiesHit, AttackAlignment.Enemies);
 					};
 
-					bc.ActionWarning(2f, onDelayStart, onDelayEnd);
-
+					bc.ActionWarning(1f, onDelayStart, onDelayEnd);
+					player.Hide(1f);
 					if(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Down, 1).Valid(player.EnemyZone))
 					{
 						bc.gm.SetGridspaceOccupied(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Down, 1), true, player.EnemyZone);
 					}
-					bc.SpawnActionObject(0.0f, 2f, "PlayerPlaceholder", target.Position, attack, rotation: Quaternion.Euler(target.Rotation.eulerAngles),
+					bc.SpawnActionObject(0.0f, 1f, "PlayerPlaceholder", target.Position, attack, rotation: Quaternion.Euler(target.Rotation.eulerAngles),
 						onDestroyAction: onDestoyMethod);
 				}
 			},

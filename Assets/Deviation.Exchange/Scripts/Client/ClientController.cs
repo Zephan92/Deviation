@@ -29,7 +29,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		public void Awake()
 		{
 			tm = GetComponent<TimerManager>();
-			tm.AddAttackTimer("JoinMatch", 10.5f);
+			tm.AddTimer("JoinMatch", 10.5f);
 
 			cdc = FindObjectOfType<ClientDataController>();
 

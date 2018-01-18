@@ -12,7 +12,7 @@ namespace Assets.Scripts.Utilities
 		private Dictionary<string, IUnityTimer> _timerLibary = new Dictionary<string, IUnityTimer>();
 		
 		//instantiates a new Attack timer and adds it to the timer library
-		public void AddAttackTimer(string TimerName, float Cooldown, int playerNumber = -1)
+		public void AddTimer(string TimerName, float Cooldown, int playerNumber = -1)
 		{
 			if (!_timerLibary.ContainsKey(TimerName + playerNumber))
 				_timerLibary.Add(TimerName + playerNumber, new ActionTimer(Cooldown));
