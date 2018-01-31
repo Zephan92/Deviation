@@ -47,6 +47,7 @@ public class DeviationBuild
 		BuildGameServer(path);
 		UnityEngine.Debug.Log("Finished Building");
 		StartServer();
+		StartClients();
 	}
 
 	[MenuItem("Tools/Deviation/Start Deviation Servers", false, 0)]
@@ -55,6 +56,19 @@ public class DeviationBuild
 		StartMaster();
 		StartSpawner();
 	}
+
+	[MenuItem("Tools/Deviation/Start Deviation Clients", false, 0)]
+	public static void StartClients()
+	{
+		var commandLineArgs = " -test GuestLogin";
+		//var commandLineArgs = " -msfStartMaster -batchmode  -nographics";
+		var exePath = GetServerLocation("DeviationClient");
+		UnityEngine.Debug.Log(exePath + commandLineArgs);
+
+		Process.Start(exePath, commandLineArgs);
+		Process.Start(exePath, commandLineArgs);
+	}
+
 
 	[MenuItem("Tools/Deviation/Start Master Server", false, 11)]
 	public static void StartMaster()

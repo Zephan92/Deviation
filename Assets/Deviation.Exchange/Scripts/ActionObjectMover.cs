@@ -55,6 +55,7 @@ public class ActionObjectMover : NetworkBehaviour
 	private ActionObject _actionObject;
 
 	private bool _warningsEnabled = false;
+	private bool _occupiedEnabled = false;
 	private bool _outOfBounds = false;
 
 	public void Awake()
@@ -64,16 +65,22 @@ public class ActionObjectMover : NetworkBehaviour
 		_actionObject = GetComponent<ActionObject>();
 	}
 
-	public void Init(GridCoordinate currentCoordinate, float movementSpeed, bool warningsEnabled = false)
+	public void Init(GridCoordinate currentCoordinate, float movementSpeed, bool warningsEnabled = false, bool occupiedEnabled = false)
 	{
 		CurrentCoordinate = currentCoordinate;
 		_movementSpeed = movementSpeed;
 		_warningsEnabled = warningsEnabled;
+		_occupiedEnabled = occupiedEnabled;
 		cm.StartFixedCoroutineThread(MovingAction, ref _movingCoroutine);
 
-		if (_warningsEnabled)
+		if (_warningsEnabled && CurrentCoordinate.Valid())
 		{
 			gm.SetGridSpaceColor(CurrentCoordinate, Color.yellow);
+		}
+
+		if (_occupiedEnabled && CurrentCoordinate.Valid())
+		{
+			gm.SetGridspaceOccupied(CurrentCoordinate, true);
 		}
 
 		RpcInit();
@@ -112,9 +119,19 @@ public class ActionObjectMover : NetworkBehaviour
 				gm.ResetGridSpaceColor(CurrentCoordinate);
 			}
 
+			if (_occupiedEnabled && CurrentCoordinate.Valid())
+			{
+				gm.SetGridspaceOccupied(CurrentCoordinate, false);
+			}
+
 			if (_warningsEnabled && newCoordinate.Valid())
 			{
 				gm.SetGridSpaceColor(newCoordinate, Color.yellow);
+			}
+
+			if (_occupiedEnabled && newCoordinate.Valid())
+			{
+				gm.SetGridspaceOccupied(newCoordinate, true);
 			}
 
 			CurrentCoordinate = newCoordinate;
@@ -149,6 +166,15 @@ public class ActionObjectMover : NetworkBehaviour
 
 	public void StopObject()
 	{
+		if (isServer)
+		{
+			StopObjectServer();
+			RpcStopObject(CurrentCoordinate.Position_Vector3());
+		}
+	}
+
+	public void StopObjectServer()
+	{
 		if (_stopped)
 		{
 			return;
@@ -156,13 +182,29 @@ public class ActionObjectMover : NetworkBehaviour
 
 		_stopped = true;
 		cm.StopCoroutineThread(ref _movingCoroutine);
+		transform.position = CurrentCoordinate.Position_Vector3();
 
-		if (isServer)
+		if (_warningsEnabled && CurrentCoordinate.Valid())
 		{
-			if (_warningsEnabled && CurrentCoordinate.Valid())
-			{
-				gm.ResetGridSpaceColor(CurrentCoordinate);
-			}
+			gm.ResetGridSpaceColor(CurrentCoordinate);
 		}
+
+		if (_occupiedEnabled && CurrentCoordinate.Valid())
+		{
+			gm.SetGridspaceOccupied(CurrentCoordinate, false);
+		}
+	}
+
+	[ClientRpc]
+	public void RpcStopObject(Vector3 destination)
+	{
+		if (_stopped)
+		{
+			return;
+		}
+
+		_stopped = true;
+		cm.StopCoroutineThread(ref _movingCoroutine);
+		transform.position = destination;
 	}
 }

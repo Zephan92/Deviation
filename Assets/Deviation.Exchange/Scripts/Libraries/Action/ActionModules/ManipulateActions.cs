@@ -67,7 +67,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 				(
 					id: new Guid("1e14d696-7a90-4271-97e2-fbc8a8c740f8"),
 					name: "Wall Push",
-					attack: new Attack(baseDamage: 40, healthDrainModifier: -0.8f),
+					attack: new Attack(baseDamage: 10),
 					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
 					primaryActionName: "WallPush",
 					cooldown: 3f,

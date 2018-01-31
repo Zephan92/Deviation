@@ -84,31 +84,6 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 		RpcInit(zone, _kit.ActionsNames);
 	}
 
-	public void Hide(float interval)
-	{
-		RpcHide(interval);
-
-		ToggleRenderer(false);
-		_mover.SetRoot(true);
-		cm.StartCoroutineThread_AfterTimout(UnHide, interval, ref _coroutine);
-	}
-
-	[ClientRpc]
-	private void RpcHide(float interval)
-	{
-		_mover.SetRoot(true);
-		DisableAction(true);
-		ToggleRenderer(false);
-		cm.StartCoroutineThread_AfterTimout(UnHide, interval, ref _coroutine);
-	}
-
-	private void UnHide()
-	{
-		DisableAction(false);
-		_mover.SetRoot(false);
-		ToggleRenderer(true);
-	}
-
 	public void ToggleRenderer(bool value)
 	{
 		foreach (var rend in _renderers)

@@ -1,6 +1,7 @@
 ﻿using Assets.Scripts.DTO.Exchange;
 using Assets.Scripts.Enum;
 using Assets.Scripts.Exchange;
+using Assets.Scripts.Exchange.Attacks;
 using Assets.Scripts.Interface;
 using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Interface.Exchange;
@@ -48,20 +49,13 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 					var target = enemies[Random.Range(0, enemies.Count)];
 
 					GridCoordinate ambushCoordinate = target.Mover.CurrentCoordinate;
-
-					System.Action<GameObject> onDestoyMethod = delegate(GameObject actionGo)
-					{
-						if(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Down, 1).Valid(player.EnemyZone))
-						{
-							bc.gm.SetGridspaceOccupied(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Down, 1), false, player.EnemyZone);
-						}
-					};
+					GridCoordinate originalCoordinate = player.Mover.CurrentCoordinate;
 
 					System.Action onDelayStart = delegate()
 					{
 						if(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Left, 1).Valid())
 						{
-							bc.gm.ResetGridSpaceColor(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Left, 1), player.EnemyZone);
+							bc.gm.SetGridSpaceColor(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Left, 1), Color.yellow, player.EnemyZone);
 						}
 
 						if(ambushCoordinate.Valid())
@@ -105,64 +99,76 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 						}
 
 						attack.InitiateAttack(enemiesHit, AttackAlignment.Enemies);
+						player.Mover.Move(originalCoordinate, new Vector3(0,180,0));
 					};
 
 					bc.ActionWarning(1f, onDelayStart, onDelayEnd);
-					player.Hide(1f);
-					if(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Down, 1).Valid(player.EnemyZone))
-					{
-						bc.gm.SetGridspaceOccupied(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Down, 1), true, player.EnemyZone);
-					}
-					bc.SpawnActionObject(0.0f, 1f, "PlayerPlaceholder", target.Position, attack, rotation: Quaternion.Euler(target.Rotation.eulerAngles),
-						onDestroyAction: onDestoyMethod);
+					player.Mover.Move(ambushCoordinate.GetAdjacentGridCoordinate(Direction.Down, 1), new Vector3(0,180,0));
+					player.Status.ApplyEffect(StatusEffect.Silence, 1f);
+					player.Status.ApplyEffect(StatusEffect.Root, 1f);
 				}
 			},
 			{"WallPush", // this method spawns a wall and pushes the opponent to the middle if it hits them dealing some damage
 				delegate (IBattlefieldController bc, IAttack attack, IExchangePlayer player, BattlefieldZone zone)
 				{
-					//IPlayer enemy = player.Enemies[0];
-					//attack.Attacker = player;
-					//attack.Defender = enemy;
-					//attack.InitiateRecoil();
-					//Vector3 origin = ActionUtilities.FindOrigin(enemy);
-					////float originX = origin.x;
-					//float originZ = origin.z;
-					//BattlefieldZone field = enemy.BattlefieldZone;
-					//float timeout = 0.5f;
+					for(int i = 0; i < 5; i++)
+					{
+						int startRow, endRow, column;
 
-					//System.Action<Collider, GameObject, IAttack> onTriggerEnterMethod = delegate(Collider other, GameObject projectile, IAttack thing)
-					//{
-					//	if(other.name.Equals("Player"))
-					//	{
-					//		//Player otherPlayer = other.gameObject.GetComponent<Player>();
-					//		attack.SetDefender(player);
-					//		attack.InitiateDrain();
-					//		if (player.CurrentColumn == -2)
-					//		{
-					//			player.MoveObject(Direction.Right, 2, true);
-					//		}
-					//		else
-					//		{
-					//			player.MoveObject(Direction.Right, 1, true);
-					//		}
-					//		bc.SetBattlefieldState(player.BattlefieldZone, ExchangeUtilities.ConvertToArrayNumber(player.CurrentRow), ExchangeUtilities.ConvertToArrayNumber(player.CurrentColumn), true);
-					//	}
-					//};
+						if(player.EnemyZone == BattlefieldZone.Left)
+						{
+							startRow =  -1;
+							endRow = 1;
+							column = i;
+						}
+						else
+						{
+							startRow =  5;
+							endRow = 3;
+							column = i + 5;
+						}
 
-					//System.Action<GameObject> onStartAction = delegate(GameObject projectile)
-					//{
-					//};
+						var wallLocation = new GridCoordinate(startRow, column, player.EnemyZone);
+						var endLocation =  new GridCoordinate(endRow, column, player.EnemyZone);
 
-					//bc.SpawnProjectile(timeout, "Wall", new Vector3(0,0,originZ), enemy.Transform.rotation, attack, onTriggerEnterMethod, onStartAction);
+						System.Action<GameObject> onStartMethod = delegate(GameObject actionGO)
+						{
+							var mover = actionGO.GetComponent<ActionObjectMover>();
+							mover.Init(wallLocation, 10, true, true);
+						};
 
-					//for(int i = -2; i <= 2; i++)
-					//{
-					//	bc.SetBattlefieldState(field, ExchangeUtilities.ConvertToArrayNumber(i), ExchangeUtilities.ConvertToArrayNumber(-1), true);
-					//	bc.SetBattlefieldState(field, ExchangeUtilities.ConvertToArrayNumber(i), ExchangeUtilities.ConvertToArrayNumber(-2), true);
-					//	bc.SetBattlefieldStateAfterTimout(timeout, field, ExchangeUtilities.ConvertToArrayNumber(i), ExchangeUtilities.ConvertToArrayNumber(-1), false);
-					//	bc.SetBattlefieldStateAfterTimout(timeout, field, ExchangeUtilities.ConvertToArrayNumber(i), ExchangeUtilities.ConvertToArrayNumber(-2), false);
-					//}
+						System.Action<Collider, GameObject, IAttack> onTriggerEnter = delegate(Collider other, GameObject actionGO, IAttack actionAttack)
+						{
+							if(other.tag == "Player")
+							{
+								IExchangePlayer otherPlayer = other.GetComponent<IExchangePlayer>();
+								if(!otherPlayer.Equals(player))
+								{
+									actionAttack.InitiateAttack(new List<IExchangePlayer>{ otherPlayer}, AttackAlignment.Enemies);
+									otherPlayer.Mover.Move(Direction.Left, 1);
+								}
+							}
+						};
 
+						System.Action<GameObject> onUpdate = delegate(GameObject actionGO)
+						{
+							var mover = actionGO.GetComponent<ActionObjectMover>();
+							if(player.EnemyZone == BattlefieldZone.Left && mover.transform.position.z >= endLocation.Row)
+							{
+								mover.StopObject();
+							}
+							else if(player.EnemyZone == BattlefieldZone.Right && mover.transform.position.z <= endLocation.Row)
+							{
+								mover.StopObject();
+							}
+						};
+
+						bc.SpawnActionObject(i / 3f, 2f, "Wall", wallLocation.Position_Vector3(), attack,
+							rotation: Quaternion.Euler(player.Rotation.eulerAngles + new Vector3(0,90,0)),
+							onStartAction: onStartMethod,
+							updateAction: onUpdate,
+							onTriggerAction: onTriggerEnter);
+					}
 				}
 			},
 		};

@@ -21,6 +21,5 @@ public interface IExchangePlayer
 	void Init(int energyMin, int energyMax, float energyRate, int healthMin, int healthMax, BattlefieldZone zone, long playerId, Guid[] actionGuids);
 	bool Action(int actionNumber);
 	void DisableAction(bool disabled, int actionNumber = -1);
-	void Hide(float interval);
 	void ToggleRenderer(bool value);
 }

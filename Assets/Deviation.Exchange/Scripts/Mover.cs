@@ -103,7 +103,7 @@ public class Mover : NetworkBehaviour
 		{
 			_movingDetails = _movingDetailsNext;
 			_movingDetailsNext = null;
-			Move();
+			MoveInternal();
 		}
 	}
 
@@ -120,7 +120,30 @@ public class Mover : NetworkBehaviour
 		_rooted = root;
 	}
 
-	public void Move(Direction direction, int distance, bool force = false)
+	public void Move(GridCoordinate gridCoordinate, Vector3 rotation)
+	{
+		GridCoordinate oldCoordinate = CurrentCoordinate;
+		CurrentCoordinate = gridCoordinate;
+
+		transform.position = gridCoordinate.Position_Vector3();
+		transform.rotation = Quaternion.Euler(rotation + transform.rotation.eulerAngles);
+		if (isServer)
+		{
+			RpcMove(gridCoordinate.Position_Vector3(), rotation);
+		}
+
+		UpdateBattlefield(oldCoordinate, gridCoordinate);
+		_movingDetails = null;
+	}
+
+	[ClientRpc]
+	private void RpcMove(Vector3 destination, Vector3 rotation)
+	{
+		transform.position = destination;
+		transform.rotation = Quaternion.Euler(rotation + transform.rotation.eulerAngles);
+	}
+
+	public void Move(Direction direction, int distance)
 	{
 		GridCoordinate destination;
 
@@ -150,7 +173,7 @@ public class Mover : NetworkBehaviour
 			if (_movingDetails == null)
 			{
 				_movingDetails = new MovingDetails(destination, direction, distance);
-				Move();
+				MoveInternal();
 			}
 			else
 			{
@@ -159,7 +182,7 @@ public class Mover : NetworkBehaviour
 		}
 	}
 
-	public void Move()
+	private void MoveInternal()
 	{
 		Vector3 directionVector;
 
@@ -191,22 +214,34 @@ public class Mover : NetworkBehaviour
 		GridCoordinate oldCoordinate = CurrentCoordinate;
 		CurrentCoordinate = _movingDetails.Destination;
 		transform.position = _movingDetails.Destination.Position_Vector3();
-		CmdUpdateBattlefield(oldCoordinate.Row, oldCoordinate.Column, _movingDetails.Destination.Row, _movingDetails.Destination.Column, _zone);
+		UpdateBattlefield(oldCoordinate, _movingDetails.Destination);
 		_movingDetails = null;
 	}
 
-	[Command]
-	private void CmdUpdateBattlefield(int oldRow, int oldColumn,int newRow, int newColumn, BattlefieldZone zone)
+	private void UpdateBattlefield(GridCoordinate oldCoordinate, GridCoordinate newCoordinate)
 	{
-		GridCoordinate oldCoordinate = new GridCoordinate(oldRow, oldColumn, zone);
-		GridCoordinate newCoordinate = new GridCoordinate(newRow, newColumn, zone);
-		if (!gm.GetGridSpaceDamaged(oldCoordinate, zone))
+		if (isServer)
 		{
-			gm.SetGridspaceOccupied(oldCoordinate, false, zone);
-			gm.ResetGridSpaceColor(oldCoordinate, zone);
-		}
+			if (!gm.GetGridSpaceDamaged(oldCoordinate, oldCoordinate.Zone))
+			{
+				gm.SetGridspaceOccupied(oldCoordinate, false, oldCoordinate.Zone);
+				gm.ResetGridSpaceColor(oldCoordinate, oldCoordinate.Zone);
+			}
 
-		gm.SetGridSpaceColor(newCoordinate, Color.gray, zone);
-		gm.SetGridspaceOccupied(newCoordinate, true, zone);
+			gm.SetGridSpaceColor(newCoordinate, Color.gray, newCoordinate.Zone);
+			gm.SetGridspaceOccupied(newCoordinate, true, newCoordinate.Zone);
+		}
+		else if(isClient)
+		{
+			CmdUpdateBattlefield(oldCoordinate.Row, oldCoordinate.Column, oldCoordinate.Zone, newCoordinate.Row, newCoordinate.Column, newCoordinate.Zone);
+		}
+	}
+
+	[Command]
+	private void CmdUpdateBattlefield(int oldRow, int oldColumn, BattlefieldZone oldZone, int newRow, int newColumn, BattlefieldZone newZone)
+	{
+		GridCoordinate oldCoordinate = new GridCoordinate(oldRow, oldColumn, oldZone);
+		GridCoordinate newCoordinate = new GridCoordinate(newRow, newColumn, newZone);
+		UpdateBattlefield(oldCoordinate, newCoordinate);
 	}
 }

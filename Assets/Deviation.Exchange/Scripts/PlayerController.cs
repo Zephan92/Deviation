@@ -77,31 +77,25 @@ public class PlayerController : NetworkBehaviour
 
 	private void CheckForUserAction()
 	{
-		bool success = false;
-
 		if (InputWrapper.GetKeyDown(KeyCode.Q))
 		{
-			success = Player.Action(0);
+			Player.Action(0);
 		}
 		else if (InputWrapper.GetKeyDown(KeyCode.W))
 		{
-			success = Player.Action(1);
+			Player.Action(1);
 		}
 		else if (InputWrapper.GetKeyDown(KeyCode.E))
 		{
-			success = Player.Action(2);
+			Player.Action(2);
 		}
 		else if (InputWrapper.GetKeyDown(KeyCode.R))
 		{
-			success = Player.Action(3);
+			Player.Action(3);
 		}
 		else if (InputWrapper.GetKeyDown(KeyCode.Escape))
 		{
 			CmdReset();
-		}
-
-		if (success)
-		{
 		}
 	}
 
