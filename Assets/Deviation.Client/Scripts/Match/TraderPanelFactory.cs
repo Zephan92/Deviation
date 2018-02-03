@@ -15,16 +15,16 @@ namespace Assets.Deviation.Client.Scripts
 
 	public enum TraderType
 	{
-		Alpha,
-		Beta,
-		Gamma,
-		Delta,
-		Epsilon
+		Alpha = 0,
+		Beta = 1,
+		Gamma = 2,
+		Delta = 3,
+		Epsilon = 4
 	}
 
 	public class TraderPanelFactory : MonoBehaviour
 	{
-		public static GameObject CreateTraderPanel(TraderDisplaySide side, ITrader trader, GameObject parent, UnityAction action, UnityAction<ITrader> onChosenEvent)
+		public static GameObject CreateTraderPanel(TraderDisplaySide side, ITrader trader, GameObject parent, UnityAction onClickAction)
 		{
 			string resource;
 			if (side == TraderDisplaySide.LeftSide)
@@ -37,8 +37,7 @@ namespace Assets.Deviation.Client.Scripts
 			}
 			var traderPanel = Instantiate(Resources.Load(resource), parent.transform) as GameObject;
 			var traderDetailsObject = traderPanel.GetComponent<TraderDetailsPanel>();
-			traderDetailsObject.UpdateTraderDetails(trader, action);
-			traderDetailsObject.OnChosenEvent += onChosenEvent;
+			traderDetailsObject.UpdateTraderDetails(trader, onClickAction);
 			return traderPanel;
 		}
 

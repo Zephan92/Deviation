@@ -6,18 +6,24 @@ namespace Assets.Deviation.Client.Scripts.Match
 {
 	public class TraderDetailsPanel : MonoBehaviour
 	{
+		//get these dynamicly
 		public Text Name;
 		public Text Title;
 		public Text Type;
 		public Text Description;
 		public Button OnClick;
-		public ITrader Trader;
 		public Image Image;
-		private bool _enabled;
-		public bool Chosen;
-		public UnityAction<ITrader> OnChosenEvent;
 
-		public void UpdateTraderDetails(ITrader trader, UnityAction action = null)
+		public ITrader Trader;
+		public bool Chosen;
+		private bool _enabled;
+
+		public void Awake()
+		{
+			
+		}
+
+		public void UpdateTraderDetails(ITrader trader, UnityAction onClickAction = null)
 		{
 			Trader = trader;
 
@@ -43,8 +49,13 @@ namespace Assets.Deviation.Client.Scripts.Match
 
 			if (OnClick != null)
 			{
-				OnClick.onClick.AddListener(action);
-				OnClick.onClick.AddListener(OnChosen);
+				OnClick.onClick.AddListener(onClickAction);
+				OnClick.onClick.AddListener(Choose);
+			}
+
+			if (Image != null)
+			{
+
 			}
 		}
 
@@ -67,12 +78,11 @@ namespace Assets.Deviation.Client.Scripts.Match
 			}
 		}
 
-		public void OnChosen()
+		public void Choose()
 		{
 			Chosen = true;
 			OnClick.enabled = false;
 			Image.color = Color.yellow;
-			OnChosenEvent(Trader);
 		}
 
 		public void Unchoose()

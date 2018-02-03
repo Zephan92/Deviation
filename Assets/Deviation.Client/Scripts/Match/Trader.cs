@@ -12,6 +12,7 @@ namespace Assets.Deviation.Client.Scripts
 		string Title { get; set; }
 		TraderType Type { get; set; }
 		string Description { get; set; }
+		Guid Guid { get; set; }
 	}
 
 	public class Trader : ITrader
@@ -20,13 +21,15 @@ namespace Assets.Deviation.Client.Scripts
 		public string Title { get; set; }
 		public TraderType Type { get; set; }
 		public string Description { get; set; }
+		public Guid Guid { get; set; }
 
-		public Trader(string name, string title, TraderType type, string description)
+		public Trader(string name, string title, TraderType type, string description, Guid guid)
 		{
 			Name = name;
 			Title = title;
 			Type = type;
 			Description = description;
+			Guid = guid;
 		}
 	}
 }

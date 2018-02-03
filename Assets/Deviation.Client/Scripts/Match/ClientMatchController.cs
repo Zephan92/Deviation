@@ -1,70 +1,106 @@
-﻿using Assets.Deviation.Client.Scripts.Match;
-using Assets.Deviation.Client.Scripts.UserInterface;
+﻿using Assets.Deviation.Client.Scripts;
+using Assets.Deviation.Client.Scripts.Match;
 using Assets.Scripts.Interface;
 using Assets.Scripts.Utilities;
 using Barebones.MasterServer;
 using Barebones.Networking;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 namespace Assets.Deviation.Exchange.Scripts.Client
 {
 	public enum ClientMatchState
 	{
 		Start = 0,
-		ChooseCharacter = 1,
+		ChooseTrader = 1,
 		ChooseActions = 2,
-		End = 3
+		Summary = 3,
+		End = 4
 	}
 
 	public class ClientMatchController : MonoBehaviour
 	{
-		public ClientMatchState State;
+		//Public
+		public GameObject MatchUis;
+		public ClientMatchState State
+		{
+			get
+			{
+				return _state;
+			}
+			set
+			{
+				_state = value;
 
-		public Text TimerText;
-		public Text TitleText;
-		public Button ReadyButton;
-		private TraderDisplayController tpc;
+				if (OnClientMatchStateChange != null)
+				{
+					OnClientMatchStateChange(value);
+				}
+			}
+		}
+		public UnityAction<ClientMatchState> OnClientMatchStateChange;
+
+		//Private
+		private ClientMatchState _state;
+		private GameObject _activeUI;
+		private ITrader _chosenTrader;
+
+		//Controllers
 		private ClientDataController cdc;
 		private ITimerManager tm;
-		 
-		public void Start()
+
+		private StartUIController StartUI;
+		private ChooseTraderUIController ChooseTraderUI;
+		private ChooseActionsUIController ChooseActionsUI;
+		private SummaryUIController SummaryUI;
+		private EndUIController EndUI;
+
+		public void Awake()
 		{
 			tm = FindObjectOfType<TimerManager>();
 			cdc = FindObjectOfType<ClientDataController>();
-			tpc = GetComponent<TraderDisplayController>();
+			StartUI = MatchUis.GetComponentInChildren<StartUIController>();//this doesn't work
+			ChooseTraderUI = MatchUis.GetComponentInChildren<ChooseTraderUIController>();
+			ChooseActionsUI = MatchUis.GetComponentInChildren<ChooseActionsUIController>();
+			SummaryUI = MatchUis.GetComponentInChildren<SummaryUIController>();
+			EndUI = MatchUis.GetComponentInChildren<EndUIController>();
+			
+			tm.AddTimer(ClientMatchState.ChooseTrader.ToString(), 30);
+			tm.AddTimer(ClientMatchState.ChooseActions.ToString(), 60);
 
+			if (ChooseTraderUI != null)
+			{
+				ChooseTraderUI.OnConfirmTrader += ConfirmTrader;
+			}
+
+			OnClientMatchStateChange += OnClientMatchStateChangeMethod;
 			State = ClientMatchState.Start;
+		}
 
+		public void Start()
+		{
+			//TODO this needs some work
 			if (cdc != null)
 			{
 				cdc.State = ClientState.Match;
 
 				if (cdc.PlayerAccount != null)
 				{
-					ReadyButton.interactable = true;
+					//ReadyButton.interactable = true;
 				}
 				else
 				{
 					cdc.PlayerAccountRecieved += () =>
 					{
-						ReadyButton.interactable = true;
+						//ReadyButton.interactable = true;
 					};
-				}	
+				}
 			}
 
-			State = ClientMatchState.ChooseCharacter;
-			tm.AddTimer("ChooseCharacter", 30);
-			tm.AddTimer("ChooseActions", 60);
-			tm.RestartTimer("ChooseCharacter");
-			TitleText.text = "Choose Your Character!";
+			//hide this
 			if (UnityEngine.Debug.isDebugBuild && !Application.isEditor)
 			{
 				var testArgs = Msf.Args.ExtractValue("-test");
@@ -73,58 +109,87 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 					StartCoroutine(Test());
 				}
 			}
+
+			State = ClientMatchState.ChooseTrader;
 		}
 
-		private IEnumerator Test()
+		private void OnClientMatchStateChangeMethod(ClientMatchState state)
 		{
-			yield return new WaitForSeconds(1f);
-			if (UnityEngine.Debug.isDebugBuild)
-				Ready();
+			//turn off old UI
+			if (_activeUI != null)
+			{
+				_activeUI.SetActive(false);
+			}
+
+			//turn on current UI
+			Transform currentUI = MatchUis.transform.GetChild((int)state);
+			if (currentUI != null)
+			{
+				_activeUI = currentUI.gameObject;
+				_activeUI.SetActive(true);
+			}
+
+			switch (state)
+			{
+				case ClientMatchState.Start:
+					break;
+				case ClientMatchState.ChooseTrader:
+					tm.RestartTimer(state.ToString());
+					break;
+				case ClientMatchState.ChooseActions:
+					tm.RestartTimer(state.ToString());
+					break;
+				case ClientMatchState.Summary:
+					State = ClientMatchState.End;
+					break;
+				case ClientMatchState.End:
+					break;
+			}
 		}
 
 		public void FixedUpdate()
+		{
+			CheckClientMatch();
+		}
+
+		private void CheckClientMatch()
 		{
 			switch (State)
 			{
 				case ClientMatchState.Start:
 					break;
-				case ClientMatchState.ChooseCharacter:
+				case ClientMatchState.ChooseTrader:
 					tm.UpdateCountdowns();
-					TimerText.text = ((int) tm.GetRemainingCooldown("ChooseCharacter")).ToString();
-					if (tm.TimerUp("ChooseCharacter"))
+					if (tm.TimerUp(State.ToString()))
 					{
-						State = ClientMatchState.ChooseActions;
-						tm.RestartTimer("ChooseActions");
-						TitleText.text = "Choose Your Actions!";
+						Debug.LogError("This should probably punt you from this match");
+						//State = ClientMatchState.ChooseActions;
 					}
 					break;
 				case ClientMatchState.ChooseActions:
 					tm.UpdateCountdowns();
-					TimerText.text = ((int) tm.GetRemainingCooldown("ChooseActions")).ToString();
-					if (tm.TimerUp("ChooseActions"))
+					if (tm.TimerUp(State.ToString()))
 					{
 						State = ClientMatchState.End;
 					}
 					break;
 				case ClientMatchState.End:
 					break;
-
 			}
 		}
 
-		public void ConfirmTrader()
+		private void ConfirmTrader(ITrader trader)
 		{
 			State = ClientMatchState.ChooseActions;
-			tm.RestartTimer("ChooseActions");
-			TitleText.text = "Choose Your Actions!";
-			tpc.OnConfirmTrader();
+			_chosenTrader = trader;
 		}
 
+		//TODO
 		public void Ready()
 		{
 			if (cdc.State == ClientState.Match && cdc.Exchange != null)
 			{
-				Guid characterGuid = GetPlayerCharacter();
+				Guid characterGuid = _chosenTrader.Guid;
 				ActionModulePacket module = GetPlayerActionModule();
 				InitExchangePlayerPacket packet = new InitExchangePlayerPacket(cdc.Exchange.ExchangeId, cdc.PlayerAccount, characterGuid, module);
 
@@ -135,24 +200,21 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 					}
 					else if(response == ResponseStatus.Success)
 					{
-						ReadyButton.interactable = false;
+						//ReadyButton.interactable = false;
 						StartCoroutine(StartExchange());
 					}
 				});
 			}
 		}
 
+		//TODO
 		private IEnumerator StartExchange()
 		{
 			yield return new WaitUntil(() => cdc.RoomId != -1);
 			SceneManager.LoadScene("DeviationStandalone");
 		}
 
-		private Guid GetPlayerCharacter()
-		{
-			return Guid.NewGuid();
-		}
-
+		//TODO
 		private ActionModulePacket GetPlayerActionModule()
 		{
 			var q = new Guid("688b267a-fde1-4250-91a0-300aa3343147");//ShockWave
@@ -164,6 +226,14 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			var r = new Guid("36a1cf13-8b79-4800-8574-7cec0c405594");//Small Projectile
 			//this would go get the actions the player chose
 			return new ActionModulePacket(q, w, e, r);
+		}
+
+		//Rename rework
+		private IEnumerator Test()
+		{
+			yield return new WaitForSeconds(1f);
+			if (UnityEngine.Debug.isDebugBuild)
+				Ready();
 		}
 	}
 }
