@@ -12,11 +12,6 @@ using UnityEngine.UI;
 
 namespace Assets.Deviation.Client.Scripts.Match
 {
-	public abstract class UIController : MonoBehaviour
-	{
-
-	}
-
 	public enum ChooseTraderUIState
 	{
 		Start = 0,
@@ -58,18 +53,13 @@ namespace Assets.Deviation.Client.Scripts.Match
 		private ITrader _selectedTrader;
 		private bool[] _traderListFiltersEnabled = new bool[5];
 		private List<GameObject> _traderListPanels;
-		private int _traderCount;
 
 		private const int Max_Item_Before_Scroll = 7;
 		private const float Item_Height = 80;
 
-		private ClientMatchController cmc;
-		private ITimerManager tm;
-
-		public void Awake()
+		public override void Awake()
 		{
-			cmc = FindObjectOfType<ClientMatchController>();
-			tm = FindObjectOfType<TimerManager>();
+			base.Awake();
 			OnUIStateChange += OnUIStateChangeMethod;
 			onListChange += TraderList.OnListChange;
 			SearchTradersList.onValueChanged.AddListener(FilterOnSearch);
@@ -106,7 +96,7 @@ namespace Assets.Deviation.Client.Scripts.Match
 			UIState = ChooseTraderUIState.Start;
 		}
 
-		public void Update()
+		public override void Update()
 		{
 			ChooseTraderTimer.text = ((int)tm.GetRemainingCooldown(ClientMatchState.ChooseTrader.ToString())).ToString();
 		}
@@ -128,10 +118,12 @@ namespace Assets.Deviation.Client.Scripts.Match
 			switch (state)
 			{
 				case ChooseTraderUIState.Start:
+					RebuildTraderList();
 					break;
 				case ChooseTraderUIState.TraderSelected:
 					break;
 				case ChooseTraderUIState.TraderConfirmed:
+					cmc.State = ClientMatchState.ChooseActions;
 					break;
 			}
 		}
@@ -282,7 +274,7 @@ namespace Assets.Deviation.Client.Scripts.Match
 		private void ToggleButtonColor(bool filterEnabled, TraderType type)
 		{
 			ColorBlock colors = TraderListFilters[(int)type].colors;
-			if (!filterEnabled)
+			if (filterEnabled)
 			{
 				colors.normalColor = Color.white;
 				colors.pressedColor = Color.white;

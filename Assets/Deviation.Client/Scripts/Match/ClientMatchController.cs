@@ -162,7 +162,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 					tm.UpdateCountdowns();
 					if (tm.TimerUp(State.ToString()))
 					{
-						Debug.LogError("This should probably punt you from this match");
+						Debug.Log("This should probably punt you from this match");
 						//State = ClientMatchState.ChooseActions;
 					}
 					break;
