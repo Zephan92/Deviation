@@ -15,12 +15,13 @@ public class DeviationBuild
 	public static string ClientLogin = "Assets/Deviation.Client/DeviationClient - Login.unity";
 	public static string Client = "Assets/Deviation.Client/DeviationClient - Client.unity";
 	public static string ClientMatch = "Assets/Deviation.Client/DeviationClient - Match.unity";
+	public static string ClientExchange = "Assets/Deviation.Client/DeviationClient - Exchange.unity";
+	public static string ClientResults = "Assets/Deviation.Client/DeviationClient - Results.unity";
 
-	public static string Standalone = "Assets/Deviation.Client/DeviationStandalone.unity";
 	public static string MasterServer = "Assets/Deviation.MasterServer/MasterServer.unity";
-	public static string Exchange1v1Scene = "Assets/Deviation.Exchange/Exchange.1v1/GameServer/Scenes/1v1Exchange.unity";
-	public static string Exchange1v1SpawnerServer = "Assets/Deviation.Exchange/Exchange.1v1/GameServer/Scenes/1v1ExchangeSpawnerServer.unity";
-	public static string Exchange1v1GameServer = "Assets/Deviation.Exchange/Exchange.1v1/GameServer/Scenes/1v1ExchangeGameServer.unity";
+	public static string Exchange1v1Scene = "Assets/Deviation.Exchange/1v1Exchange.unity";
+	public static string Exchange1v1SpawnerServer = "Assets/Deviation.SpawnerServer/1v1ExchangeSpawnerServer.unity";
+	public static string Exchange1v1GameServer = "Assets/Deviation.GameServer/1v1ExchangeGameServer.unity";
 
 	public static BuildTarget TargetPlatform = BuildTarget.StandaloneWindows;
 
@@ -171,7 +172,9 @@ public class DeviationBuild
 			ClientLogin,
 			Client,
 			ClientMatch,
-			Standalone,
+			ClientExchange,
+			ClientResults,
+
 			Exchange1v1Scene,
 		};
 

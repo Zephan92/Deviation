@@ -55,7 +55,7 @@ namespace Assets.Scripts.Exchange.Display
 			int i = 0;
 
 			GUI.BeginGroup(new Rect(details.Position, details.Size));
-			GUI.DrawTexture(new Rect(Vector2.zero, details.Size), details.OuterTexture);
+			GUI.DrawTexture(new Rect(Vector2.zero, details.Size), details.OuterTexture);//warning null textures
 			
 			foreach (Texture2D actionTexture in details.ActionTextures)
 			{

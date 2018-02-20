@@ -56,7 +56,6 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		private List<IExchangeAction> _actions;
 
 		//Controllers
-		private ClientDataController cdc;
 		private ITimerManager tm;
 
 		private StartUIController StartUI;
@@ -68,7 +67,6 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		public void Awake()
 		{
 			tm = FindObjectOfType<TimerManager>();
-			cdc = FindObjectOfType<ClientDataController>();
 			
 			tm.AddTimer(ClientMatchState.ChooseTrader.ToString(), 30);
 			tm.AddTimer(ClientMatchState.ChooseActions.ToString(), 60);
@@ -79,23 +77,21 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 
 		public void Start()
 		{
-			//TODO this needs some work
-			if (cdc != null)
-			{
-				cdc.State = ClientState.Match;
 
-				if (cdc.PlayerAccount != null)
+			ClientDataController.Instance.State = ClientState.Match;
+
+			if (ClientDataController.Instance.PlayerAccount != null)
+			{
+				//ReadyButton.interactable = true;
+			}
+			else
+			{
+				ClientDataController.Instance.PlayerAccountRecieved += () =>
 				{
 					//ReadyButton.interactable = true;
-				}
-				else
-				{
-					cdc.PlayerAccountRecieved += () =>
-					{
-						//ReadyButton.interactable = true;
-					};
-				}
+				};
 			}
+			
 
 			if (Debug.isDebugBuild && !Application.isEditor)
 			{
@@ -233,14 +229,13 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			return _chosenTrader;
 		}
 
-		//TODO
 		public void Ready()
 		{
-			if (cdc.State == ClientState.Match && cdc.Exchange != null)
+			if (ClientDataController.Instance.State == ClientState.Match && ClientDataController.Instance.Exchange != null)
 			{
 				Guid characterGuid = _chosenTrader.Guid;
 				ActionModulePacket module = GetPlayerActionModule();
-				InitExchangePlayerPacket packet = new InitExchangePlayerPacket(cdc.Exchange.ExchangeId, cdc.PlayerAccount, characterGuid, module);
+				InitExchangePlayerPacket packet = new InitExchangePlayerPacket(ClientDataController.Instance.Exchange.ExchangeId, ClientDataController.Instance.PlayerAccount, characterGuid, module);
 
 				Msf.Client.Connection.SendMessage((short)ExchangePlayerOpCodes.CreateExchangeData, packet, (response, error) => {
 					if (response == ResponseStatus.Error)
@@ -259,8 +254,8 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		//TODO
 		private IEnumerator StartExchange()
 		{
-			yield return new WaitUntil(() => cdc.RoomId != -1);
-			SceneManager.LoadScene("DeviationStandalone");
+			yield return new WaitUntil(() => ClientDataController.Instance.RoomId != -1);
+			SceneManager.LoadScene("DeviationClient - Exchange");
 		}
 
 		private ActionModulePacket GetPlayerActionModule()

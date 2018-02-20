@@ -26,6 +26,7 @@ public class ExchangeNetworkManager : NetworkManager
 		GameRoom.PlayerJoined += OnPlayerJoined;
 		GameRoom.PlayerLeft += OnPlayerLeft;
 		GameRoom.ServerFull += OnServerFull;
+		GameRoom.ServerEmpty += OnServerEmpty;
 	}
 
 	private void OnPlayerJoined(UnetMsfPlayer player)
@@ -36,9 +37,17 @@ public class ExchangeNetworkManager : NetworkManager
 		var playerGameObject = Instantiate(prefabPlayerGameObject);
 		playerGameObject.GetComponent<ExchangePlayer>().PeerId = player.PeerId;
 		NetworkServer.AddPlayerForConnection(player.Connection, playerGameObject, (short)player.PeerId);
-
+		
 		playercount++;
 		//Debug.LogError(playercount + "/" + GameRoom.MaxPlayers + " Players");
+	}
+
+	public override void OnServerDisconnect(NetworkConnection conn)
+	{
+		base.OnServerDisconnect(conn);
+
+		// Don't forget to notify the room that a player disconnected
+		GameRoom.ClientDisconnected(conn);
 	}
 
 	private void OnPlayerLeft(UnetMsfPlayer player)

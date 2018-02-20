@@ -54,14 +54,14 @@ namespace Assets.Scripts.ModuleEditor
 					Vector2 newPos = new Vector2(x,y);
 					transform.position = newPos;
 					transform.SetParent(snap.transform, true);
-					_currentSnapPoint.IsOccupied = false;//todo
-					_currentSnapPoint = snap;
-					_currentSnapPoint.IsOccupied = true;
+					//_currentSnapPoint.IsOccupied = false;//todo
+					//_currentSnapPoint = snap;
+					//_currentSnapPoint.IsOccupied = true;
 					return;
 				}
 			}
 
-			transform.parent = _origParent;
+			transform.SetParent(_origParent);
 			transform.position = _oldPos;
 		}
 	}

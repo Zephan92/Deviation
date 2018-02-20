@@ -78,7 +78,6 @@ namespace Assets.Deviation.Exchange.Scripts
 			PlayersByConnectionId = new Dictionary<int, UnetMsfPlayer>();
 
 			NetworkServer.RegisterHandler(AccessMsgType, HandleReceivedAccess);
-
 			Msf.Server.Rooms.Connection.Disconnected += OnDisconnectedFromMaster;
 		}
 
@@ -250,8 +249,10 @@ namespace Assets.Deviation.Exchange.Scripts
 		/// <param name="connection"></param>
 		public void ClientDisconnected(NetworkConnection connection)
 		{
+
 			UnetMsfPlayer player;
 			PlayersByConnectionId.TryGetValue(connection.connectionId, out player);
+			Debug.LogError("Player Disconnected: " + player);
 
 			if (player == null)
 				return;
@@ -289,7 +290,6 @@ namespace Assets.Deviation.Exchange.Scripts
 					Logger.Debug("Got peer account info: " + info);
 
 					var player = new UnetMsfPlayer(netmsg.conn, info);
-
 					OnPlayerJoined(player);
 				});
 			});
@@ -315,6 +315,7 @@ namespace Assets.Deviation.Exchange.Scripts
 
 		protected virtual void OnPlayerLeft(UnetMsfPlayer player)
 		{
+			Debug.LogError("Player Left: " + player);
 			// Remove from lookups
 			PlayersByPeerId.Remove(player.PeerId);
 			PlayersByUsername.Remove(player.Username);
@@ -328,7 +329,8 @@ namespace Assets.Deviation.Exchange.Scripts
 
 			if (PlayersByPeerId.Count == 0)
 			{
-				ServerEmpty.Invoke();
+				if (ServerEmpty != null)
+					ServerEmpty.Invoke();
 			}
 		}
 

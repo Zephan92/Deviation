@@ -24,7 +24,7 @@ public class Mover : NetworkBehaviour
 	{
 		if (isClient)
 		{
-			CmdUpdateRow(value);
+			CmdUpdateRow(value);//uh oh someone is calling this without permisssion
 		}
 
 		_currentRow = value;
@@ -41,7 +41,7 @@ public class Mover : NetworkBehaviour
 	{
 		if (isClient)
 		{
-			CmdUpdateColumn(value);
+			CmdUpdateColumn(value);//uh oh someone is calling this without permisssion
 		}
 		
 		_currentColumn = value;
@@ -79,7 +79,7 @@ public class Mover : NetworkBehaviour
 	{
 		if (isClient)
 		{
-			CmdUpdateZone(value);
+			CmdUpdateZone(value);//uh oh someone is calling this without permisssion
 		}
 
 		_zone = value;

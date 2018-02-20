@@ -5,21 +5,41 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Assets.Deviation.Exchange.Scripts.Client
 {
 	public enum ClientState
 	{
+		Default = -1,
 		Login = 0,
 		Client = 1,
 		Match = 2,
+		Results = 3,
 	}
 
 	public class ClientDataController : MonoBehaviour
 	{
-		public static ClientDataController instance = null;
+		public static ClientDataController Instance = null;
 
-		public ClientState State = ClientState.Login;
+		public ClientState _state = ClientState.Default;
+		public ClientState State
+		{
+			get
+			{
+				return _state;
+			}
+			set
+			{
+				_state = value;
+
+				if (OnClientDataStateChange != null)
+				{
+					OnClientDataStateChange(value);
+				}
+			}
+		}
+		public UnityAction<ClientState> OnClientDataStateChange;
 
 		private PlayerAccountPacket _playerAccount;
 		public PlayerAccountPacket PlayerAccount
@@ -48,17 +68,35 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		{
 			InstanceExists();
 			PlayerAccountRecieved += () => { };
-
+			OnClientDataStateChange += OnClienDataStateChange;
 			Msf.Client.SetHandler((short)Exchange1v1MatchMakingOpCodes.RespondRoomId, HandleReceiveRoomId);
+		}
+
+		private void OnClienDataStateChange(ClientState state)
+		{
+			switch (state)
+			{
+				case ClientState.Default:
+					break;
+				case ClientState.Login:
+					break;
+				case ClientState.Client:
+					break;
+				case ClientState.Match:
+					break;
+				case ClientState.Results:
+					Destroy(gameObject);
+					break;
+			}
 		}
 
 		public void InstanceExists()
 		{
-			if (instance == null)
+			if (Instance == null)
 			{
-				instance = this;
+				Instance = this;
 			}
-			else if (instance != this)
+			else if (Instance != this)
 			{
 				Destroy(gameObject);
 			}
@@ -79,7 +117,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 
 		public void HandleReceiveRoomId(IIncommingMessage message)
 		{
-			instance.RoomId = message.AsInt();
+			Instance.RoomId = message.AsInt();
 		}
 
 		public void GetPlayerAccount()

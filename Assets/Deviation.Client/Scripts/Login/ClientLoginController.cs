@@ -15,11 +15,10 @@ public class ClientLoginController : MonoBehaviour
 
 	private EventSystem system;
 	private Button[] buttons;
-	private ClientDataController cdc;
 
 	void Start()
 	{
-		cdc = FindObjectOfType<ClientDataController>();
+		ClientDataController.Instance.State = ClientState.Login;
 		system = EventSystem.current;
 
 		if (PlayerPrefs.HasKey("RememberUsername"))
@@ -116,7 +115,7 @@ public class ClientLoginController : MonoBehaviour
 		Msf.Client.Auth.LogInAsGuest((successful, error) =>
 		{
 			UnityEngine.Debug.Log("Is successful: " + successful + "; Error (if exists): " + error);
-			cdc.GetPlayerAccount();
+			ClientDataController.Instance.GetPlayerAccount();
 			SceneManager.LoadScene("DeviationClient - Client");
 		});
 	}
