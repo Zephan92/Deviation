@@ -7,14 +7,14 @@ using Assets.Scripts.Enum;
 
 namespace Assets.Scripts.Library.Action.ActionModules
 {
-	public class ElementalActions : IActionLibraryModule
+	public class AlphaActions : IActionLibraryModule
 	{
 		public Dictionary<string, IExchangeAction> Actions_ByName { get; set; }
 		public Dictionary<Guid, IExchangeAction> Actions_ByGuid { get; set; }
 
-		public ModuleType Type { get{return ModuleType.Elemental;}}
+		public TraderType Type { get{return TraderType.Alpha;}}
 
-		public ElementalActions()
+		public AlphaActions()
 		{
 			Actions_ByName = new Dictionary<string, IExchangeAction>();
 			Actions_ByGuid = new Dictionary<Guid, IExchangeAction>();

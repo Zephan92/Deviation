@@ -39,8 +39,8 @@ namespace Assets.Scripts.Exchange.Display
 		private ProgressBarDetails player1energyBar;
 		private ProgressBarDetails player1healthBar;
 
-		private ProgressBarDetails player2energyBar;
-		private ProgressBarDetails player2healthBar;
+		//private ProgressBarDetails player2energyBar;
+		//private ProgressBarDetails player2healthBar;
 
 		private Canvas exchangeCanvas;
 
@@ -65,8 +65,8 @@ namespace Assets.Scripts.Exchange.Display
 			exchangeTimer = new ExchangeTimer();
 			player1energyBar = new ProgressBarDetails(outlineTex, emptyTex, fullEnergyTex, HealthPosition, BarSize);
 			player1healthBar = new ProgressBarDetails(outlineTex, emptyTex, fullHealthTex, EnergyPosition, BarSize);
-			player2energyBar = new ProgressBarDetails(outlineTex, emptyTex, fullEnergyTex, HealthPosition1, BarSize);
-			player2healthBar = new ProgressBarDetails(outlineTex, emptyTex, fullHealthTex, EnergyPosition1, BarSize);
+			//player2energyBar = new ProgressBarDetails(outlineTex, emptyTex, fullEnergyTex, HealthPosition1, BarSize);
+			//player2healthBar = new ProgressBarDetails(outlineTex, emptyTex, fullHealthTex, EnergyPosition1, BarSize);
 			exchangeTimerDetails = new ExchangeTimerDetails(outlineTex, ExchangeTimerPosition, ExchangeTimerSize);
 		}
 
@@ -158,8 +158,8 @@ namespace Assets.Scripts.Exchange.Display
 		{
 			player1energyBar = new ProgressBarDetails(outlineTex, emptyTex, fullEnergyTex, HealthPosition, BarSize);
 			player1healthBar = new ProgressBarDetails(outlineTex, emptyTex, fullHealthTex, EnergyPosition, BarSize);
-			player2energyBar = new ProgressBarDetails(outlineTex, emptyTex, fullEnergyTex, HealthPosition1, BarSize);
-			player2healthBar = new ProgressBarDetails(outlineTex, emptyTex, fullHealthTex, EnergyPosition1, BarSize);
+			//player2energyBar = new ProgressBarDetails(outlineTex, emptyTex, fullEnergyTex, HealthPosition1, BarSize);
+			//player2healthBar = new ProgressBarDetails(outlineTex, emptyTex, fullHealthTex, EnergyPosition1, BarSize);
 			actionTextures = new Texture2D[4]
 			{
 				_currentPlayer.Kit.Actions[0].ActionTexture,

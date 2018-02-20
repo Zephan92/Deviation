@@ -56,7 +56,6 @@ public class ActionObjectMover : NetworkBehaviour
 
 	private bool _warningsEnabled = false;
 	private bool _occupiedEnabled = false;
-	private bool _outOfBounds = false;
 
 	public void Awake()
 	{

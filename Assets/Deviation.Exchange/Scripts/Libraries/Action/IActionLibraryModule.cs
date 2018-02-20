@@ -11,6 +11,6 @@ namespace Assets.Scripts.Library.Action
 	{
 		Dictionary<Guid, IExchangeAction> Actions_ByGuid { get; }
 		Dictionary<string, IExchangeAction> Actions_ByName { get; }
-		ModuleType Type { get; }
+		TraderType Type { get; }
 	}
 }

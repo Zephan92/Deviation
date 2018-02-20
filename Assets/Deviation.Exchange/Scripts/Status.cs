@@ -18,7 +18,7 @@ public class Status : NetworkBehaviour
 
 	public void Start()
 	{
-		statusEffectsDict = new Dictionary<StatusEffect, IEnumerator>();
+		statusEffectsDict = new Dictionary<StatusEffect, IEnumerator>();//should use this lol
 		cm = FindObjectOfType<CoroutineManager>();
 		_energy = GetComponent<Energy>();
 		_health = GetComponent<Health>();

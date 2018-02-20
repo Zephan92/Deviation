@@ -70,7 +70,7 @@ public class Mover : NetworkBehaviour
 	private MovingDetails _movingDetails;
 	private MovingDetails _movingDetailsNext;
 
-	private ICoroutineManager cm;
+	//private ICoroutineManager cm;
 	private IGridManager gm;
 
 	private BattlefieldZone _zone;
@@ -94,7 +94,7 @@ public class Mover : NetworkBehaviour
 	public void Awake()
 	{
 		gm = FindObjectOfType<GridManager>();
-		cm = FindObjectOfType<CoroutineManager>();	
+		//cm = FindObjectOfType<CoroutineManager>();	
 	}
 
 	public void FixedUpdate()

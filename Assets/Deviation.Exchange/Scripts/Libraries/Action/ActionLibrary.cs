@@ -13,76 +13,94 @@ namespace Assets.Scripts.Library
 	//This library holds all of the values for each Action, all definitions of an action are here.
 	public class ActionLibrary : MonoBehaviour
 	{
-		private static bool _initialized = false;
-
 		public static List<IActionLibraryModule> ActionLibraryModules = new List<IActionLibraryModule> {
-			new ElementalActions(),
+			new AlphaActions(),
 			new EnergyActions(),
-			new LifeActions(),
-			new MageActions(),
-			new ManipulateActions(),
-			new RangerActions(),
-			new ScavengeActions(),
+			new GammaActions(),
+			new DeltaActions(),
+			new EpsilonActions(),
 			new TestActions(),
 		};
 
-		private static readonly Dictionary<string, IExchangeAction> _actionLibraryTable_ByName = new Dictionary<string, IExchangeAction> { };
-		private static readonly Dictionary<Guid, IExchangeAction> _actionLibraryTable_ByGuid = new Dictionary<Guid, IExchangeAction> { };
-
-		public static Dictionary<string, IExchangeAction> GetActionLibraryTable_ByName()
-		{
-			AddActionModulesToLibrary();
-
-			return _actionLibraryTable_ByName;
-		}
-
-		public static Dictionary<Guid, IExchangeAction> GetActionLibraryTable_ByGuid()
-		{
-			AddActionModulesToLibrary();
-
-			return _actionLibraryTable_ByGuid;
-		}
-
 		public static Guid GetGuidFromName(string actionName)
 		{
-			AddActionModulesToLibrary();
-
-			IExchangeAction action = _actionLibraryTable_ByName[actionName];
+			IExchangeAction action = GetActionLibrary_ByName()[actionName];
 			return action.Id;
 		}
 
-		public static string GetNameFromGuid(Guid actionName)
+		public static string GetNameFromGuid(Guid actionGuid)
 		{
-			AddActionModulesToLibrary();
 
-			IExchangeAction action = _actionLibraryTable_ByGuid[actionName];
+			IExchangeAction action = GetActionLibrary_ByGuid()[actionGuid];
 			return action.Name;
 		}
 
 		public static IExchangeAction GetActionInstance(string actionName)
 		{
-			AddActionModulesToLibrary();
-			IExchangeAction action = _actionLibraryTable_ByName[actionName];
+			IExchangeAction action = GetActionLibrary_ByName()[actionName];
 			IExchangeAction actionInstance = new ExchangeAction(action.Id, action.Name,action.Attack,action.ActionTexture,action.PrimaryActionName,action.Cooldown,action.Type);
 			return actionInstance;
 		}
 
 		public static IExchangeAction GetActionInstance(Guid actionGuid)
 		{
-			AddActionModulesToLibrary();
-			IExchangeAction action = _actionLibraryTable_ByGuid[actionGuid];
+			IExchangeAction action = GetActionLibrary_ByGuid()[actionGuid];
 			IExchangeAction actionInstance = new ExchangeAction(action.Id, action.Name, action.Attack, action.ActionTexture, action.PrimaryActionName, action.Cooldown, action.Type);
 			return actionInstance;
 		}
 
-		private static void AddActionModulesToLibrary()
+		public static Dictionary<Guid, IExchangeAction> GetActionLibrary_ByGuid(TraderType moduleType = TraderType.Default)
 		{
-			if (_initialized)
+			var retVal = new Dictionary<Guid, IExchangeAction>();
+			var defaultAction = GetDefaultAction();
+			retVal.Add(defaultAction.Id, defaultAction);
+
+			if (TraderType.Default == moduleType)
 			{
-				return;
+				foreach (IActionLibraryModule actionLibraryModule in ActionLibraryModules)
+				{
+					actionLibraryModule.Actions_ByGuid.ToList().ForEach(x => retVal.Add(x.Key, x.Value));
+				}
+			}
+			else
+			{
+				foreach (IActionLibraryModule actionLibraryModule in ActionLibraryModules)
+				{
+
+					actionLibraryModule.Actions_ByGuid.ToList().ForEach(x => { if (x.Value.Type == moduleType) retVal.Add(x.Key, x.Value); });
+				}
 			}
 
-			var defaultAction = new ExchangeAction
+			return retVal;
+		}
+
+		public static Dictionary<string, IExchangeAction> GetActionLibrary_ByName(TraderType moduleType = TraderType.Default)
+		{
+			var retVal = new Dictionary<string, IExchangeAction>();
+			var defaultAction = GetDefaultAction();
+			retVal.Add(defaultAction.Name, defaultAction);
+
+			if (TraderType.Default == moduleType)
+			{
+				foreach (IActionLibraryModule actionLibraryModule in ActionLibraryModules)
+				{
+					actionLibraryModule.Actions_ByName.ToList().ForEach(x => retVal.Add(x.Key, x.Value));
+				}
+			}
+			else
+			{
+				foreach (IActionLibraryModule actionLibraryModule in ActionLibraryModules)
+				{
+					actionLibraryModule.Actions_ByName.ToList().ForEach(x => { if (x.Value.Type == moduleType) retVal.Add(x.Key, x.Value); });
+				}
+			}
+
+			return retVal;
+		}
+
+		private static IExchangeAction GetDefaultAction()
+		{
+			return new ExchangeAction
 			(
 				id: Guid.Empty,
 				name: "Default",
@@ -90,19 +108,8 @@ namespace Assets.Scripts.Library
 				actionTexture: Resources.Load("ActionTextures/White") as Texture2D,
 				primaryActionName: "default",
 				cooldown: 0f,
-				type: ModuleType.Default
+				type: TraderType.Default
 			);
-
-			_actionLibraryTable_ByName.Add(defaultAction.Name, defaultAction);
-			_actionLibraryTable_ByGuid.Add(defaultAction.Id, defaultAction);
-
-			foreach (IActionLibraryModule actionLibraryModule in ActionLibraryModules)
-			{
-				actionLibraryModule.Actions_ByName.ToList().ForEach(x => _actionLibraryTable_ByName.Add(x.Key, x.Value));
-				actionLibraryModule.Actions_ByGuid.ToList().ForEach(x => _actionLibraryTable_ByGuid.Add(x.Key, x.Value));
-			}
-
-			_initialized = true;
 		}
 	}
 }

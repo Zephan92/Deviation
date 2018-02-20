@@ -62,7 +62,7 @@ namespace Assets.Scripts.ModuleEditor
 
 				Vector2 modulePos = new Vector2(75 + offset, 0);
 				GameObject modulePanel = CreateModulePanel(module.transform, modulePos);
-				CreateSnapPoint(actionLibraryModule.Type, "SnapPoint", module.transform, modulePanel.transform);
+				CreateSnapPoint(TraderType.Alpha, "SnapPoint", module.transform, modulePanel.transform);
 			}
 		}
 
@@ -88,7 +88,7 @@ namespace Assets.Scripts.ModuleEditor
 			}
 		}
 
-		private void CreateActionPanel(Transform actionPane, string actionName, Vector2 actionPos, ModuleType type)
+		private void CreateActionPanel(Transform actionPane, string actionName, Vector2 actionPos, TraderType type)
 		{
 			GameObject actionPanel = new GameObject("ActionPanel");
 			actionPanel.transform.SetParent(actionPane, false);
@@ -156,7 +156,7 @@ namespace Assets.Scripts.ModuleEditor
 			return entry;
 		}
 
-		private GameObject CreateSnapPoint(ModuleType type, string snapPointName, Transform parentTransform, Transform targetPositionTransform, bool occupied = false)
+		private GameObject CreateSnapPoint(TraderType type, string snapPointName, Transform parentTransform, Transform targetPositionTransform, bool occupied = false)
 		{
 			//create snapPoint GameObject
 			GameObject snapPoint = new GameObject(snapPointName);
@@ -168,7 +168,7 @@ namespace Assets.Scripts.ModuleEditor
 			//Create SnapPoint
 			SnapPoint sp = snapPoint.AddComponent<SnapPoint>();
 			sp.IsOccupied = occupied;
-			sp.Type = type;
+			//sp.Type = type;
 
 			//Set Parent to intended transform
 			snapPoint.transform.SetParent(parentTransform, true);

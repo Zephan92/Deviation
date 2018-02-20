@@ -58,8 +58,10 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			if (UnityEngine.Debug.isDebugBuild)
 			{
 				var testArgs = Msf.Args.ExtractValue("-test");
-				if (testArgs.Equals("GuestLogin"))
+				if (testArgs != null && testArgs.Equals("GuestLogin"))
 				{
+					UnityEngine.Debug.LogError("Test: ClientController");
+
 					StartCoroutine(Test());
 				}
 			}
@@ -113,14 +115,20 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 
 			if (UnityEngine.Debug.isDebugBuild)
 			{
-				JoinExchange();
+				var testArgs = Msf.Args.ExtractValue("-test");
+				if (testArgs != null && testArgs.Equals("GuestLogin"))
+				{
+					UnityEngine.Debug.LogError("Test: ClientController.HandleMatchFound");
+
+					JoinExchange();
+				}
 			}
 		}
 
 		public void HandleChangeQueue(IIncommingMessage message)
 		{
 			UnityEngine.Debug.Log("HandleChangeQueue: Enabling Change Queue Button");
-			ExchangeMatchMakingPacket packet = message.Deserialize(new ExchangeMatchMakingPacket());
+			//ExchangeMatchMakingPacket packet = message.Deserialize(new ExchangeMatchMakingPacket());
 			ChangeQueueButton.interactable = true;
 		}
 
@@ -134,7 +142,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		{
 			UnityEngine.Debug.Log("HandleMatchDisbanded: Match Disbanded, Looking For New Match");
 
-			MatchFoundPacket packet = message.Deserialize(new MatchFoundPacket());
+			//MatchFoundPacket packet = message.Deserialize(new MatchFoundPacket());
 			LeaveQueueButton.interactable = true;
 			JoinQueueButton.interactable = false;
 			ChangeQueueButton.interactable = false;

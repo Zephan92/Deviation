@@ -11,12 +11,10 @@ namespace Assets.Scripts.ModuleEditor
 	{
 		public Rect Area;
 		public bool IsOccupied = false;
-		public ModuleType Type = ModuleType.Default;
 
 		public void Awake()
 		{
 			IsOccupied = false;
-			Type = ModuleType.Default;
 			Area = GetScreenCoordinates(GetComponent<RectTransform>());
 		}
 

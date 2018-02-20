@@ -9,14 +9,14 @@ using UnityEngine;
 
 namespace Assets.Scripts.Library.Action.ActionModules
 {
-	public class ManipulateActions : IActionLibraryModule
+	public class EpsilonActions : IActionLibraryModule
 	{
 		public Dictionary<string, IExchangeAction> Actions_ByName { get; set; }
 		public Dictionary<Guid, IExchangeAction> Actions_ByGuid { get; set; }
 
-		public ModuleType Type { get{return ModuleType.Manipulate;}}
+		public TraderType Type { get{return TraderType.Epsilon;}}
 
-		public ManipulateActions()
+		public EpsilonActions()
 		{
 			Actions_ByName = new Dictionary<string, IExchangeAction>();
 			Actions_ByGuid = new Dictionary<Guid, IExchangeAction>();

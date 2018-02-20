@@ -1,14 +1,18 @@
 ﻿using Assets.Deviation.Client.Scripts;
 using Assets.Deviation.Client.Scripts.Match;
 using Assets.Scripts.Interface;
+using Assets.Scripts.Interface.DTO;
+using Assets.Scripts.Library;
 using Assets.Scripts.Utilities;
 using Barebones.MasterServer;
 using Barebones.Networking;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace Assets.Deviation.Exchange.Scripts.Client
 {
@@ -42,11 +46,14 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			}
 		}
 		public UnityAction<ClientMatchState> OnClientMatchStateChange;
+		public Text HeaderTitle;
+		public Text Timer;
 
 		//Private
 		private ClientMatchState _state;
 		private GameObject _activeUI;
 		private ITrader _chosenTrader;
+		private List<IExchangeAction> _actions;
 
 		//Controllers
 		private ClientDataController cdc;
@@ -62,19 +69,9 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		{
 			tm = FindObjectOfType<TimerManager>();
 			cdc = FindObjectOfType<ClientDataController>();
-			StartUI = MatchUis.GetComponentInChildren<StartUIController>();//this doesn't work
-			ChooseTraderUI = MatchUis.GetComponentInChildren<ChooseTraderUIController>();
-			ChooseActionsUI = MatchUis.GetComponentInChildren<ChooseActionsUIController>();
-			SummaryUI = MatchUis.GetComponentInChildren<SummaryUIController>();
-			EndUI = MatchUis.GetComponentInChildren<EndUIController>();
 			
 			tm.AddTimer(ClientMatchState.ChooseTrader.ToString(), 30);
 			tm.AddTimer(ClientMatchState.ChooseActions.ToString(), 60);
-
-			if (ChooseTraderUI != null)
-			{
-				ChooseTraderUI.OnConfirmTrader += ConfirmTrader;
-			}
 
 			OnClientMatchStateChange += OnClientMatchStateChangeMethod;
 			State = ClientMatchState.Start;
@@ -100,12 +97,13 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 				}
 			}
 
-			//hide this
-			if (UnityEngine.Debug.isDebugBuild && !Application.isEditor)
+			if (Debug.isDebugBuild && !Application.isEditor)
 			{
 				var testArgs = Msf.Args.ExtractValue("-test");
-				if (testArgs.Equals("GuestLogin"))
+				if (testArgs != null && testArgs.Equals("GuestLogin"))
 				{
+					Debug.LogError("Test: ClientMatchController");
+
 					StartCoroutine(Test());
 				}
 			}
@@ -135,11 +133,14 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 					break;
 				case ClientMatchState.ChooseTrader:
 					tm.RestartTimer(state.ToString());
+					HeaderTitle.text = "CHOOSE YOUR TRADER!";
 					break;
 				case ClientMatchState.ChooseActions:
 					tm.RestartTimer(state.ToString());
+					HeaderTitle.text = "CHOOSE YOUR ACTIONS!";
 					break;
 				case ClientMatchState.Summary:
+					HeaderTitle.text = "GET READY!";
 					State = ClientMatchState.End;
 					break;
 				case ClientMatchState.End:
@@ -149,6 +150,41 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 
 		public void FixedUpdate()
 		{
+			if (StartUI == null)
+			{
+				StartUI = MatchUis.GetComponentInChildren<StartUIController>();
+			}
+
+			if (ChooseTraderUI == null)
+			{
+				ChooseTraderUI = MatchUis.GetComponentInChildren<ChooseTraderUIController>();
+			}
+
+			if (ChooseActionsUI == null)
+			{
+				ChooseActionsUI = MatchUis.GetComponentInChildren<ChooseActionsUIController>();
+			}
+
+			if (SummaryUI == null)
+			{
+				SummaryUI = MatchUis.GetComponentInChildren<SummaryUIController>();
+			}
+
+			if (EndUI == null)
+			{
+				EndUI = MatchUis.GetComponentInChildren<EndUIController>();
+			}
+
+			if (ChooseTraderUI != null)
+			{
+				ChooseTraderUI.OnConfirmTrader += ConfirmTrader;
+			}
+
+			if (ChooseActionsUI != null)
+			{
+				ChooseActionsUI.OnConfirmActions += ConfirmActions;
+			}
+
 			CheckClientMatch();
 		}
 
@@ -160,6 +196,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 					break;
 				case ClientMatchState.ChooseTrader:
 					tm.UpdateCountdowns();
+					Timer.text = ((int)tm.GetRemainingCooldown(State.ToString())).ToString();
 					if (tm.TimerUp(State.ToString()))
 					{
 						Debug.Log("This should probably punt you from this match");
@@ -168,9 +205,10 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 					break;
 				case ClientMatchState.ChooseActions:
 					tm.UpdateCountdowns();
+					Timer.text = ((int)tm.GetRemainingCooldown(State.ToString())).ToString();
 					if (tm.TimerUp(State.ToString()))
 					{
-						State = ClientMatchState.End;
+					//	State = ClientMatchState.End;
 					}
 					break;
 				case ClientMatchState.End:
@@ -182,6 +220,17 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		{
 			State = ClientMatchState.ChooseActions;
 			_chosenTrader = trader;
+		}
+
+		private void ConfirmActions(List<IExchangeAction> actions)
+		{
+			State = ClientMatchState.End;
+			_actions = actions;
+		}
+
+		public ITrader GetTrader()
+		{
+			return _chosenTrader;
 		}
 
 		//TODO
@@ -214,24 +263,35 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			SceneManager.LoadScene("DeviationStandalone");
 		}
 
-		//TODO
 		private ActionModulePacket GetPlayerActionModule()
 		{
-			var q = new Guid("688b267a-fde1-4250-91a0-300aa3343147");//ShockWave
-			var w = new Guid("258175b1-89e0-4f16-91e2-b65cb1e11c58");//Ambush
-			//var w = new Guid("dacb468b-658f-4daa-9400-cd3f005d06bd");//Stun Field
-			//var e = new Guid("d504df35-dc93-4f84-829e-01e202878341");//Tremor
+			var q = _actions[0].Id;
+			var w = _actions[1].Id;
+			var e = _actions[2].Id;
+			var r = _actions[3].Id;
 
-			var e = new Guid("1e14d696-7a90-4271-97e2-fbc8a8c740f8");//Wall Push
-			var r = new Guid("36a1cf13-8b79-4800-8574-7cec0c405594");//Small Projectile
-			//this would go get the actions the player chose
 			return new ActionModulePacket(q, w, e, r);
+		}
+
+		public void TestDeleteMe()
+		{
+			StartCoroutine(Test());
 		}
 
 		//Rename rework
 		private IEnumerator Test()
 		{
+			_chosenTrader = new Trader("TestTrader","The ultimate avenger", Assets.Scripts.Enum.TraderType.Test, "Testing Description", Guid.NewGuid());
+			_actions = new List<IExchangeAction>();
+			_actions.Add(ActionLibrary.GetActionInstance("Ambush"));
+			_actions.Add(ActionLibrary.GetActionInstance("ShockWave"));
+			_actions.Add(ActionLibrary.GetActionInstance("Wall Push"));
+			_actions.Add(ActionLibrary.GetActionInstance("Medium Projectile"));
+
 			yield return new WaitForSeconds(1f);
+
+			
+
 			if (UnityEngine.Debug.isDebugBuild)
 				Ready();
 		}

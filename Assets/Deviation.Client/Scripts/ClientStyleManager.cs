@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Assets.Deviation.Exchange.Scripts.Client
 {
@@ -23,6 +24,11 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		IntPtr _currentWindow;
 		bool _forceBorderless = true;
 
+		private Transform MenuBar;
+		public Button ExitButton;
+		public Button MinimizeButton;
+		public Button ToggleBorderlessButton;
+
 		public void QuitClient()
 		{
 			Application.Quit();
@@ -31,7 +37,26 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		public void Awake()
 		{
 			InstanceExists();
-
+			var menu = transform.Find("Menu Bar");
+			draggableZonePanel = transform.Find("DraggableZone").GetComponent<RectTransform>();
+			foreach (var button in menu.GetComponentsInChildren<Button>())
+			{
+				switch (button.gameObject.name)
+				{
+					case "Borderless Button":
+						ToggleBorderlessButton = button;
+						ToggleBorderlessButton.onClick.AddListener(ToggleBorderless);
+						break;
+					case "Exit Button":
+						ExitButton = button;
+						ExitButton.onClick.AddListener(QuitClient);
+						break;
+					case "Minimize Button":
+						MinimizeButton = button;
+						MinimizeButton.onClick.AddListener(MinimizeClient);
+						break;
+				}
+			}
 		}
 
 		public void InstanceExists()

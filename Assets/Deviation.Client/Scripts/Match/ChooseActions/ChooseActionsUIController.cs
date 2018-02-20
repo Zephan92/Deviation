@@ -1,10 +1,15 @@
-﻿using Assets.Deviation.Exchange.Scripts.Client;
+﻿using Assets.Deviation.Client.Scripts.UserInterface;
+using Assets.Deviation.Exchange.Scripts.Client;
+using Assets.Scripts.Interface.DTO;
+using Assets.Scripts.Library;
+using Assets.Scripts.ModuleEditor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Assets.Deviation.Client.Scripts.Match
@@ -19,6 +24,9 @@ namespace Assets.Deviation.Client.Scripts.Match
 	public class ChooseActionsUIController : UIController
 	{
 		public Text ChooseTraderTimer;//Find this dynamically
+		public List<IExchangeAction> _actions;
+		public VerticalScrollPanel ActionList;
+		public UnityAction<List<IExchangeAction>> OnConfirmActions;
 
 		public ChooseActionsUIState UIState
 		{
@@ -38,17 +46,25 @@ namespace Assets.Deviation.Client.Scripts.Match
 		}
 		private UnityAction<ChooseActionsUIState> OnUIStateChange;
 		private ChooseActionsUIState _uiState;
-
+		private GameObject _chosenActionsPanel;
 
 		public override void Awake()
 		{
 			base.Awake();
 			OnUIStateChange += OnUIStateChangeMethod;
+
+			ActionList = GetComponentInChildren<VerticalScrollPanel>();
+			_chosenActionsPanel = transform.Find("ChosenActions").gameObject;
+		}
+
+		public override void Start()
+		{
+			UIState = ChooseActionsUIState.Start;
 		}
 
 		public override void Update()
 		{
-			ChooseTraderTimer.text = ((int)tm.GetRemainingCooldown(ClientMatchState.ChooseActions.ToString())).ToString();
+			//ChooseTraderTimer.text = ((int)tm.GetRemainingCooldown(ClientMatchState.ChooseActions.ToString())).ToString();
 		}
 
 		private void OnUIStateChangeMethod(ChooseActionsUIState state)
@@ -68,7 +84,12 @@ namespace Assets.Deviation.Client.Scripts.Match
 			switch (state)
 			{
 				case ChooseActionsUIState.Start:
-					//RebuildTraderList();
+					var trader = cmc.GetTrader();
+					var actionDict = ActionLibrary.GetActionLibrary_ByName(trader.Type);
+					actionDict.Remove("Default");
+					_actions = actionDict.Values.OrderBy(t => t.Name).ToList();
+					InitializeActionPanels(_actions);
+					//var panel = TraderPanelFactory.CreateTraderPanel(trader, ActionList.List, onTraderListPanelClick);
 					break;
 				case ChooseActionsUIState.ActionSelected:
 					break;
@@ -76,6 +97,91 @@ namespace Assets.Deviation.Client.Scripts.Match
 					cmc.State = ClientMatchState.Summary;
 					break;
 			}
+		}
+
+		public void InitializeActionPanels(List<IExchangeAction> actions)
+		{
+			GameObject actionRow = new GameObject("ActionRow");
+			CreateHorizontalLayout(actionRow);
+			actionRow.GetComponent<RectTransform>().sizeDelta = new Vector2(1240, 100);
+			actionRow.transform.SetParent(ActionList.List.transform);
+
+			for (int i = 0; i < actions.Count; i++)
+			{
+				var action = actions[i];
+				if (i % 6 == 0 && i > 0)
+				{
+					actionRow = new GameObject("ActionRow");
+					CreateHorizontalLayout(actionRow);
+					actionRow.GetComponent<RectTransform>().sizeDelta = new Vector2(1240, 100);
+					actionRow.transform.SetParent(ActionList.List.transform);
+				}
+
+				CreateActionPanel(action, actionRow);
+			}
+		}
+
+		public GameObject CreateActionPanel(IExchangeAction action, GameObject parent)
+		{
+			var actionPanel = Instantiate(Resources.Load("ActionPanel"), parent.transform) as GameObject;
+			var actionDetailsPanel = actionPanel.GetComponent<ActionDetailsPanel>();
+			actionDetailsPanel.UpdateActionDetails(action);
+			CreateEventTriggers(actionPanel);
+			return actionPanel;
+		}
+
+		public HorizontalLayoutGroup CreateHorizontalLayout(GameObject go)
+		{
+			var layout = go.AddComponent<HorizontalLayoutGroup>();
+			layout.childControlWidth = false;
+			layout.childControlHeight = true;
+			layout.childForceExpandWidth = false;
+			layout.childForceExpandHeight = true;
+			return layout;
+		}
+
+		public void ConfirmActions()
+		{
+			List<IExchangeAction> actions = new List<IExchangeAction>();
+			ActionDetailsPanel[] chosenActionPanels = _chosenActionsPanel.GetComponentsInChildren<ActionDetailsPanel>();
+			foreach (var panel in chosenActionPanels)
+			{
+				actions.Add(panel.Action);
+			}
+
+			OnConfirmActions(actions);
+		}
+
+		private void CreateEventTriggers(GameObject actionPanel)
+		{
+			DragableUI dragable = actionPanel.AddComponent<DragableUI>();
+			EventTrigger et = actionPanel.AddComponent<EventTrigger>();
+			et.triggers.Add(CreateEventTriggerEntry(EventTriggerType.BeginDrag, dragable));
+			et.triggers.Add(CreateEventTriggerEntry(EventTriggerType.Drag, dragable));
+			et.triggers.Add(CreateEventTriggerEntry(EventTriggerType.EndDrag, dragable));
+		}
+
+		private EventTrigger.Entry CreateEventTriggerEntry(EventTriggerType eventTriggerType, DragableUI dragable)
+		{
+			EventTrigger.Entry entry = new EventTrigger.Entry();
+			entry.eventID = eventTriggerType;
+
+			switch (eventTriggerType)
+			{
+				case EventTriggerType.BeginDrag:
+					entry.callback.AddListener((eventData) => { dragable.BeginDrag(); });
+					break;
+
+				case EventTriggerType.Drag:
+					entry.callback.AddListener((eventData) => { dragable.OnDrag(); });
+					break;
+
+				case EventTriggerType.EndDrag:
+					entry.callback.AddListener((eventData) => { dragable.EndDrag(); });
+					break;
+			}
+
+			return entry;
 		}
 	}
 }

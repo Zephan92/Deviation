@@ -7,35 +7,11 @@ using UnityEngine.UI;
 
 namespace Assets.Deviation.Client.Scripts
 {
-	public enum TraderDisplaySide
-	{
-		LeftSide,
-		RightSide,
-	}
-
-	public enum TraderType
-	{
-		Alpha = 0,
-		Beta = 1,
-		Gamma = 2,
-		Delta = 3,
-		Epsilon = 4
-	}
-
 	public class TraderPanelFactory : MonoBehaviour
 	{
-		public static GameObject CreateTraderPanel(TraderDisplaySide side, ITrader trader, GameObject parent, UnityAction onClickAction)
+		public static GameObject CreateTraderPanel(ITrader trader, GameObject parent, UnityAction onClickAction)
 		{
-			string resource;
-			if (side == TraderDisplaySide.LeftSide)
-			{
-				resource = "TraderPanelLeft";
-			}
-			else
-			{
-				resource = "TraderPanelRight";
-			}
-			var traderPanel = Instantiate(Resources.Load(resource), parent.transform) as GameObject;
+			var traderPanel = Instantiate(Resources.Load("TraderPanel"), parent.transform) as GameObject;
 			var traderDetailsObject = traderPanel.GetComponent<TraderDetailsPanel>();
 			traderDetailsObject.UpdateTraderDetails(trader, onClickAction);
 			return traderPanel;

@@ -12,7 +12,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 		public Dictionary<string, IExchangeAction> Actions_ByName { get; set; }
 		public Dictionary<Guid, IExchangeAction> Actions_ByGuid { get; set; }
 
-		public ModuleType Type { get { return ModuleType.Test; } }
+		public TraderType Type { get { return TraderType.Test; } }
 
 		public TestActions()
 		{

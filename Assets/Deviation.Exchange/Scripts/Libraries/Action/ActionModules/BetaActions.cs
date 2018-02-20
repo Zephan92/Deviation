@@ -3,26 +3,34 @@ using Assets.Scripts.Enum;
 using Assets.Scripts.Interface.DTO;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace Assets.Scripts.Library.Action.ActionModules
 {
-	public class RangerActions : IActionLibraryModule
+	public class EnergyActions : IActionLibraryModule
 	{
 		public Dictionary<string, IExchangeAction> Actions_ByName { get; set; }
 		public Dictionary<Guid, IExchangeAction> Actions_ByGuid { get; set; }
 
-		public ModuleType Type { get { return ModuleType.Ranger; } }
+		public TraderType Type { get { return TraderType.Beta; } }
 
-		public RangerActions()
+		public EnergyActions()
 		{
 			Actions_ByName = new Dictionary<string, IExchangeAction>();
 			Actions_ByGuid = new Dictionary<Guid, IExchangeAction>();
 
 			List<IExchangeAction> actions = new List<IExchangeAction>()
 			{
+				new ExchangeAction
+				(
+					id: new Guid("33a4911e-73cb-4138-be21-f6728dd2756e"),
+					name: "Drain",
+					attack: new Attack(baseDamage: 35, healthRecoilModifier: 0.2f, energyRecoilModifier: -1.2f),
+					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
+					primaryActionName: "Drain",
+					cooldown: 3f,
+					type: Type
+				),
 				new ExchangeAction
 				(
 					id: new Guid("36a1cf13-8b79-4800-8574-7cec0c405594"),

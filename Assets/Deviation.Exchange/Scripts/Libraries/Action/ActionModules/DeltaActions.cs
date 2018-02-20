@@ -7,14 +7,14 @@ using UnityEngine;
 
 namespace Assets.Scripts.Library.Action.ActionModules
 {
-	public class LifeActions : IActionLibraryModule
+	public class DeltaActions : IActionLibraryModule
 	{
 		public Dictionary<string, IExchangeAction> Actions_ByName { get; set; }
 		public Dictionary<Guid, IExchangeAction> Actions_ByGuid { get; set; }
 
-		public ModuleType Type { get { return ModuleType.Life; } }
+		public TraderType Type { get { return TraderType.Delta; } }
 
-		public LifeActions()
+		public DeltaActions()
 		{
 			Actions_ByName = new Dictionary<string, IExchangeAction>();
 			Actions_ByGuid = new Dictionary<Guid, IExchangeAction>();
@@ -23,12 +23,22 @@ namespace Assets.Scripts.Library.Action.ActionModules
 			{
 				new ExchangeAction
 				(
-					id: new Guid("33a4911e-73cb-4138-be21-f6728dd2756e"),
-					name: "Drain",
-					attack: new Attack(baseDamage: 35, healthRecoilModifier: 0.2f, energyRecoilModifier: -1.2f),
+					id: new Guid("bc98cc04-14fc-428c-a295-4fe3fc4e7c3a"),
+					name: "Portal Rocket",
+					attack: new Attack(baseDamage: 15, energyRecoilModifier: -3.0f),
 					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
-					primaryActionName: "Drain",
-					cooldown: 3f,
+					primaryActionName: "PortalAttack",
+					cooldown: 1f,
+					type: Type
+				),
+				new ExchangeAction
+				(
+					id: new Guid("c07fb055-9144-4be0-be45-c8e0742381c9"),
+					name: "Teleport",
+					attack: new Attack(baseDamage: 10, healthDrainModifier: -0.0f),
+					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
+					primaryActionName: "Teleport",
+					cooldown: 1f,
 					type: Type
 				)
 			};

@@ -15,27 +15,25 @@ namespace Assets.Scripts.ModuleEditor
 		public SnapPoint[] SnapPoints;
 		private Vector2 _oldPos;
 		private SnapPoint _currentSnapPoint;
-		private ModuleType _type = ModuleType.Default;
+
+		private Transform _origParent;
+		private Transform _parentWhileDrag;
+
+		public void Awake()
+		{
+			_origParent = gameObject.transform.parent;
+		}
 
 		public void Start()
 		{
-			SnapPoints = transform.parent.parent.parent.GetComponentsInChildren<SnapPoint>();
-			foreach (SnapPoint snap in SnapPoints)
-			{
-				if(snap.transform.name.Contains(gameObject.GetComponentInChildren<Text>().text))
-				{
-					_currentSnapPoint = snap;
-					_type = _currentSnapPoint.Type;
-				}
-			}
+			SnapPoints = FindObjectsOfType<SnapPoint>();
+			_currentSnapPoint = gameObject.GetComponent<SnapPoint>();			
 		}
 
 		public void BeginDrag()
 		{
 			_oldPos = transform.position;
-			transform.parent.parent.SetAsLastSibling();
-			transform.parent.SetAsLastSibling();
-			transform.SetAsLastSibling();
+			transform.SetParent(transform.root);
 
 			Offset = new Vector2(transform.position.x,transform.position.y) - new Vector2( Input.mousePosition.x, Input.mousePosition.y);
 		}
@@ -49,20 +47,21 @@ namespace Assets.Scripts.ModuleEditor
 		{
 			foreach (SnapPoint snap in SnapPoints)
 			{
-				if (snap.Area.Contains(Input.mousePosition) && !snap.IsOccupied && (snap.Type == _type || snap.Type == ModuleType.Default))
+				if (snap.Area.Contains(Input.mousePosition) && !snap.IsOccupied)
 				{
 					float x = snap.Area.x + snap.Area.width / 2;
 					float y = snap.Area.y + snap.Area.height / 2;
 					Vector2 newPos = new Vector2(x,y);
 					transform.position = newPos;
-					transform.SetParent(snap.transform.parent, true);
-					transform.parent.SetAsLastSibling();
-					_currentSnapPoint.IsOccupied = false;
+					transform.SetParent(snap.transform, true);
+					_currentSnapPoint.IsOccupied = false;//todo
 					_currentSnapPoint = snap;
 					_currentSnapPoint.IsOccupied = true;
 					return;
 				}
 			}
+
+			transform.parent = _origParent;
 			transform.position = _oldPos;
 		}
 	}

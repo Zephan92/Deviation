@@ -23,7 +23,7 @@ namespace Assets.Deviation.Exchange
 		private ConcurrentDictionary<int, MatchFound> matchs = new ConcurrentDictionary<int, MatchFound>();
 		private ConcurrentDictionary<int, MatchFound> spawns = new ConcurrentDictionary<int, MatchFound>();
 		private SpawnersModule spawners;
-		private ExchangeDataAccess eda = new ExchangeDataAccess();
+		//private ExchangeDataAccess eda = new ExchangeDataAccess();
 
 		public void Awake()
 		{

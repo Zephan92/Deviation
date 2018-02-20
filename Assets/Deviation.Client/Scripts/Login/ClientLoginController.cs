@@ -51,8 +51,10 @@ public class ClientLoginController : MonoBehaviour
 		if (Debug.isDebugBuild)
 		{
 			var testArgs = Msf.Args.ExtractValue("-test");
-			if (testArgs.Equals("GuestLogin"))
+			if (testArgs != null && testArgs.Equals("GuestLogin"))
 			{
+				Debug.LogError("Test: ClientLoginController");
+
 				StartCoroutine(Test());
 			}
 		}

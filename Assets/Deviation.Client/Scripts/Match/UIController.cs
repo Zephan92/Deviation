@@ -20,6 +20,11 @@ namespace Assets.Deviation.Client.Scripts.Match
 			tm = FindObjectOfType<TimerManager>();
 		}
 
+		public virtual void Start()
+		{
+
+		}
+
 		public virtual void Update()
 		{
 

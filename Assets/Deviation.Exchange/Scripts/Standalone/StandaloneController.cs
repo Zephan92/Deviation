@@ -24,7 +24,7 @@ public class StandaloneController : MonoBehaviour
 
 	protected void OnPassReceived(RoomAccessPacket packet, string errorMessage)
 	{
-		var loadingPromise = Msf.Events.FireWithPromise(Msf.EventNames.ShowLoading, "Joining lobby");
+		Msf.Events.FireWithPromise(Msf.EventNames.ShowLoading, "Joining lobby");
 
 		if (packet == null)
 		{
