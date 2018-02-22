@@ -75,7 +75,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 
 		public void GetResource()
 		{
-			Msf.Client.Connection.SendMessage((short)ResourceBankOpCodes.GetResource, (status, response) =>
+			Msf.Client.Connection.SendMessage((short)ResourceBankOpCodes.GetResources, (status, response) =>
 			{
 				if (status == ResponseStatus.Error)
 				{
@@ -83,8 +83,8 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 				}
 				else if (status == ResponseStatus.Success)
 				{
-					ResourcePacket packet = response.Deserialize(new ResourcePacket());
-					var resource = packet.Resource;
+					ResourcesPacket packet = response.Deserialize(new ResourcesPacket());
+					var resource = packet.Resources;
 					Bag.AddResource(resource);
 				}
 			});

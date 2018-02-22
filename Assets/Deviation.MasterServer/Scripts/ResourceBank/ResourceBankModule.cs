@@ -8,8 +8,10 @@ namespace Assets.Deviation.MasterServer.Scripts
 {
 	public enum ResourceBankOpCodes
 	{
-		GetResource = 256,
-		GetResourceBank = 264
+		GetResources = 256,
+		GetResourceBank = 264,
+		AddResourcesToBag = 280,
+		RemoveResourcesFromBag = 296,
 	}
 
 	public class ResourceBankModule : ServerModuleBehaviour
@@ -25,39 +27,72 @@ namespace Assets.Deviation.MasterServer.Scripts
 
 			_currentResourceBank = resourceBankFactory.Create(new ResourceBankTypeGeneral());
 
-			server.SetHandler((short)ResourceBankOpCodes.GetResource, HandleGetResource);
+			server.SetHandler((short)ResourceBankOpCodes.GetResources, HandleGetResources);
 			server.SetHandler((short)ResourceBankOpCodes.GetResourceBank, HandleGetResourceBank);
 		}
 
-		private void HandleGetResource(IIncommingMessage message)
+		private void HandleGetResources(IIncommingMessage message)
 		{
-			//probably should make sure whoever is asking for this is allowed
-			var resource = GetResource();
-			ResourcePacket packet = new ResourcePacket(resource);
-			message.Respond(packet, statusCode: ResponseStatus.Success);
-		}
+			//raritystart
+			//take in a modifier (if winner get higher chance of good item)
+			//number of resources to get
+			//server only
+			int count = 1;
+			Rarity rarityStart = Rarity.Common;
+			int modifier = 0;
 
-		private void HandleGetPlayerResources(IIncommingMessage message)
-		{
-			//probably should make sure the user is who they say they are
-			//ResourceBankPacket packet = new ResourceBankPacket(_currentResourceBank);
-			//message.Respond(packet, statusCode: ResponseStatus.Success);
+			var resourcesDict = new Dictionary<Resource, int>();
+
+			for (int i = 0; i < count; i++)
+			{
+				var resource = GetResource(rarityStart, modifier);
+
+				if (resourcesDict.ContainsKey(resource))
+				{
+					resourcesDict[resource] += 1;
+				}
+				else
+				{
+					resourcesDict.Add(resource, 1);
+				}
+			}
+			ResourcesPacket packet = new ResourcesPacket(resourcesDict);
+			message.Respond(packet, statusCode: ResponseStatus.Success);
 		}
 
 		private void HandleGetResourceBank(IIncommingMessage message)
 		{
+			//request specific resource/rarity/all
+			//public
+
 			ResourceBankPacket packet = new ResourceBankPacket(_currentResourceBank);
 			message.Respond(packet, statusCode: ResponseStatus.Success);
 		}
 
-		private Resource GetResource()
+		private void HandleAddResources(IIncommingMessage message)
+		{
+			//player account
+			//server only
+			ResourcesPacket packet = message.Deserialize(new ResourcesPacket());
+
+		}
+
+		private void HandleRemoveResourcesFromBag(IIncommingMessage message)
+		{
+			//player account
+			//player auth or server
+			ResourcesPacket packet = message.Deserialize(new ResourcesPacket());
+
+		}
+
+		private Resource GetResource(Rarity rarityStart = Rarity.Common, int modifier = 0)
 		{
 			if (_currentResourceBank.Empty())
 			{
 				_currentResourceBank = resourceBankFactory.Create(new ResourceBankTypeGeneral());
 			}
 
-			return _currentResourceBank.GetResource();
+			return _currentResourceBank.GetRandomResource(rarityStart, modifier);
 		}
 	}
 }

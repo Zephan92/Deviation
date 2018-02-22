@@ -10,14 +10,15 @@ namespace Assets.Deviation.MasterServer.Scripts.ResourceBank
 		private Random Random = new Random();
 		private ResourceBankTypeBase _resourceBankType;
 
-		private Dictionary<Resource, int> _resources;
+		public Dictionary<Resource, int> Resources;
 		private Dictionary<Rarity, List<Resource>> _resourcesByRarity;
 		private int _resourceCount = 0;
 
 		public ResourceBankObject(Dictionary<Resource, int> resources, ResourceBankTypeBase type)
 		{
+			Resources = resources;
+
 			_resourcesByRarity = new Dictionary<Rarity, List<Resource>>();
-			_resources = resources;
 			_resourceBankType = type;
 
 			foreach (Resource resource in resources.Keys)
@@ -43,48 +44,58 @@ namespace Assets.Deviation.MasterServer.Scripts.ResourceBank
 			return _resourceCount;
 		}
 
-		public Dictionary<Resource, int> GetResources()
-		{
-			return _resources;
-		}
-
-		public Resource GetResource()
+		public Resource GetRandomResource(Rarity rarityStart = Rarity.Common, int modifier = 0)
 		{
 			if (Empty())
 			{
 				throw new Exception("The Resource Bank was empty.");
 			}
 
-			return GetRandomResource();
-		}
+			if (rarityStart == Rarity.Default)
+			{
+				rarityStart = Rarity.Common;
+			}
 
-		private Resource GetRandomResource()
-		{
 			Resource retval = new Resource();
 
-			int ranInt = Random.Next(0, _resourceCount);
 			int count = 0;
+			for (int i = 0; i < (int)rarityStart; i++)
+			{
+				count += ResourceCount((Rarity)i);
+			}
 
-			for (int i = 0; i < (int)Rarity.Count; i++)
+			int min = Math.Min(count + modifier, _resourceCount - 1);
+
+			int ranInt = Random.Next(min, _resourceCount);
+
+			for (int i = (int) rarityStart; i < (int)Rarity.Count; i++)
 			{
 				Rarity curRarity = (Rarity)i;
 
 				count += ResourceCount(curRarity);
 
-				if (ranInt < count)
+				if (ranInt <= count)
 				{
-					retval = ChooseRandomResourceFromList(_resourcesByRarity[curRarity]);
-					RemoveResource(retval);
+					var resourcesList = _resourcesByRarity[curRarity];
+					if (resourcesList.Count > 0)
+					{
+						retval = ChooseRandomResourceFromList(resourcesList);
+					}
+					else
+					{
+						retval = GetRandomResource(rarityStart - 1, modifier);
+					}
 					break;
 				}
 			}
 
+			RemoveResource(retval);
 			return retval;
 		}
 
 		public bool Empty()
 		{
-			return _resourceCount == 0;
+			return _resourceCount <= 0;
 		}
 
 		public int ResourceCount(Rarity rarity)
@@ -93,12 +104,12 @@ namespace Assets.Deviation.MasterServer.Scripts.ResourceBank
 
 			if (_resourcesByRarity.ContainsKey(rarity))
 			{
-				_resourcesByRarity[rarity].ForEach(resource => count += _resources[resource]);
+				_resourcesByRarity[rarity].ForEach(resource => count += Resources[resource]);
 			}
 			return count;
 		}
 
-		public Resource ChooseRandomResourceFromList(List<Resource> resources)
+		private Resource ChooseRandomResourceFromList(List<Resource> resources)
 		{
 			int ranInt = Random.Next(0, resources.Count);
 			return resources[ranInt];
@@ -106,10 +117,10 @@ namespace Assets.Deviation.MasterServer.Scripts.ResourceBank
 
 		private void RemoveResource(Resource resource)
 		{
-			_resources[resource] -= 1;
+			Resources[resource] -= 1;
 			_resourceCount--;
 
-			if (_resources[resource] == 0)
+			if (Resources[resource] == 0)
 			{
 				_resourcesByRarity[resource.Rarity].Remove(resource);
 			}
@@ -119,9 +130,9 @@ namespace Assets.Deviation.MasterServer.Scripts.ResourceBank
 		{
 			string retval = "ResourceBank - Count: " + _resourceCount + "\n";
 
-			foreach (Resource resource in _resources.Keys)
+			foreach (Resource resource in Resources.Keys)
 			{
-				retval += resource.Name + ": " + _resources[resource] + "\n";
+				retval += resource.Name + ": " + Resources[resource] + "\n";
 			}
 			return retval;
 		}
