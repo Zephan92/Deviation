@@ -1,4 +1,5 @@
-﻿using Barebones.MasterServer;
+﻿using Assets.Deviation.MasterServer.Scripts;
+using Barebones.MasterServer;
 using Barebones.Networking;
 using System;
 using System.Collections.Generic;

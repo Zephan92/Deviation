@@ -10,6 +10,8 @@ using UnityEngine.UI;
 using Assets.Scripts.Utilities;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using Assets.Deviation.MasterServer.Scripts;
+using Assets.Deviation.MasterServer.Scripts.ResourceBank;
 
 namespace Assets.Deviation.Exchange.Scripts.Client
 {
@@ -22,14 +24,14 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		public Button DeclineExchangeMatchButton;
 
 		public Text Timer;
-
+		public ResourceBag Bag;
 		private TimerManager tm;
 
 		public void Awake()
 		{
 			tm = GetComponent<TimerManager>();
 			tm.AddTimer("JoinMatch", 10.5f);
-
+			Bag = new ResourceBag();
 			Msf.Client.SetHandler((short)Exchange1v1MatchMakingOpCodes.RespondMatchFound, HandleMatchFound);
 			Msf.Client.SetHandler((short)Exchange1v1MatchMakingOpCodes.RespondChangeQueuePool, HandleChangeQueue);
 			Msf.Client.SetHandler((short)Exchange1v1MatchMakingOpCodes.RespondMatchReady, HandleMatchReady);
@@ -69,6 +71,45 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			yield return new WaitForSeconds(1f);
 			if (UnityEngine.Debug.isDebugBuild)
 				SearchForExchangeMatch();
+		}
+
+		public void GetResource()
+		{
+			Msf.Client.Connection.SendMessage((short)ResourceBankOpCodes.GetResource, (status, response) =>
+			{
+				if (status == ResponseStatus.Error)
+				{
+					UnityEngine.Debug.LogErrorFormat("GetResource failed. Error {1}", response);
+				}
+				else if (status == ResponseStatus.Success)
+				{
+					ResourcePacket packet = response.Deserialize(new ResourcePacket());
+					var resource = packet.Resource;
+					Bag.AddResource(resource);
+				}
+			});
+		}
+
+		public void GetResourceBag()
+		{
+			UnityEngine.Debug.Log(Bag);
+		}
+
+		public void GetResourceBank()
+		{
+			Msf.Client.Connection.SendMessage((short)ResourceBankOpCodes.GetResourceBank, (status, response) =>
+			{
+				if (status == ResponseStatus.Error)
+				{
+					UnityEngine.Debug.LogErrorFormat("GetResourceBank failed. Error {1}", response);
+				}
+				else if (status == ResponseStatus.Success)
+				{
+					ResourceBankPacket packet = response.Deserialize(new ResourceBankPacket());
+					var resourceBank = packet.ResourceBank;
+					UnityEngine.Debug.Log(resourceBank.ToString());
+				}
+			});
 		}
 
 		public void Update()
