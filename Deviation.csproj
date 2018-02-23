@@ -1,0 +1,699 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.20506</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{D4FACDEF-61C0-211E-54D0-4913AA5A96FA}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AssemblyName>Assembly-CSharp</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
+    <CompilerResponseFile></CompilerResponseFile>
+    <UnityProjectType>Game:1</UnityProjectType>
+    <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
+    <UnityVersion>2017.3.1f1</UnityVersion>
+    <RootNamespace></RootNamespace>
+    <LangVersion>4</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Temp\UnityVS_bin\Debug\</OutputPath>
+    <IntermediateOutputPath>Temp\UnityVS_obj\Debug\</IntermediateOutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DefineConstants>DEBUG;TRACE;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_2017_1_OR_NEWER;UNITY_2017_2_OR_NEWER;UNITY_2017_3_OR_NEWER;UNITY_2017_3_1;UNITY_2017_3;UNITY_2017;PLATFORM_ARCH_64;UNITY_64;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_DUCK_TYPING;ENABLE_GENERICS;ENABLE_PVR_GI;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_GRID;ENABLE_TILEMAP;ENABLE_TERRAIN;ENABLE_RAKNET;ENABLE_DIRECTOR;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_COLLAB_SOFTLOCKS;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_USE_WEBREQUEST;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_HUB;ENABLE_EDITOR_HUB_LICENSE;ENABLE_WEBSOCKET_CLIENT;ENABLE_DIRECTOR_AUDIO;ENABLE_DIRECTOR_TEXTURE;ENABLE_TIMELINE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;ENABLE_NATIVE_ARRAY;ENABLE_SPRITE_MASKING;INCLUDE_DYNAMIC_GI;INCLUDE_GI;ENABLE_MONO_BDWGC;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;INCLUDE_PUBNUB;ENABLE_PLAYMODE_TESTS_RUNNER;ENABLE_VIDEO;ENABLE_RMGUI;ENABLE_PACKMAN;ENABLE_CUSTOM_RENDER_TEXTURE;ENABLE_STYLE_SHEETS;ENABLE_LOCALIZATION;PLATFORM_STANDALONE_WIN;PLATFORM_STANDALONE;UNITY_STANDALONE_WIN;UNITY_STANDALONE;ENABLE_SUBSTANCE;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_UNITYWEBREQUEST;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_EVENT_QUEUE;ENABLE_CLUSTERINPUT;ENABLE_VR;ENABLE_AR;ENABLE_WEBSOCKET_HOST;ENABLE_MONO;NET_2_0_SUBSET;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;ENABLE_NATIVE_ARRAY_CHECKS;UNITY_TEAM_LICENSE;ENABLE_VSTU</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Temp\UnityVS_bin\Release\</OutputPath>
+    <IntermediateOutputPath>Temp\UnityVS_obj\Release\</IntermediateOutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DefineConstants>TRACE;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_2017_1_OR_NEWER;UNITY_2017_2_OR_NEWER;UNITY_2017_3_OR_NEWER;UNITY_2017_3_1;UNITY_2017_3;UNITY_2017;PLATFORM_ARCH_64;UNITY_64;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_DUCK_TYPING;ENABLE_GENERICS;ENABLE_PVR_GI;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_GRID;ENABLE_TILEMAP;ENABLE_TERRAIN;ENABLE_RAKNET;ENABLE_DIRECTOR;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_COLLAB_SOFTLOCKS;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_USE_WEBREQUEST;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_HUB;ENABLE_EDITOR_HUB_LICENSE;ENABLE_WEBSOCKET_CLIENT;ENABLE_DIRECTOR_AUDIO;ENABLE_DIRECTOR_TEXTURE;ENABLE_TIMELINE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;ENABLE_NATIVE_ARRAY;ENABLE_SPRITE_MASKING;INCLUDE_DYNAMIC_GI;INCLUDE_GI;ENABLE_MONO_BDWGC;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;INCLUDE_PUBNUB;ENABLE_PLAYMODE_TESTS_RUNNER;ENABLE_VIDEO;ENABLE_RMGUI;ENABLE_PACKMAN;ENABLE_CUSTOM_RENDER_TEXTURE;ENABLE_STYLE_SHEETS;ENABLE_LOCALIZATION;PLATFORM_STANDALONE_WIN;PLATFORM_STANDALONE;UNITY_STANDALONE_WIN;UNITY_STANDALONE;ENABLE_SUBSTANCE;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_UNITYWEBREQUEST;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_EVENT_QUEUE;ENABLE_CLUSTERINPUT;ENABLE_VR;ENABLE_AR;ENABLE_WEBSOCKET_HOST;ENABLE_MONO;NET_2_0_SUBSET;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;ENABLE_NATIVE_ARRAY_CHECKS;UNITY_TEAM_LICENSE;ENABLE_VSTU</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.XML" />
+    <Reference Include="System.Core" />
+    <Reference Include="Boo.Lang" />
+    <Reference Include="UnityScript.Lang" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="UnityEditor">
+      <HintPath>Library\UnityAssemblies\UnityEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>Library\UnityAssemblies\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AccessibilityModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.AccessibilityModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.ParticleSystemModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.PhysicsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.VehiclesModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.VehiclesModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ClothModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.ClothModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AIModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.AIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.AnimationModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.TextRenderingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.UIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TerrainPhysicsModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.TerrainPhysicsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.IMGUIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ClusterInputModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.ClusterInputModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ClusterRendererModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.ClusterRendererModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UNETModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.UNETModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.DirectorModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.DirectorModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityAnalyticsModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.UnityAnalyticsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.PerformanceReportingModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.PerformanceReportingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityConnectModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.UnityConnectModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.WebModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.WebModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ARModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.ARModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.VRModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.VRModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UIElementsModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.UIElementsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.StyleSheetsModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.StyleSheetsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AssetBundleModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.AssetBundleModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AudioModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.AudioModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CrashReportingModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.CrashReportingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.GameCenterModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.GameCenterModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.GridModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.GridModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.ImageConversionModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.InputModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.InputModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.JSONSerializeModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.JSONSerializeModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ParticlesLegacyModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.ParticlesLegacyModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Physics2DModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.Physics2DModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ScreenCaptureModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.ScreenCaptureModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.SharedInternalsModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.SharedInternalsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.SpriteMaskModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.SpriteMaskModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.SpriteShapeModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.SpriteShapeModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TerrainModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.TerrainModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TilemapModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.TilemapModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.UnityWebRequestModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestAudioModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.UnityWebRequestAudioModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestTextureModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.UnityWebRequestTextureModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestWWWModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.VideoModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.VideoModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.WindModule">
+      <HintPath>Library\UnityAssemblies\UnityEngine.WindModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>Library\UnityAssemblies\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.UI">
+      <HintPath>Library\UnityAssemblies\UnityEditor.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Networking">
+      <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.Networking">
+      <HintPath>Library\UnityAssemblies\UnityEditor.Networking.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.TestRunner">
+      <HintPath>Library\UnityAssemblies\UnityEditor.TestRunner.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TestRunner">
+      <HintPath>Library\UnityAssemblies\UnityEngine.TestRunner.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>Library\UnityAssemblies\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Timeline">
+      <HintPath>Library\UnityAssemblies\UnityEngine.Timeline.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.Timeline">
+      <HintPath>Library\UnityAssemblies\UnityEditor.Timeline.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.TreeEditor">
+      <HintPath>Library\UnityAssemblies\UnityEditor.TreeEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UIAutomation">
+      <HintPath>Library\UnityAssemblies\UnityEngine.UIAutomation.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.UIAutomation">
+      <HintPath>Library\UnityAssemblies\UnityEditor.UIAutomation.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.GoogleAudioSpatializer">
+      <HintPath>Library\UnityAssemblies\UnityEditor.GoogleAudioSpatializer.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.GoogleAudioSpatializer">
+      <HintPath>Library\UnityAssemblies\UnityEngine.GoogleAudioSpatializer.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.HoloLens">
+      <HintPath>Library\UnityAssemblies\UnityEditor.HoloLens.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.HoloLens">
+      <HintPath>Library\UnityAssemblies\UnityEngine.HoloLens.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.SpatialTracking">
+      <HintPath>Library\UnityAssemblies\UnityEditor.SpatialTracking.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.SpatialTracking">
+      <HintPath>Library\UnityAssemblies\UnityEngine.SpatialTracking.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.VR">
+      <HintPath>Library\UnityAssemblies\UnityEditor.VR.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.Graphs">
+      <HintPath>Library\UnityAssemblies\UnityEditor.Graphs.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.WindowsStandalone.Extensions">
+      <HintPath>Library\UnityAssemblies\UnityEditor.WindowsStandalone.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="SyntaxTree.VisualStudio.Unity.Bridge">
+      <HintPath>Library\UnityAssemblies\SyntaxTree.VisualStudio.Unity.Bridge.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Advertisements">
+      <HintPath>Library\UnityAssemblies\UnityEngine.Advertisements.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.Advertisements">
+      <HintPath>Library\UnityAssemblies\UnityEditor.Advertisements.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Analytics">
+      <HintPath>Library\UnityAssemblies\UnityEngine.Analytics.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.Analytics">
+      <HintPath>Library\UnityAssemblies\UnityEditor.Analytics.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Purchasing">
+      <HintPath>Library\UnityAssemblies\UnityEngine.Purchasing.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.Purchasing">
+      <HintPath>Library\UnityAssemblies\UnityEditor.Purchasing.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.StandardEvents">
+      <HintPath>Library\UnityAssemblies\UnityEngine.StandardEvents.dll</HintPath>
+    </Reference>
+    <Reference Include="LiteDB">
+      <HintPath>Assets\Barebones\MsfDatabaseImplementations\LiteDBV2\Plugins\LiteDB.dll</HintPath>
+    </Reference>
+    <Reference Include="websocket-sharp">
+      <HintPath>Assets\Barebones\Networking\Plugins\websocket-sharp.dll</HintPath>
+    </Reference>
+    <Reference Include="BarebonesLogger">
+      <HintPath>Assets\Barebones\Plugins\BarebonesLogger.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Assets\_MK\MKGlowFree\MKGlowFree.cs" />
+    <Compile Include="Assets\Barebones\Contributions\EmilsConnectionTest\EmilsTestClient.cs" />
+    <Compile Include="Assets\Barebones\Contributions\EmilsConnectionTest\EmilsTestServer.cs" />
+    <Compile Include="Assets\Barebones\Demos\Basics\Scripts\BasicsClientConnector.cs" />
+    <Compile Include="Assets\Barebones\Demos\Basics\Scripts\BasicsMsfStarterUi.cs" />
+    <Compile Include="Assets\Barebones\Demos\Basics\Scripts\BasicsSpawnerStarterUi.cs" />
+    <Compile Include="Assets\Barebones\Demos\Common\Scripts\DemoPlayerProfiles.cs" />
+    <Compile Include="Assets\Barebones\Demos\Common\Scripts\RoomConnector.cs" />
+    <Compile Include="Assets\Barebones\Demos\Common\Scripts\SimpleAccessHandler.cs" />
+    <Compile Include="Assets\Barebones\Demos\Common\Scripts\UnetGameRoom.cs" />
+    <Compile Include="Assets\Barebones\Demos\Common\Scripts\UnetGameTerminator.cs" />
+    <Compile Include="Assets\Barebones\Demos\Common\Scripts\UnetMsfPlayer.cs" />
+    <Compile Include="Assets\Barebones\Demos\Common\Scripts\UnetRoomConnector.cs" />
+    <Compile Include="Assets\Barebones\Demos\Common\Scripts\UnetServerStarter.cs" />
+    <Compile Include="Assets\Barebones\Demos\MiniGame\Scripts\MiniCoin.cs" />
+    <Compile Include="Assets\Barebones\Demos\MiniGame\Scripts\MiniGameUi.cs" />
+    <Compile Include="Assets\Barebones\Demos\MiniGame\Scripts\MiniNetworkManager.cs" />
+    <Compile Include="Assets\Barebones\Demos\MiniGame\Scripts\MiniPlayerController.cs" />
+    <Compile Include="Assets\Barebones\Demos\QuickSetup\Scripts\QuickGameServerScene.cs" />
+    <Compile Include="Assets\Barebones\Demos\RoomsDemo\Scripts\DemoFactoriesSetup.cs" />
+    <Compile Include="Assets\Barebones\Demos\RoomsDemo\Scripts\DemoMainScene.cs" />
+    <Compile Include="Assets\Barebones\Demos\RoomsDemo\Scripts\DemoMasterScene.cs" />
+    <Compile Include="Assets\Barebones\Demos\RoomsDemo\Scripts\DemoMasterSpawnerScene.cs" />
+    <Compile Include="Assets\Barebones\Demos\RoomsDemo\Scripts\DemoSelectScene.cs" />
+    <Compile Include="Assets\Barebones\Demos\RoomsDemo\Scripts\DemoSpawnerScene.cs" />
+    <Compile Include="Assets\Barebones\Demos\RoomsDemo\Scripts\NetworkManagerSample.cs" />
+    <Compile Include="Assets\Barebones\Demos\RoomsDemo\Scripts\SimpleBootstrapper.cs" />
+    <Compile Include="Assets\Barebones\Demos\WorldsDemo\Scripts\TeleportRequestPacket.cs" />
+    <Compile Include="Assets\Barebones\Demos\WorldsDemo\Scripts\WorldDemoLoadingScene.cs" />
+    <Compile Include="Assets\Barebones\Demos\WorldsDemo\Scripts\WorldDemoMainScene.cs" />
+    <Compile Include="Assets\Barebones\Demos\WorldsDemo\Scripts\WorldDemoModule.cs" />
+    <Compile Include="Assets\Barebones\Demos\WorldsDemo\Scripts\WorldDemoOpCodes.cs" />
+    <Compile Include="Assets\Barebones\Demos\WorldsDemo\Scripts\WorldDemoZoneRoom.cs" />
+    <Compile Include="Assets\Barebones\Demos\WorldsDemo\Scripts\ZonePortal.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Client\ConnectionToMaster.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Database\MsfDbAccessorFactory.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Events\EventsChannel.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Mail\Mailer.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Mail\SmtpMailer.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\MasterServer\MasterServerBehaviour.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Authentication\AuthModule.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Authentication\IAccountData.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Authentication\IAuthDatabase.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Authentication\IPasswordResetData.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Authentication\IUserExtension.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Authentication\MsfAuthClient.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Authentication\MsfAuthServer.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Authentication\Packets\AccountInfoPacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Authentication\Packets\PeerAccountInfoPacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Authentication\PasswordChangeData.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Authentication\UserExtension.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Chat\ChatChannel.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Chat\ChatModule.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Chat\ChatUserExtension.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Chat\MsfChatClient.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Chat\Packets\ChatMessagePacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Common\IntPairPacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Common\StringPairPacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\DemoLobbyFactories.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\ILobby.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\ILobbyFactory.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\ILobbyListener.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\Implementations\BaseLobby.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\Implementations\BaseLobbyAuto.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\JoinedLobby.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\LobbiesModule.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\LobbyConfig.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\LobbyFactoryAnonymous.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\LobbyMember.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\LobbyState.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\LobbyTeam.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\LobbyUserExtension.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\MsfLobbiesClient.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\MsfLobbiesServer.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\Packets\LobbyChatPacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\Packets\LobbyDataPacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\Packets\LobbyJoinTeamPacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\Packets\LobbyMemberData.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\Packets\LobbyMemberPropChangePacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\Packets\LobbyPropertiesSetPacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\Packets\LobbyPropertyData.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Lobbies\Packets\LobbyTeamData.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Matchmaker\GameInfoPacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Matchmaker\GameInfoType.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Matchmaker\IGamesProvider.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Matchmaker\MatchmakerModule.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Matchmaker\MsfMatchmakerClient.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Profiles\IObservableProperty.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Profiles\IProfilesDatabase.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Profiles\MsfProfilesClient.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Profiles\MsfProfilesServer.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Profiles\ObservableBase.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Profiles\ObservableDictionary.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Profiles\ObservableDictionaryInt.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Profiles\ObservableDictStringFloat.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Profiles\ObservableDictStringInt.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Profiles\ObservableFloat.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Profiles\ObservableInt.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Profiles\ObservableProfile.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Profiles\ObservableServerProfile.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Profiles\ObservableString.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Profiles\ProfileExtension.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Profiles\ProfilesModule.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Rooms\MsfRoomsClient.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Rooms\MsfRoomsServer.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Rooms\Packets\PlayerLeftRoomPacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Rooms\Packets\RoomAccessPacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Rooms\Packets\RoomAccessProvideCheckPacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Rooms\Packets\RoomAccessRequestPacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Rooms\Packets\RoomAccessValidatePacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Rooms\Packets\SaveRoomOptionsPacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Rooms\Packets\UsernameAndPeerIdPacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Rooms\RegisteredRoom.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Rooms\RoomController.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Rooms\RoomOptions.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Rooms\RoomsModule.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Spawner\MsfSpawnersClient.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Spawner\MsfSpawnersServer.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Spawner\Packets\ClientsSpawnRequestPacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Spawner\Packets\KillSpawnedProcessPacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Spawner\Packets\RegisterSpawnedProcessPacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Spawner\Packets\SpawnedProcessStartedPacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Spawner\Packets\SpawnFinalizationPacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Spawner\Packets\SpawnRequestPacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Spawner\Packets\SpawnStatusUpdatePacket.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Spawner\RegisteredSpawner.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Spawner\SpawnerBehaviour.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Spawner\SpawnerController.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Spawner\SpawnerOptions.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Spawner\SpawnersModule.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Spawner\SpawnRequestController.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Spawner\SpawnStatus.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Modules\Spawner\SpawnTask.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Msf\Msf.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Msf\MsfArgs.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Msf\MsfBaseClient.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Msf\MsfClient.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Msf\MsfConcurrency.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Msf\MsfRuntime.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Msf\MsfSecurity.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Msf\MsfServer.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Msf\SuccessCallback.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\MsfDictKeys.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\MsfOpCodes.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\MsfPropCodes.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Server\IServer.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Server\IServerModule.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Server\PeerSecurityExtension.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Server\ServerBehaviour.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Server\ServerModuleBehaviour.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Utils\HelpBox.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Utils\HelpBoxType.cs" />
+    <Compile Include="Assets\Barebones\Msf\Scripts\Utils\SceneField.cs" />
+    <Compile Include="Assets\Barebones\MsfDatabaseImplementations\LiteDBV2\Scripts\AuthDbLdb.cs" />
+    <Compile Include="Assets\Barebones\MsfDatabaseImplementations\LiteDBV2\Scripts\LiteDbFactory.cs" />
+    <Compile Include="Assets\Barebones\MsfDatabaseImplementations\LiteDBV2\Scripts\ProfilesDatabaseLdb.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\Auth\AuthUiController.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\Auth\EmailConfirmUi.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\Auth\LoginFormData.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\Auth\LoginUi.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\Auth\PasswordResetUi.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\Auth\QuickAuthUi.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\Auth\RegisterUi.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\Chat\ChatUi.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\ClientConnectionStatusUi.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\DialogBoxUi.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\Draggable.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\LoadingUi.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\LoadingUiItem.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\Lobbies\LobbyChatUi.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\Lobbies\LobbyCreateUi.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\Lobbies\LobbyPropController.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\Lobbies\LobbyPropControllersUi.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\Lobbies\LobbyTeamUi.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\Lobbies\LobbyUi.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\Lobbies\LobbyUserUi.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\MsfHud.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\MsfUi.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\MsfUiDestroyer.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\Rooms\CreateGameProgressUi.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\Rooms\CreateGameUi.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\Rooms\GamesListUi.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\Rooms\GamesListUiItem.cs" />
+    <Compile Include="Assets\Barebones\MsfUiSamples\Scripts\RotatingImageUi.cs" />
+    <Compile Include="Assets\Barebones\Networking\Plugins\WebSocket.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\BarebonesTopology.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\BaseClientSocket.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\BasePeer.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\BmUpdateRunner.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\BNetworkReader.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\BNetworkWriter.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\BTimer.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\ClientSocketUnet.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\ClientSocketWs.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\ConnectionStatus.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\DeliveryMethod.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\IClientSocket.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\IIncommingMessage.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\IMessage.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\IMessageFactory.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\IMsgDispatcher.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\IncomingMessage.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\IPacketHandler.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\IPeer.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\ISerializablePacket.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\IServerSocket.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\Message.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\MessageFactory.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\MessageFlag.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\MessageHelper.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\PacketHandler.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\PeerUnet.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\PeerWs.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\ResponseStatus.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\SerializablePacket.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\SerializationExtensions.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\Serializer.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\ServerSocketUnet.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\ServerSocketWs.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\Utils\Conversion\BigEndianBitConverter.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\Utils\Conversion\DoubleConverter.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\Utils\Conversion\EndianBitConverter.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\Utils\Conversion\Endianness.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\Utils\Conversion\LittleEndianBitConverter.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\Utils\IO\EndianBinaryReader.cs" />
+    <Compile Include="Assets\Barebones\Networking\Scripts\Utils\IO\EndianBinaryWriter.cs" />
+    <Compile Include="Assets\Barebones\Plugins\JSONObject.cs" />
+    <Compile Include="Assets\Barebones\Utils\Scripts\BmAutoEnabler.cs" />
+    <Compile Include="Assets\Barebones\Utils\Scripts\BmHelper.cs" />
+    <Compile Include="Assets\Barebones\Utils\Scripts\GenericPool.cs" />
+    <Compile Include="Assets\Barebones\Utils\Scripts\GenericUiList.cs" />
+    <Compile Include="Assets\Barebones\Utils\Scripts\GUIConsole.cs" />
+    <Compile Include="Assets\Barebones\Utils\Scripts\SafeCoroutine.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\ClientController.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\ClientDataController.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\ClientStyleManager.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Deprecated\DeviationClient.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Deprecated\ModuleEditor\ModuleEditor.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Deprecated\PlayerAccount.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Login\ClientLoginController.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseActions\ActionDetailsPanel.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseActions\ChooseActionsUIController.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseActions\DragableUI.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseActions\SnapPoint.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseTrader\ChooseTraderUIController.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseTrader\Trader.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseTrader\TraderDetailsPanel.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseTrader\TraderPanelFactory.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseTrader\TraderSelectScrollPanel.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Match\ClientMatchController.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Match\End\EndUIController.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Match\Start\StartUIController.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Match\Summary\SummaryUIController.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Match\UIController.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Results\ClientResultsController.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\UserInterface\VerticalScrollPanel.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\ActionObjectMover.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Attacks\ActionObject.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Controllers\ChangePhaseController.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Controllers\ExchangeController1v1.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Controllers\GameController.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Controllers\MultiplayerController.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Display\ActionBar.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Display\ChangePhaseControls.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Display\ExchangeControls.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Display\ExchangeTimer.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Display\ProgressBar.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\DTO\Exchange\Attack.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\DTO\Exchange\ExchangeAction.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\DTO\Exchange\ExchangeConstants.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\DTO\Exchange\GridCoordinate.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\DTO\Exchange\Kit.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\DTO\Exchange\MovingDetails.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Energy.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Enum\AttackAlignment.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Enum\BattlefieldZone.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Enum\Decision.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Enum\Direction.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Enum\ExchangeState.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Enum\GameState.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Enum\TraderType.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\ExchangeBattlefieldController.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\ExchangePlayer.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\External\PlayerData.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\GridManager.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\GridSpace.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Health.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\IExchangePlayer.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\DTO\IAction.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\DTO\IAttack.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\DTO\IKit.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\Exchange\IActionObject.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\Exchange\IBattlefieldController.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\Exchange\IExchangeAttack.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\Exchange\IExchangeController.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\Exchange\IExchangeObject.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\Exchange\IMainPlayerController.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\ICoroutineManager.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\IDeviationClient.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\IGameController.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\IInput.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\IMultiplayerController.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\IPlayerAccount.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\ITimerManager.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\IUnityTimer.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Libraries\Action\ActionLibrary.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Libraries\Action\ActionMethodLibrary.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Libraries\Action\ActionMethodModules\ElementalActionMethods.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Libraries\Action\ActionMethodModules\EnergyActionMethods.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Libraries\Action\ActionMethodModules\LifeActionMethods.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Libraries\Action\ActionMethodModules\MageActionMethods.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Libraries\Action\ActionMethodModules\ManipulateActionMethods.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Libraries\Action\ActionMethodModules\RangerActionMethods.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Libraries\Action\ActionMethodModules\ScavengeActionMethods.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Libraries\Action\ActionMethodModules\TestActionMethods.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Libraries\Action\ActionModules\AlphaActions.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Libraries\Action\ActionModules\BetaActions.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Libraries\Action\ActionModules\DeltaActions.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Libraries\Action\ActionModules\EpsilonActions.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Libraries\Action\ActionModules\GammaActions.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Libraries\Action\ActionModules\TestActions.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Libraries\Action\IActionLibraryModule.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Libraries\Action\IActionMethodLibraryModule.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\MasterServer\ExchangeRoomConnector.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\MasterServer\ExchangeRoomTerminator.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\MasterServer\ExchangeServerStarter.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Menu\Main.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Menu\Multiplayer.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Mover.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\PlayerController.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Standalone\StandaloneController.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Status.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\StatusEffect.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Utilities\ActionUtilities.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Utilities\AttackTimer.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Utilities\ConcurrentDictionary.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Utilities\ConcurrentQueue.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Utilities\CoroutineManager.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Utilities\ExchangeUtilities.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Utilities\InputWrapper.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Utilities\StaticObject.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Utilities\TimerManager.cs" />
+    <Compile Include="Assets\Deviation.GameServer\Scripts\ExchangeNetworkManager.cs" />
+    <Compile Include="Assets\Deviation.GameServer\Scripts\ExchangeServerScene.cs" />
+    <Compile Include="Assets\Deviation.GameServer\Scripts\GameRoom.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\Exchange1v1MatchMakingModule.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\Exchange1v1Module.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\ExchangeDataAccess.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\ExchangeMatchMaking.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\ExtendedSerializablePacket.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\PlayerDataAccess.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\ResourceBank\Packets\ResourceBagPacket.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\ResourceBank\Packets\ResourceBankPacket.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\ResourceBank\Packets\ResourcesPacket.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\ResourceBank\ResourceBankDataAccess.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\ResourceBank\ResourceBankFactory.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\ResourceBank\ResourceBankHelpers\Resource.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\ResourceBank\ResourceBankHelpers\ResourceBag.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\ResourceBank\ResourceBankHelpers\ResourceBank.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\ResourceBank\ResourceBankHelpers\ResourceBankType.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\ResourceBank\ResourceBankModule.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\ResourceBank\ResourceLibrary.cs" />
+    <Compile Include="Assets\Deviation.Scene\Scripts\FrameRateLimiter.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Barebones\Credits.txt" />
+    <None Include="Assets\Barebones\Demos\RoomsDemo\Scenes\Scenes Information.txt" />
+    <None Include="Assets\Barebones\MSF README.txt" />
+    <None Include="Assets\Barebones\MSF ReleaseNotes.txt" />
+    <None Include="Assets\Barebones\Resources\Fonts\OpenSans\License!.txt" />
+    <None Include="Assets\_MK\MKGlowFree\Legacy_2_0_7\ReadMe.txt" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Render\MKGlowBlur.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Render\MKGlowBlurInc.cginc" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Render\MKGlowComposite.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Render\MKGlowCompositeInc.cginc" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Render\MKGlowSelectiveRender.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Cutout\MK_Cutout-Diffuse.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Cutout\MK_Cutout-DiffuseBumpSpec.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Cutout\MK_Cutout-DiffuseBumped.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Cutout\MK_Cutout-Glossy.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Illumin\MK_Illumin-Diffuse.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Illumin\MK_Illumin-DiffuseBumpSpec.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Illumin\MK_Illumin-DiffuseBumped.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Illumin\MK_Illumin-Glossy.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Normal\MK_Normal-Diffuse.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Normal\MK_Normal-DiffuseBumpSpec.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Normal\MK_Normal-DiffuseBumped.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Normal\MK_Normal-Glossy.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Other\MK_Illumin-Diffuse.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Other\MK_Mobile-Diffuse.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Other\MK_Unlit-Normal.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Particle\MK_Particle Add.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Particle\MK_Particle AddMultiply.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Particle\MK_Particle Alpha Blend.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Particle\MK_Particle Multiply.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Sprites\MK_Sprite-Default.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Sprites\MK_Sprite-Diffuse.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Sprites\MK_UnitySprites.cginc" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Transparent\MK_Transparent-Diffuse.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Transparent\MK_Transparent-DiffuseBumpSpec.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Transparent\MK_Transparent-DiffuseBumped.shader" />
+    <None Include="Assets\_MK\MKGlowFree\Shader\Variants_SelectiveMode\Transparent\MK_Transparent-Glossy.shader" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="GenerateTargetFrameworkMonikerAttribute" />
+</Project>
