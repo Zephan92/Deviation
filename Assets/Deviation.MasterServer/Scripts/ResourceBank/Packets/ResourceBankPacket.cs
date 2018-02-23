@@ -22,7 +22,7 @@ namespace Assets.Deviation.MasterServer.Scripts.ResourceBank
 		{
 			//setup
 			var resourcesDict = new Dictionary<string, int>();
-			var resources = ResourceBank.GetResources();
+			var resources = ResourceBank.Resources;
 			resources.ToList().ForEach(resource => resourcesDict.Add(resource.Key.Name, resource.Value));
 
 			//write

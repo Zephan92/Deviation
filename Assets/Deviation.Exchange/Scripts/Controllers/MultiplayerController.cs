@@ -80,7 +80,7 @@ namespace Assets.Scripts.Controllers
 			UnityWebRequest getreq = UnityWebRequest.Get("http://localhost:50012/api/lootpool/getloot");
 			yield return getreq.Send();
 
-			if (getreq.isError)
+			if (getreq.isNetworkError)
 			{
 				Debug.Log("Error: " + getreq.error);
 			}
@@ -99,7 +99,7 @@ namespace Assets.Scripts.Controllers
 			UnityWebRequest getreq = UnityWebRequest.Get("http://localhost:50012/api/lootpool/getlootpool");
 			yield return getreq.Send();
 
-			if (getreq.isError)
+			if (getreq.isNetworkError)
 			{
 				Debug.Log("Error: " + getreq.error);
 			}

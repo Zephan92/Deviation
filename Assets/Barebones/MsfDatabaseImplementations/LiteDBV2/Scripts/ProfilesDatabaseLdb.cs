@@ -1,4 +1,5 @@
 ﻿#if (!UNITY_WEBGL && !UNITY_IOS) || UNITY_EDITOR
+using System;
 using LiteDB;
 
 namespace Barebones.MasterServer
@@ -23,12 +24,12 @@ namespace Barebones.MasterServer
         /// Should restore all values of the given profile, 
         /// or not change them, if there's no entry in the database
         /// </summary>
-        /// <param name="profile"></param>
         /// <returns></returns>
-        public void RestoreProfile(ObservableServerProfile profile)
+        public void RestoreProfile(ObservableServerProfile profile, Action doneCallback)
         {
             var data = FindOrCreateData(profile);
             profile.FromBytes(data.Data);
+            doneCallback.Invoke();
         }
 
         private ProfileDataLdb FindOrCreateData(ObservableServerProfile profile)
@@ -52,12 +53,13 @@ namespace Barebones.MasterServer
         /// <summary>
         /// Should save updated profile into database
         /// </summary>
-        /// <param name="profile"></param>
-        public void UpdateProfile(ObservableServerProfile profile)
+        public void UpdateProfile(ObservableServerProfile profile, Action doneCallback)
         {
             var data = FindOrCreateData(profile);
             data.Data = profile.ToBytes();
             _profiles.Update(data);
+
+            doneCallback.Invoke();
         }
 
         /// <summary>

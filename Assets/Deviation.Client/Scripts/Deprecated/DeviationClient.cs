@@ -23,7 +23,7 @@ namespace Assets.Scripts.Client
 			UnityWebRequest getreq = UnityWebRequest.Get("http://localhost:50012/api/LootPool");
 			yield return getreq.Send();
 
-			if (getreq.isError)
+			if (getreq.isNetworkError)
 			{
 				//Debug.Log("Error: " + getreq.error);
 			}

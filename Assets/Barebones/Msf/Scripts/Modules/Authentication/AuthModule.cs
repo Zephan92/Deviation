@@ -150,6 +150,42 @@ namespace Barebones.MasterServer
             return LoggedInUsers.ContainsKey(username);
         }
 
+        /// <summary>
+        /// Triggers the <see cref="LoggedOut"/> event
+        /// </summary>
+        protected void TriggerLoggedOutEvent(IUserExtension user)
+        {
+            if (LoggedOut != null)
+                LoggedOut.Invoke(user);
+        }
+
+        /// <summary>
+        /// Triggers the <see cref="LoggedIn"/> event
+        /// </summary>
+        protected void TriggerLoggedInEvent(IUserExtension user)
+        {
+            if (LoggedIn != null)
+                LoggedIn.Invoke(user);
+        }
+
+        /// <summary>
+        /// Triggers the <see cref="Registered"/> event
+        /// </summary>
+        protected void TriggerRegisteredEvent(IPeer peer, IAccountData account)
+        {
+            if (Registered != null)
+                Registered.Invoke(peer, account);
+        }
+
+        /// <summary>
+        /// Triggers the <see cref="EmailConfirmed"/> event
+        /// </summary>
+        protected void TriggerEmailConfirmed(IAccountData account)
+        {
+            if (EmailConfirmed != null) 
+                EmailConfirmed.Invoke(account);
+        }
+
         #region Message Handlers
 
         /// <summary>
@@ -168,23 +204,25 @@ namespace Barebones.MasterServer
 
             var db = Msf.Server.DbAccessors.GetAccessor<IAuthDatabase>();
 
-            var resetData = db.GetPasswordResetData(data["email"]);
-
-            if (resetData == null || resetData.Code == null || resetData.Code != data["code"])
+            db.GetPasswordResetData(data["email"], resetData =>
             {
-                message.Respond("Invalid code provided", ResponseStatus.Unauthorized);
-                return;
-            }
+                if (resetData == null || resetData.Code == null || resetData.Code != data["code"])
+                {
+                    message.Respond("Invalid code provided", ResponseStatus.Unauthorized);
+                    return;
+                }
 
-            var account = db.GetAccountByEmail(data["email"]);
+                db.GetAccountByEmail(data["email"], account =>
+                {
+                    // Delete (overwrite) code used
+                    db.SavePasswordResetCode(account, null, () => { });
 
-            // Delete (overwrite) code used
-            db.SavePasswordResetCode(account, null);
+                    account.Password = Msf.Security.CreateHash(data["password"]);
+                    db.UpdateAccount(account, () => { });
 
-            account.Password = Msf.Security.CreateHash(data["password"]);
-            db.UpdateAccount(account);
-
-            message.Respond(ResponseStatus.Success);
+                    message.Respond(ResponseStatus.Success);
+                });
+            });
         }
 
         /// <summary>
@@ -229,26 +267,28 @@ namespace Barebones.MasterServer
 
             var db = Msf.Server.DbAccessors.GetAccessor<IAuthDatabase>();
 
-            var requiredCode = db.GetEmailConfirmationCode(extension.AccountData.Email);
-
-            if (requiredCode != code)
+            db.GetEmailConfirmationCode(extension.AccountData.Email, requiredCode =>
             {
-                message.Respond("Invalid activation code", ResponseStatus.Error);
-                return;
-            }
+                if (requiredCode != code)
+                {
+                    message.Respond("Invalid activation code", ResponseStatus.Error);
+                    return;
+                }
 
-            // Confirm e-mail
-            extension.AccountData.IsEmailConfirmed = true;
+                // Confirm e-mail
+                extension.AccountData.IsEmailConfirmed = true;
 
-            // Update account
-            db.UpdateAccount(extension.AccountData);
+                // Update account
+                db.UpdateAccount(extension.AccountData, () => { });
 
-            // Respond with success
-            message.Respond(ResponseStatus.Success);
+                // Respond with success
+                message.Respond(ResponseStatus.Success);
 
-            // Invoke the event
-            if (EmailConfirmed != null)
-                EmailConfirmed.Invoke(extension.AccountData);
+                // Invoke the event
+                if (EmailConfirmed != null)
+                    EmailConfirmed.Invoke(extension.AccountData);
+            });
+
         }
 
         /// <summary>
@@ -260,25 +300,26 @@ namespace Barebones.MasterServer
             var email = message.AsString();
             var db = Msf.Server.DbAccessors.GetAccessor<IAuthDatabase>();
 
-            var account = db.GetAccountByEmail(email);
-
-            if (account == null)
+            db.GetAccountByEmail(email, account =>
             {
-                message.Respond("No such e-mail in the system", ResponseStatus.Unauthorized);
-                return;
-            }
+                if (account == null)
+                {
+                    message.Respond("No such e-mail in the system", ResponseStatus.Unauthorized);
+                    return;
+                }
 
-            var code = Msf.Helper.CreateRandomString(4);
+                var code = Msf.Helper.CreateRandomString(4);
 
-            db.SavePasswordResetCode(account, code);
+                db.SavePasswordResetCode(account, code, () => { });
 
-            if (!Mailer.SendMail(account.Email, "Password Reset Code", string.Format(PasswordResetCode, code)))
-            {
-                message.Respond("Couldn't send an activation code to your e-mail");
-                return;
-            }
+                if (!Mailer.SendMail(account.Email, "Password Reset Code", string.Format(PasswordResetCode, code)))
+                {
+                    message.Respond("Couldn't send an activation code to your e-mail");
+                    return;
+                }
 
-            message.Respond(ResponseStatus.Success);
+                message.Respond(ResponseStatus.Success);
+            });
         }
 
         protected virtual void HandleRequestEmailConfirmCode(IIncommingMessage message)
@@ -303,7 +344,7 @@ namespace Barebones.MasterServer
 
             // Save the new code
             Debug.LogError("SHOULD BE HERE");
-            db.SaveEmailConfirmationCode(extension.AccountData.Email, code);
+            db.SaveEmailConfirmationCode(extension.AccountData.Email, code, () => {});
 
             if (!Mailer.SendMail(extension.AccountData.Email, "E-mail confirmation", string.Format(ActivationForm, code)))
             {
@@ -403,7 +444,7 @@ namespace Barebones.MasterServer
 
             try
             {
-                db.InsertNewAccount(account);
+                db.InsertNewAccount(account, () => { });
 
                 if (Registered != null)
                     Registered.Invoke(message.Peer, account);
@@ -487,82 +528,96 @@ namespace Barebones.MasterServer
 
             var db = Msf.Server.DbAccessors.GetAccessor<IAuthDatabase>();
 
-            IAccountData accountData = null;
+            // Finishing touches for login process
+            // Action is used so that we don't have to repeat code in
+            // all of  the callbacks
+            Action<IAccountData> finalizeLogin = account =>
+            {
+                if (account == null)
+                {
+                    message.Respond("Invalid request", ResponseStatus.Unauthorized);
+                    return;
+                }
+
+                // Setup auth extension
+                var extension = message.Peer.AddExtension(CreateUserExtension(message.Peer));
+                extension.Load(account);
+                var infoPacket = extension.CreateInfoPacket();
+
+                // Finalize login
+                FinalizeLogin(extension);
+
+                message.Respond(infoPacket.ToBytes(), ResponseStatus.Success);
+            };
+
 
             // ---------------------------------------------
             // Guest Authentication
             if (data.ContainsKey("guest") && EnableGuestLogin)
             {
                 var guestUsername = GenerateGuestUsername();
-                accountData = db.CreateAccountObject();
+                var accountData = db.CreateAccountObject();
 
                 accountData.Username = guestUsername;
                 accountData.IsGuest = true;
                 accountData.IsAdmin = false;
+
+                finalizeLogin(accountData);
+                return;
             }
 
             // ----------------------------------------------
             // Token Authentication
-            if (data.ContainsKey("token") && accountData == null)
+            if (data.ContainsKey("token"))
             {
-                accountData = db.GetAccountByToken(data["token"]);
-                if (accountData == null)
+                db.GetAccountByToken(data["token"], account =>
                 {
-                    message.Respond("Invalid Credentials".ToBytes(), ResponseStatus.Unauthorized);
-                    return;
-                }
+                    if (account == null)
+                    {
+                        message.Respond("Invalid Credentials".ToBytes(), ResponseStatus.Unauthorized);
+                        return;
+                    }
 
-                var otherSession = GetLoggedInUser(accountData.Username);
-                if (otherSession != null)
-                {
-                    otherSession.Peer.Disconnect("Other user logged in");
-                    message.Respond("This account is already logged in".ToBytes(),
-                        ResponseStatus.Unauthorized);
-                    return;
-                }
+                    var otherSession = GetLoggedInUser(account.Username);
+                    if (otherSession != null)
+                    {
+                        otherSession.Peer.Disconnect("Other user logged in");
+                        message.Respond("This account is already logged in".ToBytes(),
+                            ResponseStatus.Unauthorized);
+                        return;
+                    }
+
+                    finalizeLogin(account);
+                });
             }
 
             // ----------------------------------------------
             // Username / Password authentication
 
-            if (data.ContainsKey("username") && data.ContainsKey("password") && accountData == null)
+            if (data.ContainsKey("username") && data.ContainsKey("password"))
             {
                 var username = data["username"];
                 var password = data["password"];
 
-                accountData = db.GetAccount(username);
-
-                if (accountData == null)
+                db.GetAccount(username, account =>
                 {
-                    // Couldn't find an account with this name
-                    message.Respond("Invalid Credentials".ToBytes(), ResponseStatus.Unauthorized);
-                    return;
-                }
+                    if (account == null)
+                    {
+                        // Couldn't find an account with this name
+                        message.Respond("Invalid Credentials".ToBytes(), ResponseStatus.Unauthorized);
+                        return;
+                    }
 
-                if (!Msf.Security.ValidatePassword(password, accountData.Password))
-                {
-                    // Password is not correct
-                    message.Respond("Invalid Credentials".ToBytes(), ResponseStatus.Unauthorized);
-                    return;
-                }
+                    if (!Msf.Security.ValidatePassword(password, account.Password))
+                    {
+                        // Password is not correct
+                        message.Respond("Invalid Credentials".ToBytes(), ResponseStatus.Unauthorized);
+                        return;
+                    }
+
+                    finalizeLogin(account);
+                });
             }
-
-            if (accountData == null)
-            {
-                message.Respond("Invalid request", ResponseStatus.Unauthorized);
-                return;
-            }
-
-            // Setup auth extension
-            var extension = message.Peer.AddExtension(CreateUserExtension(message.Peer));
-            extension.Load(accountData);
-            var infoPacket = extension.CreateInfoPacket();
-
-            // Finalize login
-            FinalizeLogin(extension);
-
-            message.Respond(infoPacket.ToBytes(), ResponseStatus.Success);
-            return;
         }
 
         #endregion

@@ -1,4 +1,6 @@
-﻿namespace Barebones.MasterServer
+﻿using System;
+
+namespace Barebones.MasterServer
 {
     public interface IAuthDatabase
     {
@@ -8,18 +10,18 @@
         /// <returns></returns>
         IAccountData CreateAccountObject();
 
-        IAccountData GetAccount(string username);
-        IAccountData GetAccountByToken(string token);
-        IAccountData GetAccountByEmail(string email);
+        void GetAccount(string username, Action<IAccountData> callback);
+        void GetAccountByToken(string token, Action<IAccountData> callback);
+        void GetAccountByEmail(string email, Action<IAccountData> callback);
 
-        void SavePasswordResetCode(IAccountData account, string code);
-        IPasswordResetData GetPasswordResetData(string email);
+        void SavePasswordResetCode(IAccountData account, string code, Action doneCallback );
+        void GetPasswordResetData(string email, Action<IPasswordResetData> callback);
 
-        void SaveEmailConfirmationCode(string email, string code);
-        string GetEmailConfirmationCode(string email);
+        void SaveEmailConfirmationCode(string email, string code, Action doneCallback);
+        void GetEmailConfirmationCode(string email, Action<string> callback);
 
-        void UpdateAccount(IAccountData account);
-        void InsertNewAccount(IAccountData account);
-        void InsertToken(IAccountData account, string token);
+        void UpdateAccount(IAccountData account, Action doneCallback);
+        void InsertNewAccount(IAccountData account, Action doneCallback);
+        void InsertToken(IAccountData account, string token, Action doneCallback);
     }
 }

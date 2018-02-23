@@ -11,7 +11,6 @@ namespace Barebones.Utils
     /// </summary>
     /// <typeparam name="T">Data type</typeparam>
     /// <typeparam name="T2">Item component type</typeparam>
-    /// // TODO make sure I remember the reason for generic types and hanging to GameObject
     public class GenericUIList<T, T2> where T2 : class
     {
         private readonly LayoutGroup _list;
@@ -67,7 +66,6 @@ namespace Barebones.Utils
                     _items.Add(listItem);
                 }
 
-                // TODO: transform
                 if (typeof(T2) == typeof(GameObject))
                     transformer.Invoke(item, listItem as T2);
                 else
@@ -160,8 +158,7 @@ namespace Barebones.Utils
                     listItem.transform.SetParent(_list.transform, false);
                     _items.Add(listItem);
                 }
-
-                // TODO: transform
+                
                 if (typeof(T2) == typeof(GameObject))
                     transformer.Invoke(item, listItem as T2);
                 else

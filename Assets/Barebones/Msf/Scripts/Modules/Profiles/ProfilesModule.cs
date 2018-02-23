@@ -117,15 +117,31 @@ namespace Barebones.MasterServer
                 _profiles.Add(user.Username, profile);
             }
 
+            // Action, which does final "touches" to the profile
+            // action is used so that we don't need to "repeat" code in the callback 
+            // (in case if it's a guest profile)
+            Action<ObservableServerProfile> finalize = finalizedProfile =>
+            {
+                // Save profile property
+                user.Peer.AddExtension(new ProfileExtension(finalizedProfile, user.Peer));
+
+                // Listen to profile events
+                finalizedProfile.ModifiedInServer += OnProfileChanged;
+            };
+
             // Restore profile data from database (only if not a guest)
             if (!user.AccountData.IsGuest)
-                Database.RestoreProfile(profile);
+            {
+                // No need to restore the profile, so we can finalize it right now
+                finalize(profile);
+                return;
+            }
 
-            // Save profile property
-            user.Peer.AddExtension(new ProfileExtension(profile, user.Peer));
-
-            // Listen to profile events
-            profile.ModifiedInServer += OnProfileChanged;
+            Database.RestoreProfile(profile, () =>
+            {
+                // Finalize profile after it's restored
+                finalize(profile);
+            });
         }
 
         /// <summary>
@@ -205,7 +221,7 @@ namespace Barebones.MasterServer
             // Remove value from debounced updates
             _debouncedSaves.Remove(profile.Username);
 
-            Database.UpdateProfile(profile);
+            Database.UpdateProfile(profile, () => {});
 
             profile.UnsavedProperties.Clear();
         }
