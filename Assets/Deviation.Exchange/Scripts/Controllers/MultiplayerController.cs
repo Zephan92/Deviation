@@ -59,12 +59,12 @@ namespace Assets.Scripts.Controllers
 
 		public void GetResource()
 		{
-			StartCoroutine(AllocateResourcesCoroutine());
+			//StartCoroutine(AllocateResourcesCoroutine());
 		}
 
 		public void GetLootPool()
 		{
-			StartCoroutine(GetLootPoolFromServer());
+			//StartCoroutine(GetLootPoolFromServer());
 		}
 
 		public void OutputResourceBag()
@@ -75,40 +75,40 @@ namespace Assets.Scripts.Controllers
 			}
 		}
 
-		private IEnumerator AllocateResourcesCoroutine()
-		{
-			UnityWebRequest getreq = UnityWebRequest.Get("http://localhost:50012/api/lootpool/getloot");
-			yield return getreq.Send();
+		//private IEnumerator AllocateResourcesCoroutine()
+		//{
+		//	UnityWebRequest getreq = UnityWebRequest.Get("http://localhost:50012/api/lootpool/getloot");
+		//	yield return getreq.Send();
 
-			if (getreq.isNetworkError)
-			{
-				Debug.Log("Error: " + getreq.error);
-			}
-			else
-			{
-				//Debug.Log("Received " + getreq.downloadHandler.text);
-				string lootName = getreq.downloadHandler.text.Replace("\"", "");
-				//IResource loot = ResourceLibrary.GetResourceInstance(lootName);
-				//dc.currentPlayer.ResourceBag.AddResource(loot);
-				Debug.Log("Adding \"" + lootName + "\" to Resource Bag");
-			}
-		}
+		//	if (getreq.isNetworkError)
+		//	{
+		//		Debug.Log("Error: " + getreq.error);
+		//	}
+		//	else
+		//	{
+		//		//Debug.Log("Received " + getreq.downloadHandler.text);
+		//		string lootName = getreq.downloadHandler.text.Replace("\"", "");
+		//		//IResource loot = ResourceLibrary.GetResourceInstance(lootName);
+		//		//dc.currentPlayer.ResourceBag.AddResource(loot);
+		//		Debug.Log("Adding \"" + lootName + "\" to Resource Bag");
+		//	}
+		//}
 
-		private IEnumerator GetLootPoolFromServer()
-		{
-			UnityWebRequest getreq = UnityWebRequest.Get("http://localhost:50012/api/lootpool/getlootpool");
-			yield return getreq.Send();
+		//private IEnumerator GetLootPoolFromServer()
+		//{
+		//	UnityWebRequest getreq = UnityWebRequest.Get("http://localhost:50012/api/lootpool/getlootpool");
+		//	yield return getreq.Send();
 
-			if (getreq.isNetworkError)
-			{
-				Debug.Log("Error: " + getreq.error);
-			}
-			else
-			{
-				//Debug.Log("Received " + getreq.downloadHandler.text);
-				string lootpool = getreq.downloadHandler.text;
-				Debug.Log(lootpool);
-			}
-		}
+		//	if (getreq.isNetworkError)
+		//	{
+		//		Debug.Log("Error: " + getreq.error);
+		//	}
+		//	else
+		//	{
+		//		//Debug.Log("Received " + getreq.downloadHandler.text);
+		//		string lootpool = getreq.downloadHandler.text;
+		//		Debug.Log(lootpool);
+		//	}
+		//}
 	}
 }
