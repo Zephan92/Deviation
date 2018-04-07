@@ -9,11 +9,11 @@ using Assets.Deviation.Exchange.Scripts.Client;
 public class StandaloneController : MonoBehaviour
 {
 	protected SpawnRequestController Request;
-	private ClientDataController cdc;
+	private ClientDataRepository cdc;
 
 	public void Awake()
 	{
-		cdc = FindObjectOfType<ClientDataController>();
+		cdc = FindObjectOfType<ClientDataRepository>();
 		JoinServer();
 	}
 

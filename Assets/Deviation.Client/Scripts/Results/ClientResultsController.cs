@@ -13,7 +13,7 @@ namespace Assets.Deviation.Client.Scripts.Results
 	{
 		public void Awake()
 		{
-			ClientDataController.Instance.State = ClientState.Results;
+			ClientDataRepository.Instance.State = ClientState.Results;
 			//Destroy(FindObjectOfType<ExchangeNetworkManager>().gameObject);
 		}
 

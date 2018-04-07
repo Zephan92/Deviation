@@ -12,7 +12,7 @@ namespace Assets.Deviation.MasterServer.Scripts.ResourceBank
 
 		public ResourcesPacket()
 		{
-
+			Resources = new Dictionary<Resource, int>();
 		}
 
 		public ResourcesPacket(Resource resource)

@@ -20,15 +20,19 @@ namespace Assets.Deviation.Client.Scripts.UserInterface
 		private bool _scrollEnabled;
 		private int _itemCount;
 
-		public void Start()
+		public void Awake()
 		{
 			List = transform.Find("List").gameObject;
 			UIBoundary = GetComponent<RectTransform>();
 			Scroll = GetComponentInChildren<Scrollbar>();
 			LayoutGroup = GetComponentInChildren<VerticalLayoutGroup>();
-			Boundary = GetBoundaryFromRectTransform(UIBoundary);
+
 			Scroll.onValueChanged.AddListener(OnScroll);
-			Boundary = GetBoundaryFromRectTransform(UIBoundary);
+		}
+
+		public void Start()
+		{
+		
 		}
 
 		public void Update()

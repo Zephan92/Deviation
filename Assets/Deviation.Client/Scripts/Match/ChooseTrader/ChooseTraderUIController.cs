@@ -22,7 +22,6 @@ namespace Assets.Deviation.Client.Scripts.Match
 
 	public class ChooseTraderUIController : UIController
 	{
-		public GameObject TraderDetailsPanel;
 		public ITrader CurrentTrader;
 		public UnityAction<ITrader> OnConfirmTrader;
 		public ChooseTraderUIState UIState
@@ -45,7 +44,6 @@ namespace Assets.Deviation.Client.Scripts.Match
 		public TraderSelectScrollPanel TraderList;
 		public Button[] TraderListFilters = new Button[5];
 		public TraderDetailsPanel TraderDetails;
-		public Text ChooseTraderTimer;//Find this dynamically and move to matchclient
 
 		private UnityAction<ChooseTraderUIState> OnUIStateChange;
 		private UnityAction<int> onListChange;
@@ -226,7 +224,7 @@ namespace Assets.Deviation.Client.Scripts.Match
 			{
 				UnityAction onTraderListPanelClick = () =>
 				{
-					TraderDetails.UpdateTraderDetails(trader);
+					TraderDetails.UpdateTraderDetails(trader, ConfirmTrader);
 					UnChooseTraderListPanels(trader);
 					_selectedTrader = trader;
 					UIState = ChooseTraderUIState.TraderSelected;

@@ -13,11 +13,13 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows:5</UnityBuildTarget>
     <UnityVersion>2017.3.1f1</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -291,6 +293,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Deviation.Client\Scripts\ControllerBase.cs" />
     <Compile Include="Assets\_MK\MKGlowFree\MKGlowFree.cs" />
     <Compile Include="Assets\Barebones\Contributions\EmilsConnectionTest\EmilsTestClient.cs" />
     <Compile Include="Assets\Barebones\Contributions\EmilsConnectionTest\EmilsTestServer.cs" />
@@ -525,7 +528,7 @@
     <Compile Include="Assets\Barebones\Utils\Scripts\GUIConsole.cs" />
     <Compile Include="Assets\Barebones\Utils\Scripts\SafeCoroutine.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\ClientController.cs" />
-    <Compile Include="Assets\Deviation.Client\Scripts\ClientDataController.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\ClientDataRepository.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\ClientStyleManager.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Deprecated\DeviationClient.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Deprecated\ModuleEditor\ModuleEditor.cs" />

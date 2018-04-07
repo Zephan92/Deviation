@@ -25,7 +25,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		End = 4
 	}
 
-	public class ClientMatchController : MonoBehaviour
+	public class ClientMatchController : ControllerBase
 	{
 		//Public
 		public GameObject MatchUis;
@@ -56,42 +56,33 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		private List<IExchangeAction> _actions;
 
 		//Controllers
-		private ITimerManager tm;
-
 		private StartUIController StartUI;
 		private ChooseTraderUIController ChooseTraderUI;
 		private ChooseActionsUIController ChooseActionsUI;
 		private SummaryUIController SummaryUI;
 		private EndUIController EndUI;
 
-		public void Awake()
+		public override void Awake()
 		{
-			tm = FindObjectOfType<TimerManager>();
-			
+			base.Awake();			
 			tm.AddTimer(ClientMatchState.ChooseTrader.ToString(), 30);
 			tm.AddTimer(ClientMatchState.ChooseActions.ToString(), 60);
 
-			OnClientMatchStateChange += OnClientMatchStateChangeMethod;
+			var parent = GameObject.Find("MatchUIs");
+			var header = parent.transform.Find("Header");
+			MatchUis = parent.transform.Find("UIs").gameObject;
+			HeaderTitle = header.transform.Find("Title").GetComponent<Text>();
+			Timer = header.transform.Find("Timer").GetComponent<Text>(); ;
+
+		OnClientMatchStateChange += OnClientMatchStateChangeMethod;
 			State = ClientMatchState.Start;
 		}
 
-		public void Start()
+		public override void Start()
 		{
+			base.Start();
 
-			ClientDataController.Instance.State = ClientState.Match;
-
-			if (ClientDataController.Instance.PlayerAccount != null)
-			{
-				//ReadyButton.interactable = true;
-			}
-			else
-			{
-				ClientDataController.Instance.PlayerAccountRecieved += () =>
-				{
-					//ReadyButton.interactable = true;
-				};
-			}
-			
+			ClientDataRepository.Instance.State = ClientState.Match;
 
 			if (Debug.isDebugBuild && !Application.isEditor)
 			{
@@ -144,8 +135,10 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			}
 		}
 
-		public void FixedUpdate()
+		public override void FixedUpdate()
 		{
+			base.FixedUpdate();
+
 			if (StartUI == null)
 			{
 				StartUI = MatchUis.GetComponentInChildren<StartUIController>();
@@ -231,11 +224,11 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 
 		public void Ready()
 		{
-			if (ClientDataController.Instance.State == ClientState.Match && ClientDataController.Instance.Exchange != null)
+			if (ClientDataRepository.Instance.State == ClientState.Match && ClientDataRepository.Instance.Exchange != null)
 			{
 				Guid characterGuid = _chosenTrader.Guid;
 				ActionModulePacket module = GetPlayerActionModule();
-				InitExchangePlayerPacket packet = new InitExchangePlayerPacket(ClientDataController.Instance.Exchange.ExchangeId, ClientDataController.Instance.PlayerAccount, characterGuid, module);
+				InitExchangePlayerPacket packet = new InitExchangePlayerPacket(ClientDataRepository.Instance.Exchange.ExchangeId, ClientDataRepository.Instance.PlayerAccount, characterGuid, module);
 
 				Msf.Client.Connection.SendMessage((short)ExchangePlayerOpCodes.CreateExchangeData, packet, (response, error) => {
 					if (response == ResponseStatus.Error)
@@ -254,7 +247,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		//TODO
 		private IEnumerator StartExchange()
 		{
-			yield return new WaitUntil(() => ClientDataController.Instance.RoomId != -1);
+			yield return new WaitUntil(() => ClientDataRepository.Instance.RoomId != -1);
 			SceneManager.LoadScene("DeviationClient - Exchange");
 		}
 

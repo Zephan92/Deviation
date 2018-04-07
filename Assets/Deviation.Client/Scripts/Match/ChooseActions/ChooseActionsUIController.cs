@@ -23,10 +23,10 @@ namespace Assets.Deviation.Client.Scripts.Match
 
 	public class ChooseActionsUIController : UIController
 	{
-		public Text ChooseTraderTimer;//Find this dynamically
 		public List<IExchangeAction> _actions;
 		public VerticalScrollPanel ActionList;
 		public UnityAction<List<IExchangeAction>> OnConfirmActions;
+		public Button ConfirmActionsButton;
 
 		public ChooseActionsUIState UIState
 		{
@@ -54,6 +54,9 @@ namespace Assets.Deviation.Client.Scripts.Match
 			OnUIStateChange += OnUIStateChangeMethod;
 
 			ActionList = GetComponentInChildren<VerticalScrollPanel>();
+			var footer = transform.Find("Footer");
+			ConfirmActionsButton = footer.GetComponentInChildren<Button>();
+			ConfirmActionsButton.onClick.AddListener(ConfirmActions);
 			_chosenActionsPanel = transform.Find("ChosenActions").gameObject;
 		}
 

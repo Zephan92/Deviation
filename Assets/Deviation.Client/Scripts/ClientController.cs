@@ -12,10 +12,12 @@ using System.Collections;
 using UnityEngine.SceneManagement;
 using Assets.Deviation.MasterServer.Scripts;
 using Assets.Deviation.MasterServer.Scripts.ResourceBank;
+using Assets.Scripts.Interface;
+using Assets.Deviation.Client.Scripts;
 
 namespace Assets.Deviation.Exchange.Scripts.Client
 {
-	public class ClientController : MonoBehaviour
+	public class ClientController : ControllerBase
 	{
 		public Button JoinQueueButton;
 		public Button LeaveQueueButton;
@@ -23,36 +25,54 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		public Button JoinExchangeMatchButton;
 		public Button DeclineExchangeMatchButton;
 
-		public Text Timer;
+		public Text TimerText;
 		public ResourceBag Bag;
-		private TimerManager tm;
 
-		public void Awake()
+		public override void Awake()
 		{
-			tm = GetComponent<TimerManager>();
-			tm.AddTimer("JoinMatch", 10.5f);
-			Bag = new ResourceBag();
+			base.Awake();
+			ClientDataRepository.InstanceCreated += OnDataCreated;
+
 			Msf.Client.SetHandler((short)Exchange1v1MatchMakingOpCodes.RespondMatchFound, HandleMatchFound);
 			Msf.Client.SetHandler((short)Exchange1v1MatchMakingOpCodes.RespondChangeQueuePool, HandleChangeQueue);
 			Msf.Client.SetHandler((short)Exchange1v1MatchMakingOpCodes.RespondMatchReady, HandleMatchReady);
 			Msf.Client.SetHandler((short)Exchange1v1MatchMakingOpCodes.RespondMatchDisbanded, HandleMatchDisbanded);
+
+			var clientUI = GameObject.Find("ClientUI");
+
+			JoinQueueButton = clientUI.transform.Find("Search For Matches").GetComponent<Button>();
+			LeaveQueueButton = clientUI.transform.Find("Leave Queue").GetComponent<Button>();
+			ChangeQueueButton = clientUI.transform.Find("Change Queue").GetComponent<Button>();
+			JoinExchangeMatchButton = clientUI.transform.Find("Join Exchange").GetComponent<Button>();
+			DeclineExchangeMatchButton = clientUI.transform.Find("Decline Exchange").GetComponent<Button>();
+
+			JoinQueueButton.onClick.AddListener(SearchForExchangeMatch);
+			LeaveQueueButton.onClick.AddListener(LeaveQueue);
+			ChangeQueueButton.onClick.AddListener(ChangeQueue);
+			JoinExchangeMatchButton.onClick.AddListener(JoinExchange);
+			DeclineExchangeMatchButton.onClick.AddListener(DeclineExchange);
+
+			TimerText = clientUI.transform.Find("Timer").GetComponentInChildren<Text>();
+
+			tm.AddTimer("JoinMatch", 10.5f);
+			Bag = new ResourceBag();
 		}
 
-		public void Start()
+		public override void OnDataCreated()
 		{
-			if (ClientDataController.Instance.PlayerAccount != null)
+			base.OnDataCreated();
+
+			ClientDataRepository.Instance.PlayerAccountRecieved += () =>
 			{
 				JoinQueueButton.interactable = true;
-			}
-			else
-			{
-				ClientDataController.Instance.PlayerAccountRecieved += () => 
-				{
-					JoinQueueButton.interactable = true;
-				};
-			}
+			};
+		}
 
-			ClientDataController.Instance.State = ClientState.Client;
+		public override void Start()
+		{
+			base.Start();
+
+			ClientDataRepository.Instance.State = ClientState.Client;
 
 			if (UnityEngine.Debug.isDebugBuild)
 			{
@@ -112,9 +132,11 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			});
 		}
 
-		public void Update()
+		public override void Update()
 		{
-			if (ClientDataController.Instance.Exchange != null)
+			base.Update();
+
+			if (ClientDataRepository.Instance.Exchange != null)
 			{
 				tm.UpdateCountdowns();
 
@@ -125,15 +147,17 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			}
 		}
 
-		public void FixedUpdate()
+		public override void FixedUpdate()
 		{
-			if (ClientDataController.Instance.Exchange != null)
+			base.FixedUpdate();
+
+			if (ClientDataRepository.Instance.Exchange != null)
 			{
-				Timer.text = "Timer: " + (int) tm.GetRemainingCooldown("JoinMatch");
+				TimerText.text = "Timer: " + (int) tm.GetRemainingCooldown("JoinMatch");
 			}
 			else
 			{
-				Timer.text = "Timer: 10";
+				TimerText.text = "Timer: 10";
 			}
 		}
 
@@ -141,9 +165,9 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		{
 			UnityEngine.Debug.Log("HandleMatchFound: Setting Player Account");
 			MatchFoundPacket exchange = message.Deserialize(new MatchFoundPacket());
-			exchange.Player1Id = ClientDataController.Instance.PlayerAccount.Id;
+			exchange.Player1Id = ClientDataRepository.Instance.PlayerAccount.Id;
 			exchange.Player2Id = -1;
-			ClientDataController.Instance.Exchange = exchange;
+			ClientDataRepository.Instance.Exchange = exchange;
 
 			LeaveQueueButton.interactable = false;
 			ChangeQueueButton.interactable = false;
@@ -187,14 +211,14 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			JoinExchangeMatchButton.interactable = false;
 			DeclineExchangeMatchButton.interactable = false;
 			tm.PauseTimer("JoinMatch");
-			ClientDataController.Instance.Exchange = null;
+			ClientDataRepository.Instance.Exchange = null;
 		}
 
 		public void SearchForExchangeMatch()
 		{
 			UnityEngine.Debug.Log("SearchForExchangeMatch");
 
-			var packet = new ExchangeMatchMakingPacket(ClientDataController.Instance.PlayerAccount.Id, QueueTypes.Exchange1v1, PlayerClass.Default);
+			var packet = new ExchangeMatchMakingPacket(ClientDataRepository.Instance.PlayerAccount.Id, QueueTypes.Exchange1v1, PlayerClass.Default);
 
 			Msf.Connection.SendMessage((short)Exchange1v1MatchMakingOpCodes.RequestJoinQueue, packet, (status, data) =>
 			{
@@ -215,7 +239,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		{
 			UnityEngine.Debug.Log("ChangeQueue");
 
-			var packet = new ExchangeMatchMakingPacket(ClientDataController.Instance.PlayerAccount.Id, QueueTypes.Exchange1v1, PlayerClass.Default);
+			var packet = new ExchangeMatchMakingPacket(ClientDataRepository.Instance.PlayerAccount.Id, QueueTypes.Exchange1v1, PlayerClass.Default);
 
 			Msf.Connection.SendMessage((short)Exchange1v1MatchMakingOpCodes.RequestChangeQueuePool, packet, (status, data) =>
 			{
@@ -235,7 +259,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		{
 			UnityEngine.Debug.Log("LeaveQueue");
 
-			var packet = new ExchangeMatchMakingPacket(ClientDataController.Instance.PlayerAccount.Id, QueueTypes.Exchange1v1, PlayerClass.Default);
+			var packet = new ExchangeMatchMakingPacket(ClientDataRepository.Instance.PlayerAccount.Id, QueueTypes.Exchange1v1, PlayerClass.Default);
 
 			Msf.Connection.SendMessage((short)Exchange1v1MatchMakingOpCodes.RequestLeaveQueue, packet, (status, data) =>
 			{
@@ -257,7 +281,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		{
 			UnityEngine.Debug.Log("JoinExchange");
 
-			Msf.Connection.SendMessage((short)Exchange1v1MatchMakingOpCodes.RequestJoinMatch, ClientDataController.Instance.Exchange, (status, data) => 
+			Msf.Connection.SendMessage((short)Exchange1v1MatchMakingOpCodes.RequestJoinMatch, ClientDataRepository.Instance.Exchange, (status, data) => 
 			{
 				if (status == ResponseStatus.Error)
 				{
@@ -277,7 +301,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		{
 			UnityEngine.Debug.Log("DeclineExchange");
 
-			Msf.Connection.SendMessage((short)Exchange1v1MatchMakingOpCodes.RequestDeclineMatch, ClientDataController.Instance.Exchange, (status, data) => {
+			Msf.Connection.SendMessage((short)Exchange1v1MatchMakingOpCodes.RequestDeclineMatch, ClientDataRepository.Instance.Exchange, (status, data) => {
 				if (status == ResponseStatus.Error)
 				{
 					UnityEngine.Debug.LogErrorFormat("RequestDeclineMatch failed. Error {1}", data);
@@ -289,7 +313,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 					ChangeQueueButton.interactable = false;
 					JoinQueueButton.interactable = true;
 					tm.PauseTimer("JoinMatch");
-					ClientDataController.Instance.Exchange = null;
+					ClientDataRepository.Instance.Exchange = null;
 				}
 			});
 		}

@@ -48,12 +48,12 @@ namespace Assets.Scripts.Exchange.Display
 		private IExchangePlayer _currentPlayer;
 		private ITimerManager tm;
 		private IExchangeController1v1 _ec;
-		private ClientDataController cdc;
+		private ClientDataRepository cdc;
 
 		public void Awake()
 		{
 			_ec = FindObjectOfType<ExchangeController1v1>();
-			cdc = FindObjectOfType<ClientDataController>();
+			cdc = FindObjectOfType<ClientDataRepository>();
 			outlineTex = Resources.Load("User Interface/Black") as Texture2D;
 			emptyTex = Resources.Load("User Interface/White") as Texture2D;
 			fullEnergyTex = Resources.Load("User Interface/Purple") as Texture2D;

@@ -92,6 +92,7 @@ namespace Assets.Deviation.Client.Scripts.Match
 
 			if (Button != null)
 			{
+				Button.onClick.RemoveAllListeners();
 				if (onClickAction != null)
 				{
 					Button.onClick.AddListener(onClickAction);
