@@ -70,8 +70,13 @@ namespace Assets.Deviation.Client.Scripts.Match
 
 			TraderList.MaxListSize = Max_Item_Before_Scroll;
 			TraderList.ItemWidth = Item_Width;
-			for(int i = 0; i < _traderListFiltersEnabled.Length; i++)
+			for(int i = 0; i < _traderListFiltersEnabled.Count(); i++)
 			{
+				var type = i;
+				TraderListFilters[i].onClick.AddListener(()=>{
+
+					FilterOnclick(type);
+				});
 				_traderListFiltersEnabled[i] = true;
 			}
 		}
