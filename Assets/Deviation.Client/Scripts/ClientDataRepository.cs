@@ -23,7 +23,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 	public class ClientDataRepository : MonoBehaviour
 	{
 		public static ClientDataRepository Instance = null;
-		public static UnityAction InstanceCreated;
+		private static UnityAction _onInstanceCreated;
 
 		public ClientState _state = ClientState.Default;
 		public ClientState State
@@ -52,6 +52,10 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		
 		public UnityAction PlayerAccountRecieved;
 		public UnityAction<AccountInfoPacket, string> OnLogin;
+
+		public bool LoggedIn;
+		public bool HasPlayerAccount;
+		public bool HasExchange;
 
 		public void Awake()
 		{
@@ -83,14 +87,27 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			if (Instance == null)
 			{
 				Instance = this;
-				if (InstanceCreated != null)
+				if (_onInstanceCreated != null)
 				{
-					InstanceCreated();
+					Debug.LogError("OnInstanceCreated");
+					_onInstanceCreated();
 				}
 			}
 			else if (Instance != this)
 			{
 				Destroy(gameObject);
+			}
+		}
+
+		public static void OnInstanceCreated(UnityAction onInstanceCreated)
+		{
+			if (Instance == null)
+			{
+				_onInstanceCreated = onInstanceCreated;
+			}
+			else
+			{
+				onInstanceCreated();
 			}
 		}
 
@@ -113,7 +130,6 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		{
 			if (Msf.Client.Auth.IsLoggedIn)
 			{
-				OnLogin(Msf.Client.Auth.AccountInfo, "");
 				return;
 			}
 			
@@ -125,6 +141,9 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 					{
 						OnLogin(successful, error);
 					}
+
+					LoggedIn = true;
+					UnityEngine.Debug.Log("Logged in successfully");
 				});
 			}
 			else
@@ -135,21 +154,33 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 
 		public void GetPlayerAccount()
 		{
-			if (PlayerAccount != null)
+			if (HasPlayerAccount)
 			{
 				return;
 			}
 
 			if (Msf.Client.Connection.IsConnected)
 			{
-				Msf.Client.Connection.SendMessage((short)ExchangePlayerOpCodes.GetPlayerAccount, Msf.Client.Auth.AccountInfo.Username, (status, response) =>
+				if (Msf.Client.Auth.IsLoggedIn)
 				{
-					PlayerAccount = response.Deserialize(new PlayerAccountPacket());
-					if (PlayerAccountRecieved != null)
+					Msf.Client.Connection.SendMessage((short)ExchangePlayerOpCodes.GetPlayerAccount, Msf.Client.Auth.AccountInfo.Username, (status, response) =>
 					{
-						PlayerAccountRecieved();
-					}
-				});
+
+						PlayerAccount = response.Deserialize(new PlayerAccountPacket());
+						if (PlayerAccountRecieved != null)
+						{
+							PlayerAccountRecieved();
+						}
+
+						HasPlayerAccount = true;
+						Debug.Log("Player Account Successfully Recieved");
+
+					});
+				}
+				else
+				{
+					Debug.LogError("Not Logged in. Failed to get player account.");
+				}
 			}
 			else
 			{

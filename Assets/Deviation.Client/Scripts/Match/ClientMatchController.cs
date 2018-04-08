@@ -224,7 +224,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 
 		public void Ready()
 		{
-			if (ClientDataRepository.Instance.State == ClientState.Match && ClientDataRepository.Instance.Exchange != null)
+			if (ClientDataRepository.Instance.State == ClientState.Match && ClientDataRepository.Instance.HasExchange)
 			{
 				Guid characterGuid = _chosenTrader.Guid;
 				ActionModulePacket module = GetPlayerActionModule();

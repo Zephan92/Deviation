@@ -9,10 +9,11 @@ using UnityEngine.SceneManagement;
 
 namespace Assets.Deviation.Client.Scripts.Results
 {
-	public class ClientResultsController : MonoBehaviour
+	public class ClientResultsController : ControllerBase
 	{
-		public void Awake()
+		public override void Awake()
 		{
+			base.Awake();
 			ClientDataRepository.Instance.State = ClientState.Results;
 			//Destroy(FindObjectOfType<ExchangeNetworkManager>().gameObject);
 		}

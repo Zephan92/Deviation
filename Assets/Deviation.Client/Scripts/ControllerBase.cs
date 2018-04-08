@@ -11,7 +11,6 @@ using Barebones.MasterServer;
 namespace Assets.Deviation.Client.Scripts
 {
 	[RequireComponent(typeof(TimerManager))]
-	[RequireComponent(typeof(ClientDataRepository))]
 	public class ControllerBase : MonoBehaviour
 	{
 		protected ITimerManager tm;
@@ -19,12 +18,13 @@ namespace Assets.Deviation.Client.Scripts
 
 		public virtual void Awake()
 		{
+			CreateClientDataRepository();
 			tm = GetComponent<TimerManager>();
 			SetIsEditor();
 
 			if (IsEditor)
 			{
-				ClientDataRepository.InstanceCreated += OnDataCreated;
+				ClientDataRepository.OnInstanceCreated(OnDataCreated);
 			}
 		}
 
@@ -44,6 +44,13 @@ namespace Assets.Deviation.Client.Scripts
 					ClientDataRepository.Instance.LoginAsGuest();
 				};
 			}
+		}
+
+		public void CreateClientDataRepository()
+		{
+			var cdc = new GameObject("ClientDataRepository");
+			cdc.AddComponent<ClientDataRepository>();
+			cdc.AddComponent<StaticObject>();
 		}
 
 		public virtual void Start()

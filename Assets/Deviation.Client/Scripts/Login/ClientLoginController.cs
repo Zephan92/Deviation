@@ -68,6 +68,11 @@ public class ClientLoginController : ControllerBase
 		}
 	}
 
+	public override void OnDataCreated()
+	{
+		//We don't want this method to do anything in the base class when we test
+	}
+
 	private IEnumerator Test()
 	{
 		yield return new WaitForSeconds(1f);
@@ -123,13 +128,18 @@ public class ClientLoginController : ControllerBase
 
 	}
 
-	
-
 	private void LoginSuccessful(AccountInfoPacket successful, string error)
 	{
-		UnityEngine.Debug.Log("Is successful: " + successful + "; Error (if exists): " + error);
+		if (error != null && error != "")
+		{
+			UnityEngine.Debug.LogError("Error when trying to login: " + error);
+			return;
+		}
+		
 		ClientDataRepository.Instance.GetPlayerAccount();
-		SceneManager.LoadScene("DeviationClient - Client");
+		ClientDataRepository.Instance.PlayerAccountRecieved += () => {
+			SceneManager.LoadScene("DeviationClient - Client");
+		};
 	}
 
 	public void CreateAccount()
