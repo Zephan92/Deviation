@@ -5,6 +5,7 @@ using Assets.Scripts.Interface;
 using UnityEngine;
 using Barebones.MasterServer;
 
+
 public class PlayerController : NetworkBehaviour
 {
 	public IInput InputWrapper { get; set; }

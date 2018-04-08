@@ -10,6 +10,8 @@ using Assets.Scripts.Interface.Exchange;
 using System;
 using Assets.Scripts.Exchange.Attacks;
 
+[RequireComponent(typeof(NetworkIdentity))]
+[RequireComponent(typeof(GridManager))]
 public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldController
 {
 	public GameObject BattlefieldGO;
@@ -29,7 +31,7 @@ public class ExchangeBattlefieldController : NetworkBehaviour, IBattlefieldContr
 		_playerDict = new Dictionary<BattlefieldZone, List<IExchangePlayer>>();
 
 		cm = FindObjectOfType<CoroutineManager>();
-		gm = FindObjectOfType<GridManager>();
+		gm = GetComponent<GridManager>();
 	}
 
 	public void Init()

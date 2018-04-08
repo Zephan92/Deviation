@@ -77,7 +77,9 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 				case ClientState.Match:
 					break;
 				case ClientState.Results:
-					Destroy(gameObject);
+					Exchange = null;
+					RoomId = -1;
+					HasExchange = false;
 					break;
 			}
 		}
@@ -92,6 +94,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 					Debug.LogError("OnInstanceCreated");
 					_onInstanceCreated();
 				}
+				DontDestroyOnLoad(Instance);
 			}
 			else if (Instance != this)
 			{
@@ -109,16 +112,6 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			{
 				onInstanceCreated();
 			}
-		}
-
-		public void Start()
-		{
-			
-		}
-
-		public void FixedUpdate()
-		{
-
 		}
 
 		public void HandleReceiveRoomId(IIncommingMessage message)

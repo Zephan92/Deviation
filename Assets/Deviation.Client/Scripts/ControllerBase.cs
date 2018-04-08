@@ -14,15 +14,13 @@ namespace Assets.Deviation.Client.Scripts
 	public class ControllerBase : MonoBehaviour
 	{
 		protected ITimerManager tm;
-		public static bool IsEditor;
 
 		public virtual void Awake()
 		{
 			CreateClientDataRepository();
 			tm = GetComponent<TimerManager>();
-			SetIsEditor();
 
-			if (IsEditor)
+			if (Application.isEditor)
 			{
 				ClientDataRepository.OnInstanceCreated(OnDataCreated);
 			}
@@ -48,9 +46,12 @@ namespace Assets.Deviation.Client.Scripts
 
 		public void CreateClientDataRepository()
 		{
-			var cdc = new GameObject("ClientDataRepository");
-			cdc.AddComponent<ClientDataRepository>();
-			cdc.AddComponent<StaticObject>();
+			if (FindObjectOfType<ClientDataRepository>() == null)
+			{
+				var cdc = new GameObject("ClientDataRepository");
+				cdc.AddComponent<ClientDataRepository>();
+				cdc.AddComponent<StaticObject>();
+			}
 		}
 
 		public virtual void Start()
@@ -66,15 +67,6 @@ namespace Assets.Deviation.Client.Scripts
 		public virtual void FixedUpdate()
 		{
 
-		}
-
-		private void SetIsEditor()
-		{
-#if UNITY_EDITOR
-			IsEditor = true;
-#else
-            IsEditor = false;
-#endif
 		}
 	}
 }

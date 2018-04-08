@@ -13,12 +13,12 @@ public class Status : NetworkBehaviour
 	private IExchangePlayer _player;
 	private CoroutineManager cm;
 
-	private Dictionary<StatusEffect, IEnumerator> statusEffectsDict;
+	//private Dictionary<StatusEffect, IEnumerator> statusEffectsDict;
 	private IEnumerator _coroutine = null;
 
 	public void Start()
 	{
-		statusEffectsDict = new Dictionary<StatusEffect, IEnumerator>();//should use this lol
+		//statusEffectsDict = new Dictionary<StatusEffect, IEnumerator>();//should use this lol
 		cm = FindObjectOfType<CoroutineManager>();
 		_energy = GetComponent<Energy>();
 		_health = GetComponent<Health>();

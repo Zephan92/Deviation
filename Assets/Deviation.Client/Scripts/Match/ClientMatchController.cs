@@ -73,8 +73,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			MatchUis = parent.transform.Find("UIs").gameObject;
 			HeaderTitle = header.transform.Find("Title").GetComponent<Text>();
 			Timer = header.transform.Find("Timer").GetComponent<Text>(); ;
-
-		OnClientMatchStateChange += OnClientMatchStateChangeMethod;
+			OnClientMatchStateChange += OnClientMatchStateChangeMethod;
 			State = ClientMatchState.Start;
 		}
 
@@ -83,17 +82,6 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			base.Start();
 
 			ClientDataRepository.Instance.State = ClientState.Match;
-
-			if (Debug.isDebugBuild && !Application.isEditor)
-			{
-				var testArgs = Msf.Args.ExtractValue("-test");
-				if (testArgs != null && testArgs.Equals("GuestLogin"))
-				{
-					Debug.LogError("Test: ClientMatchController");
-
-					StartCoroutine(Test());
-				}
-			}
 
 			State = ClientMatchState.ChooseTrader;
 		}
@@ -205,13 +193,13 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			}
 		}
 
-		private void ConfirmTrader(ITrader trader)
+		public void ConfirmTrader(ITrader trader)
 		{
 			State = ClientMatchState.ChooseActions;
 			_chosenTrader = trader;
 		}
 
-		private void ConfirmActions(List<IExchangeAction> actions)
+		public void ConfirmActions(List<IExchangeAction> actions)
 		{
 			State = ClientMatchState.End;
 			_actions = actions;
@@ -237,17 +225,24 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 					}
 					else if(response == ResponseStatus.Success)
 					{
-						//ReadyButton.interactable = false;
+						UnityEngine.Debug.Log("Successfully Created Exchange Data");
 						StartCoroutine(StartExchange());
 					}
 				});
+			}
+			else
+			{
+				UnityEngine.Debug.LogErrorFormat("The Exchange is not ready or does not exist");
 			}
 		}
 
 		//TODO
 		private IEnumerator StartExchange()
 		{
+			UnityEngine.Debug.Log("Waiting for Exchange Room");
 			yield return new WaitUntil(() => ClientDataRepository.Instance.RoomId != -1);
+			UnityEngine.Debug.Log("We Recieved Access to Room: " + ClientDataRepository.Instance.RoomId);
+			UnityEngine.Debug.Log("Loading Exchange Scene");
 			SceneManager.LoadScene("DeviationClient - Exchange");
 		}
 
@@ -259,29 +254,6 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			var r = _actions[3].Id;
 
 			return new ActionModulePacket(q, w, e, r);
-		}
-
-		public void TestDeleteMe()
-		{
-			StartCoroutine(Test());
-		}
-
-		//Rename rework
-		private IEnumerator Test()
-		{
-			_chosenTrader = new Trader("TestTrader","The ultimate avenger", Assets.Scripts.Enum.TraderType.Test, "Testing Description", Guid.NewGuid());
-			_actions = new List<IExchangeAction>();
-			_actions.Add(ActionLibrary.GetActionInstance("Ambush"));
-			_actions.Add(ActionLibrary.GetActionInstance("ShockWave"));
-			_actions.Add(ActionLibrary.GetActionInstance("Wall Push"));
-			_actions.Add(ActionLibrary.GetActionInstance("Medium Projectile"));
-
-			yield return new WaitForSeconds(1f);
-
-			
-
-			if (UnityEngine.Debug.isDebugBuild)
-				Ready();
 		}
 	}
 }

@@ -46,7 +46,6 @@ public class ExchangeRoomTerminator : MonoBehaviour
 
 		if (Room == null)
 		{
-			Logs.Error("Room is not set");
 			return;
 		}
 

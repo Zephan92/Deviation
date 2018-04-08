@@ -6,11 +6,12 @@ using UnityEngine.Networking;
 /// This script represents the changes that you will need to do in your custom
 /// network manager
 /// </summary>
+//[RequireComponent(typeof(GameRoom))]
 public class ExchangeNetworkManager : NetworkManager
 {
 	// Set this in the inspector
 	public GameRoom GameRoom;
-	public int playercount;
+	public short playercount;
 	
 	void Awake()
 	{
@@ -18,7 +19,6 @@ public class ExchangeNetworkManager : NetworkManager
 
 		if (GameRoom == null)
 		{
-			Debug.LogError("Game Room property is not set on NetworkManager");
 			return;
 		}
 		
@@ -31,15 +31,14 @@ public class ExchangeNetworkManager : NetworkManager
 
 	private void OnPlayerJoined(UnetMsfPlayer player)
 	{
-		//Debug.LogError("Player Joined");
+		Debug.Log("Player Joined");
 
 		var prefabPlayerGameObject = Resources.Load("1v1Player") as GameObject;
 		var playerGameObject = Instantiate(prefabPlayerGameObject);
 		playerGameObject.GetComponent<ExchangePlayer>().PeerId = player.PeerId;
 		NetworkServer.AddPlayerForConnection(player.Connection, playerGameObject, (short)player.PeerId);
-		
 		playercount++;
-		//Debug.LogError(playercount + "/" + GameRoom.MaxPlayers + " Players");
+		Debug.Log(playercount + "/" + GameRoom.MaxPlayers + " Players");
 	}
 
 	public override void OnServerDisconnect(NetworkConnection conn)

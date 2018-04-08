@@ -1,14 +1,10 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Barebones.MasterServer;
-using System.Runtime.InteropServices;
 using UnityEngine.SceneManagement;
 using Assets.Deviation.Exchange.Scripts.Client;
 using Assets.Deviation.Client.Scripts;
-using UnityEngine.Events;
-
 public class ClientLoginController : ControllerBase
 {
 	public InputField Username;
@@ -55,29 +51,11 @@ public class ClientLoginController : ControllerBase
 				button.onClick.AddListener(Login);;
 			}
 		}
-
-		if (Debug.isDebugBuild)
-		{
-			var testArgs = Msf.Args.ExtractValue("-test");
-			if (testArgs != null && testArgs.Equals("GuestLogin"))
-			{
-				Debug.LogError("Test: ClientLoginController");
-
-				StartCoroutine(Test());
-			}
-		}
 	}
 
 	public override void OnDataCreated()
 	{
 		//We don't want this method to do anything in the base class when we test
-	}
-
-	private IEnumerator Test()
-	{
-		yield return new WaitForSeconds(1f);
-		if (Debug.isDebugBuild)
-			ClientDataRepository.Instance.LoginAsGuest();
 	}
 
 	public override void Update()

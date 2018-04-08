@@ -22,9 +22,12 @@ public interface IExchangeController1v1 : IGameController
 
 }
 
+[RequireComponent(typeof(NetworkIdentity))]
+[RequireComponent(typeof(TimerManager))]
+[RequireComponent(typeof(CoroutineManager))]
 public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 {
-	private const int Round_Time_Seconds = 10;
+	private const int Round_Time_Seconds = 500;
 
 	[SyncVar]
 	private ExchangeState _exchangeState;

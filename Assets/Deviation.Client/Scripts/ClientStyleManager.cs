@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Scripts.Utilities;
+using System;
 using System.Collections;
 using System.Runtime.InteropServices;
 using UnityEngine;
@@ -67,7 +68,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			}
 			else if (instance != this)
 			{
-				Destroy(gameObject);
+				Destroy(gameObject.transform.parent.gameObject);
 			}
 		}
 

@@ -79,26 +79,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		public override void Start()
 		{
 			base.Start();
-
 			ClientDataRepository.Instance.State = ClientState.Client;
-
-			if (UnityEngine.Debug.isDebugBuild)
-			{
-				var testArgs = Msf.Args.ExtractValue("-test");
-				if (testArgs != null && testArgs.Equals("GuestLogin"))
-				{
-					UnityEngine.Debug.LogError("Test: ClientController");
-
-					StartCoroutine(Test());
-				}
-			}
-		}
-
-		private IEnumerator Test()
-		{
-			yield return new WaitForSeconds(1f);
-			if (UnityEngine.Debug.isDebugBuild)
-				SearchForExchangeMatch();
 		}
 
 		public void GetResource()

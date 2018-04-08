@@ -6,6 +6,9 @@ using UnityEngine.Networking;
 using Assets.Scripts.Enum;
 using Assets.Scripts.Exchange.Attacks;
 
+
+
+[RequireComponent(typeof(ActionObject))]
 public class ActionObjectMover : NetworkBehaviour
 {
 	[SyncVar]

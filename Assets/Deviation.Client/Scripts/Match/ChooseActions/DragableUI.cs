@@ -14,10 +14,9 @@ namespace Assets.Scripts.ModuleEditor
 		Vector2 Offset;
 		public SnapPoint[] SnapPoints;
 		private Vector2 _oldPos;
-		private SnapPoint _currentSnapPoint;
+		//private SnapPoint _currentSnapPoint;
 
 		private Transform _origParent;
-		private Transform _parentWhileDrag;
 
 		public void Awake()
 		{
@@ -27,7 +26,7 @@ namespace Assets.Scripts.ModuleEditor
 		public void Start()
 		{
 			SnapPoints = FindObjectsOfType<SnapPoint>();
-			_currentSnapPoint = gameObject.GetComponent<SnapPoint>();			
+			//_currentSnapPoint = gameObject.GetComponent<SnapPoint>();			
 		}
 
 		public void BeginDrag()

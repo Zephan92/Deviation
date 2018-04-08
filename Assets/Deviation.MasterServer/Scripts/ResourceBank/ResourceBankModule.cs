@@ -17,7 +17,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 	public class ResourceBankModule : ServerModuleBehaviour
 	{
 		private ResourceBankObject _currentResourceBank;
-		private ResourceBankDataAccess rbda = new ResourceBankDataAccess();
+		//private ResourceBankDataAccess rbda = new ResourceBankDataAccess();
 		private ResourceBankFactory resourceBankFactory = new ResourceBankFactory();
 
 		public override void Initialize(IServer server)
@@ -73,7 +73,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 		{
 			//player account
 			//server only
-			ResourcesPacket packet = message.Deserialize(new ResourcesPacket());
+			//ResourcesPacket packet = message.Deserialize(new ResourcesPacket());
 
 		}
 
@@ -81,7 +81,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 		{
 			//player account
 			//player auth or server
-			ResourcesPacket packet = message.Deserialize(new ResourcesPacket());
+			//ResourcesPacket packet = message.Deserialize(new ResourcesPacket());
 
 		}
 

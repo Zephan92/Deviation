@@ -9,11 +9,11 @@ namespace Assets.Deviation.MasterServer.Scripts
 {
 	public class ResourceBankDataAccess
 	{
-		LiteDatabase db = new LiteDatabase(@"resourceBank.db");
+		//LiteDatabase db = new LiteDatabase(@"resourceBank.db");
 
 		//LiteCollection<PlayerAccount> _players;
 
-		string collectionName = "players";
+		//string collectionName = "players";
 
 		public ResourceBankDataAccess()
 		{

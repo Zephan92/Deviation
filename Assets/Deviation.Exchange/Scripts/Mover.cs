@@ -22,7 +22,7 @@ public class Mover : NetworkBehaviour
 
 	public void UpdateRow(int value)
 	{
-		if (isClient)
+		if (isLocalPlayer)
 		{
 			CmdUpdateRow(value);//uh oh someone is calling this without permisssion
 		}
@@ -39,7 +39,7 @@ public class Mover : NetworkBehaviour
 
 	public void UpdateColumn(int value)
 	{
-		if (isClient)
+		if (isLocalPlayer)
 		{
 			CmdUpdateColumn(value);//uh oh someone is calling this without permisssion
 		}
@@ -77,7 +77,7 @@ public class Mover : NetworkBehaviour
 
 	public void UpdateZone(BattlefieldZone value)
 	{
-		if (isClient)
+		if (isLocalPlayer)
 		{
 			CmdUpdateZone(value);//uh oh someone is calling this without permisssion
 		}

@@ -10,6 +10,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
+[RequireComponent(typeof(NetworkIdentity))]
+[RequireComponent(typeof(Energy))]
+[RequireComponent(typeof(Health))]
+[RequireComponent(typeof(Mover))]
+[RequireComponent(typeof(Status))]
+[RequireComponent(typeof(PlayerController))]
 public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 {
 	[SyncVar]

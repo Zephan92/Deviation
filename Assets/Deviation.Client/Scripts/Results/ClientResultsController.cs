@@ -15,7 +15,6 @@ namespace Assets.Deviation.Client.Scripts.Results
 		{
 			base.Awake();
 			ClientDataRepository.Instance.State = ClientState.Results;
-			//Destroy(FindObjectOfType<ExchangeNetworkManager>().gameObject);
 		}
 
 		public void Done()

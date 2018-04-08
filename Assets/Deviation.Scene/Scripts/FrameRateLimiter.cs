@@ -1,10 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Assets.Scripts.Utilities;
 
+[RequireComponent(typeof(StaticObject))]
 public class FrameRateLimiter : MonoBehaviour
 {
 	public static FrameRateLimiter Instance = null;
 	public int FrameRateCap = 60;
+
 	// Use this for initialization
 	void Awake()
 	{
