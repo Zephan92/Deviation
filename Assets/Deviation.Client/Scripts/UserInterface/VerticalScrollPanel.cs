@@ -37,7 +37,7 @@ namespace Assets.Deviation.Client.Scripts.UserInterface
 
 		public void Update()
 		{
-			if (Boundary.x < 0)
+			if (Boundary.x <= 0)
 			{
 				Boundary = GetBoundaryFromRectTransform(UIBoundary);
 			}
@@ -81,7 +81,6 @@ namespace Assets.Deviation.Client.Scripts.UserInterface
 				 LayoutGroup.padding.right,
 				 LayoutGroup.padding.top,
 				 LayoutGroup.padding.bottom);
-
 			tempPadding.top = value;
 			LayoutGroup.padding = tempPadding;
 		}

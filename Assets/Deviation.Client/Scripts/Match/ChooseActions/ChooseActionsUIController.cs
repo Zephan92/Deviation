@@ -1,5 +1,8 @@
-﻿using Assets.Deviation.Client.Scripts.UserInterface;
+﻿using Assets.Deviation.Client.Scripts.Client;
+using Assets.Deviation.Client.Scripts.UserInterface;
 using Assets.Deviation.Exchange.Scripts.Client;
+using Assets.Deviation.Materials;
+using Assets.Scripts.Enum;
 using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Library;
 using Assets.Scripts.ModuleEditor;
@@ -129,7 +132,7 @@ namespace Assets.Deviation.Client.Scripts.Match
 			var actionPanel = Instantiate(Resources.Load("ActionPanel"), parent.transform) as GameObject;
 			var actionDetailsPanel = actionPanel.GetComponent<ActionDetailsPanel>();
 			actionDetailsPanel.UpdateActionDetails(action);
-			CreateEventTriggers(actionPanel);
+			CreateEventTriggers(actionPanel, ValidSnapCheck, action.Type);
 			return actionPanel;
 		}
 
@@ -155,16 +158,21 @@ namespace Assets.Deviation.Client.Scripts.Match
 			OnConfirmActions(actions);
 		}
 
-		private void CreateEventTriggers(GameObject actionPanel)
+		private void CreateEventTriggers<T>(GameObject actionPanel, DragableUI.onEndDrag<T> onEndDrag, T type)
 		{
 			DragableUI dragable = actionPanel.AddComponent<DragableUI>();
 			EventTrigger et = actionPanel.AddComponent<EventTrigger>();
-			et.triggers.Add(CreateEventTriggerEntry(EventTriggerType.BeginDrag, dragable));
-			et.triggers.Add(CreateEventTriggerEntry(EventTriggerType.Drag, dragable));
-			et.triggers.Add(CreateEventTriggerEntry(EventTriggerType.EndDrag, dragable));
+			et.triggers.Add(CreateEventTriggerEntry(EventTriggerType.BeginDrag, dragable, onEndDrag, type));
+			et.triggers.Add(CreateEventTriggerEntry(EventTriggerType.Drag, dragable, onEndDrag, type));
+			et.triggers.Add(CreateEventTriggerEntry(EventTriggerType.EndDrag, dragable, onEndDrag, type));
 		}
 
-		private EventTrigger.Entry CreateEventTriggerEntry(EventTriggerType eventTriggerType, DragableUI dragable)
+		private bool ValidSnapCheck(SnapPoint snap, TraderType type)
+		{
+			return true;
+		}
+
+		private EventTrigger.Entry CreateEventTriggerEntry<T>(EventTriggerType eventTriggerType, DragableUI dragable, DragableUI.onEndDrag<T> onEndDrag, T type)
 		{
 			EventTrigger.Entry entry = new EventTrigger.Entry();
 			entry.eventID = eventTriggerType;
@@ -180,7 +188,7 @@ namespace Assets.Deviation.Client.Scripts.Match
 					break;
 
 				case EventTriggerType.EndDrag:
-					entry.callback.AddListener((eventData) => { dragable.EndDrag(); });
+					entry.callback.AddListener((eventData) => { dragable.EndDrag(onEndDrag, type); });
 					break;
 			}
 

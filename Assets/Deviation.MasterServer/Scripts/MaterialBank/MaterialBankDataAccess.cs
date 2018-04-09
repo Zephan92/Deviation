@@ -1,4 +1,4 @@
-﻿using Assets.Deviation.MasterServer.Scripts.ResourceBank;
+﻿using Assets.Deviation.MasterServer.Scripts.MaterialBank;
 using LiteDB;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Assets.Deviation.MasterServer.Scripts
 {
-	public class ResourceBankDataAccess
+	public class MaterialBankDataAccess
 	{
 		//LiteDatabase db = new LiteDatabase(@"resourceBank.db");
 
@@ -15,40 +15,40 @@ namespace Assets.Deviation.MasterServer.Scripts
 
 		//string collectionName = "players";
 
-		public ResourceBankDataAccess()
+		public MaterialBankDataAccess()
 		{
 			//_players = db.GetCollection<PlayerAccount>(collectionName);
 		}
 
-		//public Dictionary<Resource, int> GetResourceBank()
+		//public Dictionary<Material, int> GetMaterialBank()
 		//{
 		//	Dictionary<string, int> resourceBank_db = new Dictionary<string, int>();
 		//	//get resourceBank_db
 
-		//	Dictionary<Resource, int> retVal = CreateResourceBankFromNames(resourceBank_db);
+		//	Dictionary<Material, int> retVal = CreateMaterialBankFromNames(resourceBank_db);
 		//	return retVal;
 		//}
 
-		//private Dictionary<Resource, int> CreateResourceBankFromNames(Dictionary<string, int> resources)
+		//private Dictionary<Material, int> CreateMaterialBankFromNames(Dictionary<string, int> resources)
 		//{
-		//	Dictionary<Resource, int> retVal = new Dictionary<Resource, int>();
+		//	Dictionary<Material, int> retVal = new Dictionary<Material, int>();
 
 		//	foreach (string resourceName in resources.Keys)
 		//	{
-		//		if (ResourceLibrary.ResourceExists(resourceName))
+		//		if (MaterialLibrary.MaterialExists(resourceName))
 		//		{
-		//			retVal.Add(ResourceLibrary.GetResource(resourceName), resources[resourceName]);
+		//			retVal.Add(MaterialLibrary.GetMaterial(resourceName), resources[resourceName]);
 		//		}
 		//	}
 
 		//	return retVal;
 		//}
 
-		//public void SetResourceBank(int id, Dictionary<Resource, int> resourceBank)
+		//public void SetMaterialBank(int id, Dictionary<Material, int> resourceBank)
 		//{
 		//	Dictionary<string, int> resourceBank_db = new Dictionary<string, int>();
 
-		//	foreach (Resource resource in resourceBank.Keys)
+		//	foreach (Material resource in resourceBank.Keys)
 		//	{
 		//		resourceBank_db.Add(resource.Name, resourceBank[resource]);
 		//	}

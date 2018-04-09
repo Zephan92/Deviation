@@ -1,4 +1,5 @@
 ﻿using Assets.Deviation.Client.Scripts;
+using Assets.Deviation.Client.Scripts.Client;
 using Assets.Deviation.Client.Test;
 using Assets.Deviation.Exchange.Scripts.Client;
 using Assets.Scripts.Interface.DTO;
@@ -14,6 +15,7 @@ public class TestClientController : TestBase
 {
 	public ClientController cc;
 	public bool hasOpponent;
+	public bool hasSearchListener;
 
 	public  override void Awake()
 	{
@@ -39,18 +41,38 @@ public class TestClientController : TestBase
 
 		if (Application.isEditor)
 		{
-			cc.JoinQueueButton.onClick.AddListener(StartClient);
+			cc.PlayButton.onClick.AddListener(AddOnSearchListener);
 		}
 	}
 
 	private IEnumerator SearchForExchange()
 	{
 		yield return new WaitForSeconds(1f);
-		cc.SearchForExchangeMatch();
+		cc.SwitchTab(ClientTab.Play);
+		yield return new WaitForSeconds(1f);
+		var mc = FindObjectOfType<MatchmakingController>();
+		mc.SearchForExchangeMatch();
+	}
+
+	private void AddOnSearchListener()
+	{
+		if (hasSearchListener)
+		{
+			return;
+		}
+
+		var mc = FindObjectOfType<MatchmakingController>();
+		mc.JoinQueueButton.onClick.AddListener(StartClient);
+		hasSearchListener = true;
 	}
 
 	private void StartClient()
 	{
+		if (hasOpponent)
+		{
+			return;
+		}
+
 		var commandLineArgs = " -test GuestLogin";
 		var exePath = "C:/Users/zepha/Desktop/Programming/Projects/Deviation/Builds/DeviationServers/DeviationClient.exe";
 		UnityEngine.Debug.Log(exePath + commandLineArgs);

@@ -11,6 +11,7 @@ namespace Assets.Scripts.ModuleEditor
 	{
 		public Rect Area;
 		public bool IsOccupied = false;
+		public GameObject CurrentOccupant;
 
 		public void Awake()
 		{
@@ -28,6 +29,12 @@ namespace Assets.Scripts.ModuleEditor
 						  worldCorners[2].x - worldCorners[0].x,
 						  worldCorners[2].y - worldCorners[0].y);
 			return result;
+		}
+
+		public void OccupySnap(GameObject currentOccupant)
+		{
+			CurrentOccupant = currentOccupant;
+			IsOccupied = true;
 		}
 	}
 }

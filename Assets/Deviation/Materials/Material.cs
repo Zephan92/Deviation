@@ -1,4 +1,4 @@
-﻿namespace Assets.Deviation.MasterServer.Scripts.ResourceBank
+﻿namespace Assets.Deviation.Materials
 {
 	public enum Rarity
 	{
@@ -11,19 +11,22 @@
 		Count,
 	}
 
-	public enum ResourceType
+	public enum MaterialType
 	{
+		Default = -1,
 		Base,
+		Special,
+		Type,
 	}
 
-	public struct Resource
+	public struct Material
 	{
 		public string Name { get; set; }
-		public ResourceType Type { get; set; }
+		public MaterialType Type { get; set; }
 		public Rarity Rarity { get; set; }
 		public int DropRate { get; set; }
 
-		public Resource(string name, ResourceType type, Rarity rarity, int dropRate)
+		public Material(string name, MaterialType type, Rarity rarity, int dropRate)
 		{
 			Name = name;
 			Type = type;

@@ -12,8 +12,6 @@ namespace Assets.Deviation.Client.Scripts.Match
 		public Image Image;
 
 		public IExchangeAction Action;
-		public bool Chosen;
-		private bool _enabled;
 
 		public void Awake()
 		{
@@ -59,38 +57,5 @@ namespace Assets.Deviation.Client.Scripts.Match
 
 			}
 		}
-
-		//public void PanelEnabled(bool toggle)
-		//{
-		//	_enabled = toggle;
-		//	Button.enabled = toggle;
-
-		//	if (Chosen)
-		//	{
-		//		Image.color = Color.yellow;
-		//	}
-		//	else if (toggle)
-		//	{
-		//		Image.color = Color.white;
-		//	}
-		//	else
-		//	{
-		//		Image.color = Color.gray;
-		//	}
-		//}
-
-		//public void Choose()
-		//{
-		//	Chosen = true;
-		//	Button.enabled = false;
-		//	Image.color = Color.yellow;
-		//}
-
-		//public void Unchoose()
-		//{
-		//	Chosen = false;
-		//	Button.enabled = true;
-		//	Image.color = Color.white;
-		//}
 	}
 }

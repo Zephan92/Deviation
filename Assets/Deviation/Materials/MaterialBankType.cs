@@ -1,6 +1,6 @@
-﻿namespace Assets.Deviation.MasterServer.Scripts.ResourceBank
+﻿namespace Assets.Deviation.Materials
 {
-	public abstract class ResourceBankTypeBase
+	public abstract class MaterialBankTypeBase
 	{
 		protected abstract int Common();
 		protected abstract int Uncommon();
@@ -33,7 +33,7 @@
 		}
 	}
 
-	public class ResourceBankTypeGeneral : ResourceBankTypeBase
+	public class MaterialBankTypeGeneral : MaterialBankTypeBase
 	{
 		private const int Common_Count = 5;
 		private const int Uncommon_Count = 3;
