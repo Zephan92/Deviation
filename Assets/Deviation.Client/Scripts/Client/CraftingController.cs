@@ -1,7 +1,9 @@
-﻿using Assets.Deviation.Client.Scripts.UserInterface;
+﻿using Assets.Deviation.Client.Scripts.Match;
+using Assets.Deviation.Client.Scripts.UserInterface;
 using Assets.Deviation.MasterServer.Scripts;
 using Assets.Deviation.MasterServer.Scripts.MaterialBank;
 using Assets.Deviation.Materials;
+using Assets.Scripts.Library;
 using Assets.Scripts.ModuleEditor;
 using Barebones.MasterServer;
 using Barebones.Networking;
@@ -33,6 +35,10 @@ namespace Assets.Deviation.Client.Scripts.Client
 		public Transform SpecialRecipeComponent;
 		public Transform TypeRecipeComponent;
 
+		public Button CreateButton;
+
+		public ActionDetailsPanel ActionPanel;
+
 		private UnityAction<int> onBaseListChange;
 		private UnityAction<int> onSpecialListChange;
 		private UnityAction<int> onTypeListChange;
@@ -40,6 +46,10 @@ namespace Assets.Deviation.Client.Scripts.Client
 		private int numBaseMaterialRows;
 		private int numSpecialMaterialRows;
 		private int numTypeMaterialRows;
+
+		private bool baseComponentReady;
+		private bool specialComponentReady;
+		private bool typeComponentReady;
 
 		public delegate bool onEndDrag(MaterialType type);
 
@@ -61,6 +71,17 @@ namespace Assets.Deviation.Client.Scripts.Client
 			SpecialRecipeComponent = CraftInteface.Find("Recipe").Find("SpecialComponent");
 			TypeRecipeComponent = CraftInteface.Find("Recipe").Find("TypeComponent");
 
+			BaseRecipeComponent.GetComponent<SnapPoint>().onOccupied += () => { ComponentStateChanged(MaterialType.Base, true); };
+			SpecialRecipeComponent.GetComponent<SnapPoint>().onOccupied += () => { ComponentStateChanged(MaterialType.Special, true); };
+			TypeRecipeComponent.GetComponent<SnapPoint>().onOccupied += () => { ComponentStateChanged(MaterialType.Type, true); };
+
+			BaseRecipeComponent.GetComponent<SnapPoint>().onUnoccupied += () => { ComponentStateChanged(MaterialType.Base, false); };
+			SpecialRecipeComponent.GetComponent<SnapPoint>().onUnoccupied += () => { ComponentStateChanged(MaterialType.Special, false); };
+			TypeRecipeComponent.GetComponent<SnapPoint>().onUnoccupied += () => { ComponentStateChanged(MaterialType.Type, false); };
+
+			CreateButton = CraftInteface.Find("Output").GetComponentInChildren<Button>();
+			ActionPanel = CraftInteface.Find("Output").GetComponentInChildren<ActionDetailsPanel>();
+
 			onBaseListChange += BaseMaterials.OnListChange;
 			onSpecialListChange += SpecialMaterials.OnListChange;
 			onTypeListChange += TypeMaterials.OnListChange;
@@ -69,10 +90,42 @@ namespace Assets.Deviation.Client.Scripts.Client
 			numSpecialMaterialRows = 0;
 			numTypeMaterialRows = 0;
 
+			CreateButton.onClick.AddListener(Craft);
+
 			GetMaterialBag();
 		}
 
-		public int PopulateMaterialsList(VerticalScrollPanel panel, Dictionary<Materials.Material, int> materials)
+		public void OnEnable()
+		{
+			RefreshMaterialLists();
+		}
+
+		public void Craft()
+		{
+			Debug.Log("Crafting!");
+		}
+
+		public void RefreshMaterialLists()
+		{
+			if (BaseMaterials.List == null || SpecialMaterials.List == null || TypeMaterials.List == null)
+			{
+				return;
+			}
+
+			BaseRecipeComponent.GetComponentInChildren<DragableUI>()?.ReturnToOrignalParent();
+			SpecialRecipeComponent.GetComponentInChildren<DragableUI>()?.ReturnToOrignalParent();
+			TypeRecipeComponent.GetComponentInChildren<DragableUI>()?.ReturnToOrignalParent();
+
+			numBaseMaterialRows = PopulateMaterialsList(BaseMaterials, Bag.MaterialsByType(MaterialType.Base));
+			numSpecialMaterialRows = PopulateMaterialsList(SpecialMaterials, Bag.MaterialsByType(MaterialType.Special));
+			numTypeMaterialRows = PopulateMaterialsList(TypeMaterials, Bag.MaterialsByType(MaterialType.Type));
+
+			onBaseListChange(numBaseMaterialRows);
+			onSpecialListChange(numSpecialMaterialRows);
+			onTypeListChange(numTypeMaterialRows);
+		}
+
+		private int PopulateMaterialsList(VerticalScrollPanel panel, Dictionary<Materials.Material, int> materials)
 		{
 			int numRows = 1;
 
@@ -83,18 +136,18 @@ namespace Assets.Deviation.Client.Scripts.Client
 			}
 
 			GameObject materialRow = new GameObject("MaterialRow");
-			CreateHorizontalLayout(materialRow);
+			LayoutGroupFactory.CreateHorizontalLayout(materialRow);
 			materialRow.GetComponent<RectTransform>().sizeDelta = new Vector2(250, 75);
 			materialRow.transform.SetParent(panel.List.transform);
 
 			int i = 0;
-			foreach (var material in materials.Keys)
+			foreach (var material in materials)
 			{
 				if (i % 3 == 0 && i > 0)
 				{
 					numRows++;
 					materialRow = new GameObject("MaterialRow");
-					CreateHorizontalLayout(materialRow);
+					LayoutGroupFactory.CreateHorizontalLayout(materialRow);
 					materialRow.GetComponent<RectTransform>().sizeDelta = new Vector2(250, 75);
 					materialRow.transform.SetParent(panel.List.transform);
 				}
@@ -106,12 +159,12 @@ namespace Assets.Deviation.Client.Scripts.Client
 			return numRows;
 		}
 
-		public GameObject CreateMaterialPanel(Materials.Material material, GameObject parent)
+		private GameObject CreateMaterialPanel(KeyValuePair<Materials.Material, int> material, GameObject parent)
 		{
 			var materialPanel = Instantiate(Resources.Load("MaterialPanel"), parent.transform) as GameObject;
 			var materialDetailsPanel = materialPanel.GetComponent<MaterialDetailsPanel>();
-			materialDetailsPanel.UpdateMaterialDetails(material);
-			CreateEventTriggers(materialPanel, ValidSnapCheck, material.Type);
+			materialDetailsPanel.UpdateMaterialDetails(material.Key, material.Value);
+			DragableUIFactory.CreateDraggableUI(materialPanel, ValidSnapCheck, material.Key.Type);
 			return materialPanel;
 		}
 
@@ -121,58 +174,47 @@ namespace Assets.Deviation.Client.Scripts.Client
 			return component.Type == type;
 		}
 
-		//need to move this to shared class
-		private void CreateEventTriggers<T>(GameObject actionPanel, DragableUI.onEndDrag<T> onEndDrag, T type)
+		private void ComponentStateChanged(MaterialType type, bool state)
 		{
-			DragableUI dragable = actionPanel.AddComponent<DragableUI>();
-			EventTrigger et = actionPanel.AddComponent<EventTrigger>();
-			et.triggers.Add(CreateEventTriggerEntry(EventTriggerType.BeginDrag, dragable, onEndDrag, type));
-			et.triggers.Add(CreateEventTriggerEntry(EventTriggerType.Drag, dragable, onEndDrag, type));
-			et.triggers.Add(CreateEventTriggerEntry(EventTriggerType.EndDrag, dragable, onEndDrag, type));
-		}
-
-		private EventTrigger.Entry CreateEventTriggerEntry<T>(EventTriggerType eventTriggerType, DragableUI dragable, DragableUI.onEndDrag<T> onEndDrag, T type)
-		{
-			EventTrigger.Entry entry = new EventTrigger.Entry();
-			entry.eventID = eventTriggerType;
-
-			switch (eventTriggerType)
+			switch (type)
 			{
-				case EventTriggerType.BeginDrag:
-					entry.callback.AddListener((eventData) => { dragable.BeginDrag(); });
+				case MaterialType.Base:
+					baseComponentReady = state;
 					break;
 
-				case EventTriggerType.Drag:
-					entry.callback.AddListener((eventData) => { dragable.OnDrag(); });
+				case MaterialType.Special:
+					specialComponentReady = state;
 					break;
 
-				case EventTriggerType.EndDrag:
-					entry.callback.AddListener((eventData) => { dragable.EndDrag(onEndDrag, type); });
+				case MaterialType.Type:
+					typeComponentReady = state;
 					break;
 			}
 
-			return entry;
+			if (baseComponentReady && specialComponentReady && typeComponentReady)
+			{
+				CreateButton.interactable = true;
+				UpdateRecipeResult(true);
+			}
+			else
+			{
+				CreateButton.interactable = false;
+				UpdateRecipeResult(false);
+			}
+
 		}
 
-		//move this toooooo
-		public HorizontalLayoutGroup CreateHorizontalLayout(GameObject go)
+		public void UpdateRecipeResult(bool recipeReady)
 		{
-			var layout = go.AddComponent<HorizontalLayoutGroup>();
-			layout.childControlWidth = false;
-			layout.childControlHeight = true;
-			layout.childForceExpandWidth = false;
-			layout.childForceExpandHeight = true;
-			return layout;
-		}
-
-		public VerticalLayoutGroup CreateVerticalLayout(GameObject go)
-		{
-			var layout = go.AddComponent<VerticalLayoutGroup>();
-			layout.childControlWidth = true;
-			layout.childControlHeight = false;
-			layout.childForceExpandWidth = true;
-			layout.childForceExpandHeight = false;
-			return layout;
+			if (recipeReady)
+			{
+				//verify recipe and retrieve appropriate action
+				ActionPanel.UpdateActionDetails(ActionLibrary.GetActionInstance("Ambush"));
+			}
+			else
+			{
+				ActionPanel.ResetActionDetails();
+			}
 		}
 
 		public void GetMaterial()
@@ -202,21 +244,6 @@ namespace Assets.Deviation.Client.Scripts.Client
 				GetMaterial();
 				counter++;
 			}
-		}
-
-		public void RefreshMaterialLists()
-		{
-			BaseRecipeComponent.GetComponentInChildren<DragableUI>()?.ReturnToOrignalParent();
-			SpecialRecipeComponent.GetComponentInChildren<DragableUI>()?.ReturnToOrignalParent();
-			TypeRecipeComponent.GetComponentInChildren<DragableUI>()?.ReturnToOrignalParent();
-
-			numBaseMaterialRows = PopulateMaterialsList(BaseMaterials, Bag.MaterialsByType(MaterialType.Base));
-			numSpecialMaterialRows = PopulateMaterialsList(SpecialMaterials, Bag.MaterialsByType(MaterialType.Special));
-			numTypeMaterialRows = PopulateMaterialsList(TypeMaterials, Bag.MaterialsByType(MaterialType.Type));
-
-			onBaseListChange(numBaseMaterialRows);
-			onSpecialListChange(numSpecialMaterialRows);
-			onTypeListChange(numTypeMaterialRows);
 		}
 
 		public void GetMaterialBank()

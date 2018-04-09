@@ -19,6 +19,7 @@ namespace Assets.Scripts.ModuleEditor
 		public delegate bool onEndDrag<T>(SnapPoint snap, T type);
 
 		private Transform _origParent;
+		private SnapPoint _currentSnap;
 
 		public void Awake()
 		{
@@ -51,10 +52,7 @@ namespace Assets.Scripts.ModuleEditor
 				{
 					if (snap.IsOccupied)
 					{
-						if (snap.CurrentOccupant != null)
-						{
-							snap.CurrentOccupant.GetComponent<DragableUI>().ReturnToOrignalParent();
-						}
+						snap.CurrentOccupant?.GetComponent<DragableUI>().ReturnToOrignalParent();
 					}
 
 					float x = snap.Area.x + snap.Area.width / 2;
@@ -64,6 +62,7 @@ namespace Assets.Scripts.ModuleEditor
 					transform.SetParent(snap.transform, true);
 
 					snap.OccupySnap(gameObject);
+					_currentSnap = snap;
 					return;
 				}
 			}
@@ -73,6 +72,7 @@ namespace Assets.Scripts.ModuleEditor
 
 		public void ReturnToOrignalParent()
 		{
+			_currentSnap?.UnoccupySnap();
 			transform.SetParent(_origParent);
 			transform.position = _oldPos;
 		}

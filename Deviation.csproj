@@ -12,12 +12,15 @@
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
-    <TargetFrameworkProfile></TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows:5</UnityBuildTarget>
     <UnityVersion>2017.3.1f1</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <LangVersion>6</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -289,6 +292,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Deviation.Client\Scripts\UserInterface\DragableUIFactory.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\UserInterface\LayoutGroupFactory.cs" />
     <Compile Include="Assets\_MK\MKGlowFree\MKGlowFree.cs" />
     <Compile Include="Assets\Barebones\Contributions\EmilsConnectionTest\EmilsTestClient.cs" />
     <Compile Include="Assets\Barebones\Contributions\EmilsConnectionTest\EmilsTestServer.cs" />
@@ -539,8 +544,8 @@
     <Compile Include="Assets\Deviation.Client\Scripts\Login\ClientLoginController.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseActions\ActionDetailsPanel.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseActions\ChooseActionsUIController.cs" />
-    <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseActions\DragableUI.cs" />
-    <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseActions\SnapPoint.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\UserInterface\DragableUI.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\UserInterface\SnapPoint.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseTrader\ChooseTraderUIController.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseTrader\Trader.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseTrader\TraderDetailsPanel.cs" />

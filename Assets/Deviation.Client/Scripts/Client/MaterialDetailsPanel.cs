@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using Assets.Deviation.Materials;
+using System.Collections.Generic;
 
 namespace Assets.Deviation.Client.Scripts.Client
 {
@@ -10,6 +11,7 @@ namespace Assets.Deviation.Client.Scripts.Client
 	{
 		public Text Name;
 		public Image Image;
+		public Text Count;
 
 		public Materials.Material Material;
 
@@ -17,31 +19,35 @@ namespace Assets.Deviation.Client.Scripts.Client
 		{
 			var name = transform.Find("Name");
 			var image = transform.Find("Image");
+			var count = transform.Find("Count");
 
-			if (name != null)
+			if (name)
 			{
-				Name = name.GetComponent<Text>();
+				Name = name?.GetComponent<Text>();
 				Name.text = "";
 			}
 
-			if (image != null)
+			if (count)
 			{
-				Image = image.GetComponentInChildren<Image>();
+				Count = count?.GetComponent<Text>();
+				Count.text = "";
 			}
+
+			Image = image?.GetComponentInChildren<Image>();
 		}
 
-		public void UpdateMaterialDetails(Materials.Material material)
+		public void UpdateMaterialDetails(Materials.Material material, int count)
 		{
 			Material = material;
 
-			if (Name != null)
+			if (Name)
 			{
 				Name.text = material.Name;
 			}
 
-			if (Image != null)
+			if (Count)
 			{
-
+				Count.text = $"x{count}";
 			}
 		}
 	}

@@ -41,25 +41,5 @@ namespace Assets.Deviation.Client.Scripts
 			textGO.GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
 			return text;
 		}
-
-		public static HorizontalLayoutGroup CreateHorizontalLayout(GameObject go)
-		{
-			var layout = go.AddComponent<HorizontalLayoutGroup>();
-			layout.childControlWidth = false;
-			layout.childControlHeight = true;
-			layout.childForceExpandWidth = false;
-			layout.childForceExpandHeight = true;
-			return layout;
-		}
-
-		public static VerticalLayoutGroup CreateVerticalLayout(GameObject go)
-		{
-			var layout = go.AddComponent<VerticalLayoutGroup>();
-			layout.childControlWidth = true;
-			layout.childControlHeight = false;
-			layout.childForceExpandWidth = true;
-			layout.childForceExpandHeight = false;
-			return layout;
-		}
 	}
 }

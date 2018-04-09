@@ -4,18 +4,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Assets.Scripts.ModuleEditor
 {
 	public class SnapPoint : MonoBehaviour
 	{
 		public Rect Area;
-		public bool IsOccupied = false;
 		public GameObject CurrentOccupant;
+		public UnityAction onOccupied;
+		public UnityAction onUnoccupied;
+
+		private bool _isOccupied = false;
+		public bool IsOccupied { get { return _isOccupied; } }
 
 		public void Awake()
 		{
-			IsOccupied = false;
+			_isOccupied = false;
 			Area = GetScreenCoordinates(GetComponent<RectTransform>());
 		}
 
@@ -34,7 +39,15 @@ namespace Assets.Scripts.ModuleEditor
 		public void OccupySnap(GameObject currentOccupant)
 		{
 			CurrentOccupant = currentOccupant;
-			IsOccupied = true;
+			_isOccupied = true;
+			onOccupied?.Invoke();
+		}
+
+		public void UnoccupySnap()
+		{
+			CurrentOccupant = null;
+			_isOccupied = false;
+			onUnoccupied?.Invoke();
 		}
 	}
 }

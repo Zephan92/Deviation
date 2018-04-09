@@ -2,6 +2,7 @@
 using Assets.Deviation.Client.Scripts.Client;
 using Assets.Deviation.Client.Test;
 using Assets.Deviation.Exchange.Scripts.Client;
+using Assets.Deviation.Materials;
 using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Library;
 using Barebones.MasterServer;
@@ -42,6 +43,7 @@ public class TestClientController : TestBase
 		if (Application.isEditor)
 		{
 			cc.PlayButton.onClick.AddListener(AddOnSearchListener);
+			cc.CraftButton.onClick.AddListener(AddOnCraftInit);
 		}
 	}
 
@@ -64,6 +66,17 @@ public class TestClientController : TestBase
 		var mc = FindObjectOfType<MatchmakingController>();
 		mc.JoinQueueButton.onClick.AddListener(StartClient);
 		hasSearchListener = true;
+	}
+
+	private void AddOnCraftInit()
+	{
+		var cc = FindObjectOfType<CraftingController>();
+		var bag = new MaterialBag();
+		foreach (var material in MaterialLibrary.GetMaterials())
+		{
+			bag.AddMaterial(material, 9999);
+		}
+		cc.Bag = bag;
 	}
 
 	private void StartClient()

@@ -20,22 +20,11 @@ namespace Assets.Deviation.Client.Scripts.Match
 			var description = actionHeader.Find("Description");
 			var image = transform.Find("ActionImage");
 
-			if (name != null)
-			{
-				Name = name.GetComponent<Text>();
-				Name.text = "";
-			}
+			Name = name?.GetComponent<Text>();
+			Description = description?.GetComponent<Text>();
+			Image = image?.GetComponentInChildren<Image>();
 
-			if (description != null)
-			{
-				Description = description.GetComponent<Text>();
-				Description.text = "";
-			}
-
-			if (image != null)
-			{
-				Image = image.GetComponentInChildren<Image>();
-			}
+			ResetActionDetails();
 		}
 
 		public void UpdateActionDetails(IExchangeAction action)
@@ -54,7 +43,27 @@ namespace Assets.Deviation.Client.Scripts.Match
 
 			if (Image != null)
 			{
+				Image.enabled = true;
+			}
+		}
 
+		public void ResetActionDetails()
+		{
+			Action = null;
+
+			if (Name != null)
+			{
+				Name.text = "";
+			}
+
+			if (Description != null)
+			{
+				Description.text = "";
+			}
+
+			if (Image != null)
+			{
+				Image.enabled = false;
 			}
 		}
 	}
