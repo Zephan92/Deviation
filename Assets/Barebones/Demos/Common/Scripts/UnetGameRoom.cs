@@ -153,7 +153,9 @@ public class UnetGameRoom : NetworkBehaviour
             // Lobby rooms should be private, because they are accessed differently
             IsPublic = isUsingLobby ? false : IsPublic,
             AllowUsersRequestAccess = isUsingLobby ? false : AllowUsersRequestAccess,
-            Password = "",
+
+            Password = Password,
+
             Properties = new Dictionary<string, string>()
             {
                 {MsfDictKeys.MapName, MapName }, // Show the name of the map
@@ -161,7 +163,7 @@ public class UnetGameRoom : NetworkBehaviour
             }
         };
 
-        BeforeSendingRegistrationOptions(options);
+        BeforeSendingRegistrationOptions(options, properties);
 
         // 2. Send a request to create a room
         Msf.Server.Rooms.RegisterRoom(options, (controller, error) =>
@@ -184,9 +186,17 @@ public class UnetGameRoom : NetworkBehaviour
     /// <summary>
     /// Override this method, if you want to make some changes to registration options
     /// </summary>
-    /// <param name="options"></param>
-    protected virtual void BeforeSendingRegistrationOptions(RoomOptions options)
+    /// <param name="options">Room options, before sending them to register a room</param>
+    /// <param name="spawnProperties">Properties, which were provided when spawning the process</param>
+    protected virtual void BeforeSendingRegistrationOptions(RoomOptions options, 
+        Dictionary<string, string> spawnProperties)
     {
+        // You can override this method, and modify room registration options
+
+        // For example, you could copy some of the properties from spawn request,
+        // like this:
+        if (spawnProperties.ContainsKey("magicProperty"))
+            options.Properties["magicProperty"] = spawnProperties["magicProperty"];
     }
 
     /// <summary>
@@ -233,7 +243,11 @@ public class UnetGameRoom : NetworkBehaviour
         {
             // Add room id, so that whoever requested to spawn this game server,
             // knows which rooms access to request
-            {MsfDictKeys.RoomId, Controller.RoomId.ToString()} 
+            {MsfDictKeys.RoomId, Controller.RoomId.ToString()},
+
+            // Add room password, so that creator can request an access to a 
+            // password-protected room
+            {MsfDictKeys.RoomPassword, Controller.Options.Password}
         };
     }
 

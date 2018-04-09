@@ -15,12 +15,13 @@ public class DeviationBuild
 	public static string ClientLogin = "Assets/Deviation.Client/DeviationClient - Login.unity";
 	public static string Client = "Assets/Deviation.Client/DeviationClient - Client.unity";
 	public static string ClientMatch = "Assets/Deviation.Client/DeviationClient - Match.unity";
+	public static string ClientExchange = "Assets/Deviation.Client/DeviationClient - Exchange.unity";
+	public static string ClientResults = "Assets/Deviation.Client/DeviationClient - Results.unity";
 
-	public static string Standalone = "Assets/Deviation.Client/DeviationStandalone.unity";
 	public static string MasterServer = "Assets/Deviation.MasterServer/MasterServer.unity";
-	public static string Exchange1v1Scene = "Assets/Deviation.Exchange/Exchange.1v1/GameServer/Scenes/1v1Exchange.unity";
-	public static string Exchange1v1SpawnerServer = "Assets/Deviation.Exchange/Exchange.1v1/GameServer/Scenes/1v1ExchangeSpawnerServer.unity";
-	public static string Exchange1v1GameServer = "Assets/Deviation.Exchange/Exchange.1v1/GameServer/Scenes/1v1ExchangeGameServer.unity";
+	public static string Exchange1v1Scene = "Assets/Deviation.Exchange/1v1Exchange.unity";
+	public static string Exchange1v1SpawnerServer = "Assets/Deviation.SpawnerServer/1v1ExchangeSpawnerServer.unity";
+	public static string Exchange1v1GameServer = "Assets/Deviation.GameServer/1v1ExchangeGameServer.unity";
 
 	public static BuildTarget TargetPlatform = BuildTarget.StandaloneWindows;
 
@@ -41,6 +42,7 @@ public class DeviationBuild
 			return;
 
 		UnityEngine.Debug.Log("Starting Deviation Build");
+		ShutDownAllServers();
 		BuildMaster(path);
 		BuildSpawner(path);
 		BuildClient(path);
@@ -48,6 +50,33 @@ public class DeviationBuild
 		UnityEngine.Debug.Log("Finished Building");
 		StartServer();
 		StartClients();
+	}
+
+	private static void ShutDownAllServers()
+	{
+		foreach (var process in Process.GetProcessesByName("1v1ExchangeSpawnerServer"))
+		{
+			UnityEngine.Debug.Log("Shutting down: " + process.ProcessName);
+			process.Kill();
+		}
+
+		foreach (var process in Process.GetProcessesByName("MasterServer"))
+		{
+			UnityEngine.Debug.Log("Shutting down: " + process.ProcessName);
+			process.Kill();
+		}
+
+		foreach (var process in Process.GetProcessesByName("1v1ExchangeGameServer"))
+		{
+			UnityEngine.Debug.Log("Shutting down: " + process.ProcessName);
+			process.Kill();
+		}
+
+		foreach (var process in Process.GetProcessesByName("DeviationClient"))
+		{
+			UnityEngine.Debug.Log("Shutting down: " + process.ProcessName);
+			process.Kill();
+		}
 	}
 
 	[MenuItem("Tools/Deviation/Start Deviation Servers", false, 0)]
@@ -61,7 +90,6 @@ public class DeviationBuild
 	public static void StartClients()
 	{
 		var commandLineArgs = " -test GuestLogin";
-		//var commandLineArgs = " -msfStartMaster -batchmode  -nographics";
 		var exePath = GetServerLocation("DeviationClient");
 		UnityEngine.Debug.Log(exePath + commandLineArgs);
 
@@ -171,7 +199,9 @@ public class DeviationBuild
 			ClientLogin,
 			Client,
 			ClientMatch,
-			Standalone,
+			ClientExchange,
+			ClientResults,
+
 			Exchange1v1Scene,
 		};
 

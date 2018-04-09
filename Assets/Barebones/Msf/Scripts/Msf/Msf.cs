@@ -81,6 +81,7 @@ namespace Barebones.MasterServer
 
         static Msf()
         {
+
             // Initialize advanced settings
             Advanced = new MsfAdvancedSettings();
 

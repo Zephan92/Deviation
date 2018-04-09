@@ -10,6 +10,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
+[RequireComponent(typeof(NetworkIdentity))]
+[RequireComponent(typeof(Energy))]
+[RequireComponent(typeof(Health))]
+[RequireComponent(typeof(Mover))]
+[RequireComponent(typeof(Status))]
+[RequireComponent(typeof(PlayerController))]
 public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 {
 	[SyncVar]
@@ -44,8 +50,8 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	private ExchangeBattlefieldController bc;
 	private ITimerManager tm;
 	private IGridManager gm;
-	private ICoroutineManager cm;
-	private IEnumerator _coroutine;
+	//private ICoroutineManager cm;
+	//private IEnumerator _coroutine;
 	private ConcurrentDictionary<int, bool> _actionsDisabled;
 	private Renderer [] _renderers;
 
@@ -54,7 +60,7 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 		bc = FindObjectOfType<ExchangeBattlefieldController>();
 		tm = FindObjectOfType<TimerManager>();
 		gm = FindObjectOfType<GridManager>();
-		cm = FindObjectOfType<CoroutineManager>();
+		//cm = FindObjectOfType<CoroutineManager>();
 		_energy = GetComponent<Energy>();
 		_health = GetComponent<Health>();
 		_mover = GetComponent<Mover>();

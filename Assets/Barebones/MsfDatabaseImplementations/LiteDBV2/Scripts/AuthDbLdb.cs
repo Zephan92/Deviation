@@ -34,28 +34,29 @@ namespace Barebones.MasterServer
             return account;
         }
 
-        public IAccountData GetAccount(string username)
+        public void GetAccount(string username, Action<IAccountData> callback)
         {
             var account = _accounts.FindOne(a => a.Username == username);
-            return account;
+
+            callback.Invoke(account);
         }
 
-        public IAccountData GetAccountByToken(string token)
+        public void GetAccountByToken(string token, Action<IAccountData> callback)
         {
             var account = _accounts.FindOne(a => a.Token == token);
 
-            return account;
+            callback.Invoke(account);
         }
 
-        public IAccountData GetAccountByEmail(string email)
+        public void GetAccountByEmail(string email, Action<IAccountData> callback)
         {
             var emailLower = email.ToLower();
             var account = _accounts.FindOne(Query.EQ("Email", emailLower));
 
-            return account;
+            callback.Invoke(account);
         }
 
-        public void SavePasswordResetCode(IAccountData account, string code)
+        public void SavePasswordResetCode(IAccountData account, string code, Action doneCallback )
         {
             // Delete older codes
             _resetCodes.Delete(Query.EQ("Email", account.Email.ToLower()));
@@ -65,14 +66,17 @@ namespace Barebones.MasterServer
                 Email = account.Email,
                 Code = code
             });
+
+            doneCallback.Invoke();
         }
 
-        public IPasswordResetData GetPasswordResetData(string email)
+        public void GetPasswordResetData(string email, Action<IPasswordResetData> callback )
         {
-            return _resetCodes.FindOne(Query.EQ("Email", email.ToLower()));
+            var code = _resetCodes.FindOne(Query.EQ("Email", email.ToLower()));
+            callback.Invoke(code);
         }
 
-        public void SaveEmailConfirmationCode(string email, string code)
+        public void SaveEmailConfirmationCode(string email, string code, Action doneCallback )
         {
             _emailConfirmations.Delete(Query.EQ("Email", email));
             _emailConfirmations.Insert(new EmailConfirmationData()
@@ -80,29 +84,36 @@ namespace Barebones.MasterServer
                 Code = code,
                 Email = email
             });
+
+            doneCallback.Invoke();
         }
 
-        public string GetEmailConfirmationCode(string email)
+        public void GetEmailConfirmationCode(string email, Action<string> callback)
         {
             var entry = _emailConfirmations.FindOne(Query.EQ("Email", email));
 
-            return entry != null ? entry.Code : null;
+            callback.Invoke(entry != null ? entry.Code : null);
         }
 
-        public void UpdateAccount(IAccountData account)
+        public void UpdateAccount(IAccountData account, Action doneCallback)
         {
             _accounts.Update(account as AccountDataLdb);
+
+            doneCallback.Invoke();
         }
 
-        public void InsertNewAccount(IAccountData account)
+        public void InsertNewAccount(IAccountData account, Action doneCallback)
         {
             _accounts.Insert(account as AccountDataLdb);
+            doneCallback.Invoke();
         }
 
-        public void InsertToken(IAccountData account, string token)
+        public void InsertToken(IAccountData account, string token, Action doneCallback)
         {
             account.Token = token;
             _accounts.Update(account as AccountDataLdb);
+
+            doneCallback.Invoke();
         }
 
         private class PasswordResetData : IPasswordResetData

@@ -6,6 +6,9 @@ using UnityEngine.Networking;
 using Assets.Scripts.Enum;
 using Assets.Scripts.Exchange.Attacks;
 
+
+
+[RequireComponent(typeof(ActionObject))]
 public class ActionObjectMover : NetworkBehaviour
 {
 	[SyncVar]
@@ -56,7 +59,6 @@ public class ActionObjectMover : NetworkBehaviour
 
 	private bool _warningsEnabled = false;
 	private bool _occupiedEnabled = false;
-	private bool _outOfBounds = false;
 
 	public void Awake()
 	{

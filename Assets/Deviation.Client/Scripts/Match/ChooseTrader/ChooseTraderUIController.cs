@@ -1,5 +1,6 @@
 ﻿using Assets.Deviation.Client.Scripts.UserInterface;
 using Assets.Deviation.Exchange.Scripts.Client;
+using Assets.Scripts.Enum;
 using Assets.Scripts.Interface;
 using Assets.Scripts.Utilities;
 using System;
@@ -21,7 +22,6 @@ namespace Assets.Deviation.Client.Scripts.Match
 
 	public class ChooseTraderUIController : UIController
 	{
-		public GameObject MiddlePanel;
 		public ITrader CurrentTrader;
 		public UnityAction<ITrader> OnConfirmTrader;
 		public ChooseTraderUIState UIState
@@ -40,39 +40,48 @@ namespace Assets.Deviation.Client.Scripts.Match
 				}
 			}
 		}
-		public InputField SearchTradersList;//find this dynamically
-		public VerticalScrollPanel TraderList;//find this dynamically
-		public Button[] TraderListFilters = new Button[5];//find this dynamically
-		public TraderDetailsPanel TraderDetails;//find this dynamically
-		public Text ChooseTraderTimer;//Find this dynamically
+		public InputField SearchTradersList;
+		public TraderSelectScrollPanel TraderList;
+		public Button[] TraderListFilters = new Button[5];
+		public TraderDetailsPanel TraderDetails;
 
 		private UnityAction<ChooseTraderUIState> OnUIStateChange;
 		private UnityAction<int> onListChange;
 		private ChooseTraderUIState _uiState;
-		private GameObject _activeMiddlePanel;
 		private ITrader _selectedTrader;
 		private bool[] _traderListFiltersEnabled = new bool[5];
 		private List<GameObject> _traderListPanels;
 
-		private const int Max_Item_Before_Scroll = 7;
-		private const float Item_Height = 80;
+		private const int Max_Item_Before_Scroll = 5;
+		private const float Item_Width = 248;
 
 		public override void Awake()
 		{
 			base.Awake();
+
+			TraderList = GetComponentInChildren<TraderSelectScrollPanel>();
+			TraderDetails = GetComponentInChildren<TraderDetailsPanel>();
+			SearchTradersList = GetComponentInChildren<InputField>();
+			var footer = transform.Find("Footer");
+			TraderListFilters = footer.GetComponentsInChildren<Button>();
 			OnUIStateChange += OnUIStateChangeMethod;
 			onListChange += TraderList.OnListChange;
 			SearchTradersList.onValueChanged.AddListener(FilterOnSearch);
 
 			TraderList.MaxListSize = Max_Item_Before_Scroll;
-			TraderList.ItemHeight = Item_Height;
-			for(int i = 0; i < _traderListFiltersEnabled.Length; i++)
+			TraderList.ItemWidth = Item_Width;
+			for(int i = 0; i < _traderListFiltersEnabled.Count(); i++)
 			{
+				var type = i;
+				TraderListFilters[i].onClick.AddListener(()=>{
+
+					FilterOnclick(type);
+				});
 				_traderListFiltersEnabled[i] = true;
 			}
 		}
 
-		public void Start()
+		public override void Start()
 		{
 			var traders = new List<ITrader>()
 			{
@@ -91,30 +100,18 @@ namespace Assets.Deviation.Client.Scripts.Match
 				new Trader("yeahitkeepsgoing", "The Winds of Winter", TraderType.Epsilon, "", Guid.NewGuid()),
 				new Trader("Short", "The Shadow of doubt", TraderType.Gamma, "", Guid.NewGuid()),
 			};
-
+			traders = traders.OrderBy(t => t.Name).ToList();
 			_traderListPanels = InitializeTraderPanels(traders);
 			UIState = ChooseTraderUIState.Start;
 		}
 
 		public override void Update()
 		{
-			ChooseTraderTimer.text = ((int)tm.GetRemainingCooldown(ClientMatchState.ChooseTrader.ToString())).ToString();
+			//ChooseTraderTimer.text = ((int)tm.GetRemainingCooldown(ClientMatchState.ChooseTrader.ToString())).ToString();
 		}
 
 		private void OnUIStateChangeMethod(ChooseTraderUIState state)
 		{
-			if (_activeMiddlePanel != null)
-			{
-				_activeMiddlePanel.SetActive(false);
-			}
-
-			Transform currentPanel = MiddlePanel.transform.GetChild((int)state);
-			if (currentPanel != null)
-			{
-				_activeMiddlePanel = currentPanel.gameObject;
-				_activeMiddlePanel.SetActive(true);
-			}
-
 			switch (state)
 			{
 				case ChooseTraderUIState.Start:
@@ -232,12 +229,12 @@ namespace Assets.Deviation.Client.Scripts.Match
 			{
 				UnityAction onTraderListPanelClick = () =>
 				{
-					TraderDetails.UpdateTraderDetails(trader);
+					TraderDetails.UpdateTraderDetails(trader, ConfirmTrader);
 					UnChooseTraderListPanels(trader);
 					_selectedTrader = trader;
 					UIState = ChooseTraderUIState.TraderSelected;
 				};
-				var panel = TraderPanelFactory.CreateTraderPanel(TraderDisplaySide.LeftSide, trader, TraderList.List, onTraderListPanelClick);
+				var panel = TraderPanelFactory.CreateTraderPanel(trader, TraderList.List, onTraderListPanelClick);
 				traderPanels.Add(panel);
 			}
 

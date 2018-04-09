@@ -14,8 +14,8 @@ namespace Assets.Scripts.Interface.DTO
 		float Cooldown { get; set; }
 		IKit ParentKit { get; set; }
 		string PrimaryActionName { get; set; }
-		ModuleType Type { get; }
-
+		TraderType Type { get; }
+		string Description { get; set; }
 		void InitiateAttack(IBattlefieldController bc, BattlefieldZone zone);
 	}
 }

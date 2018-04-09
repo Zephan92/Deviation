@@ -22,9 +22,9 @@ public class Mover : NetworkBehaviour
 
 	public void UpdateRow(int value)
 	{
-		if (isClient)
+		if (isLocalPlayer)
 		{
-			CmdUpdateRow(value);
+			CmdUpdateRow(value);//uh oh someone is calling this without permisssion
 		}
 
 		_currentRow = value;
@@ -39,9 +39,9 @@ public class Mover : NetworkBehaviour
 
 	public void UpdateColumn(int value)
 	{
-		if (isClient)
+		if (isLocalPlayer)
 		{
-			CmdUpdateColumn(value);
+			CmdUpdateColumn(value);//uh oh someone is calling this without permisssion
 		}
 		
 		_currentColumn = value;
@@ -70,16 +70,16 @@ public class Mover : NetworkBehaviour
 	private MovingDetails _movingDetails;
 	private MovingDetails _movingDetailsNext;
 
-	private ICoroutineManager cm;
+	//private ICoroutineManager cm;
 	private IGridManager gm;
 
 	private BattlefieldZone _zone;
 
 	public void UpdateZone(BattlefieldZone value)
 	{
-		if (isClient)
+		if (isLocalPlayer)
 		{
-			CmdUpdateZone(value);
+			CmdUpdateZone(value);//uh oh someone is calling this without permisssion
 		}
 
 		_zone = value;
@@ -94,7 +94,7 @@ public class Mover : NetworkBehaviour
 	public void Awake()
 	{
 		gm = FindObjectOfType<GridManager>();
-		cm = FindObjectOfType<CoroutineManager>();	
+		//cm = FindObjectOfType<CoroutineManager>();	
 	}
 
 	public void FixedUpdate()

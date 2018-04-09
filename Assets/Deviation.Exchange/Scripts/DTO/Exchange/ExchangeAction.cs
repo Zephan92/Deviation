@@ -15,6 +15,9 @@ namespace Assets.Scripts.DTO.Exchange
 		//Action Name
 		public string Name { get; set; }
 
+		//Action Description
+		public string Description { get; set; }
+
 		//Action Attack: Used for calculating health/energy
 		public IAttack Attack { get; set; }
 
@@ -31,9 +34,9 @@ namespace Assets.Scripts.DTO.Exchange
 		//this is the primary action method run when this action is used
 		public System.Action<IBattlefieldController, IAttack, IExchangePlayer, BattlefieldZone> PrimaryAction;
 
-		public ModuleType Type { get; set; }
+		public TraderType Type { get; set; }
 
-		public ExchangeAction(Guid id, string name, IAttack attack, Texture2D actionTexture, string primaryActionName, float cooldown, ModuleType type)
+		public ExchangeAction(Guid id, string name, IAttack attack, Texture2D actionTexture, string primaryActionName, float cooldown, TraderType type)
 		{
 			Id = id;
 			Name = name;

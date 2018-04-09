@@ -1,13 +1,11 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Barebones.MasterServer;
-using System.Runtime.InteropServices;
 using UnityEngine.SceneManagement;
 using Assets.Deviation.Exchange.Scripts.Client;
-
-public class ClientLoginController : MonoBehaviour
+using Assets.Deviation.Client.Scripts;
+public class ClientLoginController : ControllerBase
 {
 	public InputField Username;
 	public InputField Password;
@@ -15,13 +13,18 @@ public class ClientLoginController : MonoBehaviour
 
 	private EventSystem system;
 	private Button[] buttons;
-	private ClientDataController cdc;
 
-	void Start()
+	public override void Start()
 	{
-		cdc = FindObjectOfType<ClientDataController>();
-		system = EventSystem.current;
+		base.Start();
+		ClientDataRepository.Instance.State = ClientState.Login;
+		ClientDataRepository.Instance.OnLogin += LoginSuccessful;
 
+		system = EventSystem.current;
+		var signInPanel = GameObject.Find("Sign In Panel");
+		Username = signInPanel.transform.Find("Username").GetComponentInChildren<InputField>();
+		Password = signInPanel.transform.Find("Password").GetComponentInChildren<InputField>();
+		RememberMe = signInPanel.transform.Find("Remember Me").GetComponentInChildren<Toggle>();
 		if (PlayerPrefs.HasKey("RememberUsername"))
 		{
 			string remUser = PlayerPrefs.GetString("RememberUsername");
@@ -45,28 +48,21 @@ public class ClientLoginController : MonoBehaviour
 				button.interactable)
 			{
 				button.interactable = false;
-			}
-		}
-
-		if (Debug.isDebugBuild)
-		{
-			var testArgs = Msf.Args.ExtractValue("-test");
-			if (testArgs.Equals("GuestLogin"))
-			{
-				StartCoroutine(Test());
+				button.onClick.AddListener(Login);;
 			}
 		}
 	}
 
-	private IEnumerator Test()
+	public override void OnDataCreated()
 	{
-		yield return new WaitForSeconds(1f);
-		if (Debug.isDebugBuild)
-			LoginAsGuest();
+		//We don't want this method to do anything in the base class when we test
 	}
 
-	void Update()
+	public override void Update()
 	{
+		base.Update();
+
+		//put this in a method
 		if (Input.GetKeyDown(KeyCode.Tab) && system.currentSelectedGameObject != null)
 		{
 			Selectable next = system.currentSelectedGameObject.GetComponent<Selectable>().FindSelectableOnDown();
@@ -83,6 +79,7 @@ public class ClientLoginController : MonoBehaviour
 			}
 		}
 
+		//this too
 		foreach (Button button in buttons)
 		{
 			if (button.name.Equals("Sign In Button") &&
@@ -100,7 +97,7 @@ public class ClientLoginController : MonoBehaviour
 	{
 		OnRememberMe();
 
-		LoginAsGuest();
+		ClientDataRepository.Instance.LoginAsGuest();
 
 		//Msf.Client.Auth.LogIn(Username.text, Password.text, (successful, error) =>
 		//{
@@ -109,14 +106,18 @@ public class ClientLoginController : MonoBehaviour
 
 	}
 
-	public void LoginAsGuest()
+	private void LoginSuccessful(AccountInfoPacket successful, string error)
 	{
-		Msf.Client.Auth.LogInAsGuest((successful, error) =>
+		if (error != null && error != "")
 		{
-			UnityEngine.Debug.Log("Is successful: " + successful + "; Error (if exists): " + error);
-			cdc.GetPlayerAccount();
+			UnityEngine.Debug.LogError("Error when trying to login: " + error);
+			return;
+		}
+		
+		ClientDataRepository.Instance.GetPlayerAccount();
+		ClientDataRepository.Instance.PlayerAccountRecieved += () => {
 			SceneManager.LoadScene("DeviationClient - Client");
-		});
+		};
 	}
 
 	public void CreateAccount()

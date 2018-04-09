@@ -5,26 +5,27 @@ using System.Collections.Generic;
 using System;
 using Assets.Deviation.Exchange.Scripts;
 using Assets.Deviation.Exchange.Scripts.Client;
+using Assets.Deviation.Client.Scripts;
 
-public class StandaloneController : MonoBehaviour
+//[RequireComponent(typeof(ExchangeRoomConnector))]
+public class StandaloneController : ControllerBase
 {
 	protected SpawnRequestController Request;
-	private ClientDataController cdc;
 
-	public void Awake()
+	public override void Awake()
 	{
-		cdc = FindObjectOfType<ClientDataController>();
+		base.Awake();
 		JoinServer();
 	}
 
 	public void JoinServer()
 	{
-		Msf.Client.Rooms.GetAccess(cdc.RoomId, OnPassReceived);
+		Msf.Client.Rooms.GetAccess(ClientDataRepository.Instance.RoomId, OnPassReceived);
 	}
 
 	protected void OnPassReceived(RoomAccessPacket packet, string errorMessage)
 	{
-		var loadingPromise = Msf.Events.FireWithPromise(Msf.EventNames.ShowLoading, "Joining lobby");
+		Msf.Events.FireWithPromise(Msf.EventNames.ShowLoading, "Joining lobby");
 
 		if (packet == null)
 		{

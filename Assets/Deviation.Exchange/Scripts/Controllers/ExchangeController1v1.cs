@@ -6,6 +6,8 @@ using UnityEngine;
 using System.Collections.Generic;
 using Barebones.MasterServer;
 using System;
+using UnityEngine.SceneManagement;
+using Assets.Deviation.Exchange.Scripts.Client;
 
 public interface IGameController
 {
@@ -20,8 +22,13 @@ public interface IExchangeController1v1 : IGameController
 
 }
 
+[RequireComponent(typeof(NetworkIdentity))]
+[RequireComponent(typeof(TimerManager))]
+[RequireComponent(typeof(CoroutineManager))]
 public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 {
+	private const int Round_Time_Seconds = 500;
+
 	[SyncVar]
 	private ExchangeState _exchangeState;
 
@@ -55,9 +62,10 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 	private bool _waitingForClients;
 	private System.Collections.IEnumerator _coroutine;
 	private int ExchangeDataId;
-
+	private ExchangeNetworkManager etm;
 	private void Awake()
 	{
+		etm = FindObjectOfType<ExchangeNetworkManager>();
 		_playerInitData = new InitExchangePlayerPacket[2];
 		clientReady = new ConcurrentDictionary<int, bool>();
 		_stateStatus = new Dictionary<ExchangeState, bool>();
@@ -77,7 +85,7 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 		tm = GetComponent<TimerManager>();
 		cm = GetComponent<CoroutineManager>();
 		bc = FindObjectOfType<ExchangeBattlefieldController>();
-		tm.AddTimer("ExchangeTimer", 600);
+		tm.AddTimer("ExchangeTimer", Round_Time_Seconds);
 	}
 
 	private void FixedUpdate()
@@ -266,7 +274,8 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 	{
 		if (isClient)
 		{
-			Application.Quit();
+			etm.StopClient();
+			SceneManager.LoadScene("DeviationClient - Results");
 		}
 	}
 
