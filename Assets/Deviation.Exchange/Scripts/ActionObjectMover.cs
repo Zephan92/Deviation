@@ -95,7 +95,7 @@ public class ActionObjectMover : NetworkBehaviour
 			return;
 		}
 
-		transform.Translate(Vector3.forward * _movementSpeed * Time.deltaTime);
+		transform?.Translate(Vector3.forward * _movementSpeed * Time.deltaTime);
 
 		if (isServer)
 		{
@@ -173,6 +173,13 @@ public class ActionObjectMover : NetworkBehaviour
 			StopObjectServer();
 			RpcStopObject(CurrentCoordinate.Position_Vector3());
 		}
+		else
+		{
+			if (_movingCoroutine != null)
+			{
+				cm.StopCoroutineThread(ref _movingCoroutine);
+			}
+		}
 	}
 
 	public void StopObjectServer()
@@ -183,7 +190,10 @@ public class ActionObjectMover : NetworkBehaviour
 		}
 
 		_stopped = true;
-		cm.StopCoroutineThread(ref _movingCoroutine);
+		if (_movingCoroutine != null)
+		{
+			cm.StopCoroutineThread(ref _movingCoroutine);
+		}
 		transform.position = CurrentCoordinate.Position_Vector3();
 
 		if (_warningsEnabled && CurrentCoordinate.Valid())

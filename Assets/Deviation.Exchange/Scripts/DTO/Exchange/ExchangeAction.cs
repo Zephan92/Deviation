@@ -64,5 +64,16 @@ namespace Assets.Scripts.DTO.Exchange
 		{
 			PrimaryAction(bc, Attack, ParentKit.Player, zone);
 		}
+
+		public bool Equals(IExchangeAction action)
+		{
+			return	Id == action.Id &&
+					Name == action.Name &&
+					Attack == action.Attack &&
+					Cooldown == action.Cooldown &&
+					ActionTexture == action.ActionTexture &&
+					PrimaryActionName == action.PrimaryActionName &&
+					Type == action.Type;
+		}
 	}
 }

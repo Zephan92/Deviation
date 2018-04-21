@@ -135,6 +135,7 @@ public class ExchangeServerStarter : MonoBehaviour
 			NetworkManager.networkPort = Msf.Args.AssignedPort;
 
 			// Start the server
+			Debug.LogError("Starting Server!!!!!!");
 			NetworkManager.StartServer();
 		});
 		return;

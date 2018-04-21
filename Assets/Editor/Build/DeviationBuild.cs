@@ -12,6 +12,7 @@ public class DeviationBuild
 	/// Have in mind that if you change it, it might take "a while" 
 	/// for the editor to pick up changes 
 	/// </summary>
+	/// 
 	public static string ClientLogin = "Assets/Deviation.Client/DeviationClient - Login.unity";
 	public static string Client = "Assets/Deviation.Client/DeviationClient - Client.unity";
 	public static string ClientMatch = "Assets/Deviation.Client/DeviationClient - Match.unity";
@@ -33,6 +34,8 @@ public class DeviationBuild
 	public static BuildOptions BuildOptions = BuildOptions.Development;
 
 	public static string PrevPath = null;
+
+	public static string ServerIp = "24.1.58.41";
 
 	[MenuItem("Tools/Deviation/Build All #F12", false, 0)]
 	public static void BuildGame()
@@ -107,7 +110,7 @@ public class DeviationBuild
 			process.Kill();
 		}
 
-		var commandLineArgs = " -msfStartMaster ";
+		var commandLineArgs = $" -msfStartMaster -msfMachineIp {ServerIp} ";
 		//var commandLineArgs = " -msfStartMaster -batchmode  -nographics";
 		var exePath = GetServerLocation("MasterServer");
 		UnityEngine.Debug.Log(exePath + commandLineArgs);
@@ -126,7 +129,7 @@ public class DeviationBuild
 		var gameServerExePath = GetServerLocation("1v1ExchangeGameServer");
 
 		//var commandLineArgs = " -batchmode -nographics -msfStartSpawner -msfExe " + gameServerExePath;
-		var commandLineArgs = "-msfStartSpawner -msfExe " + gameServerExePath;
+		var commandLineArgs = $" -msfStartSpawner -msfMachineIp {ServerIp} -msfExe {gameServerExePath}";
 		var exePath = GetServerLocation("1v1ExchangeSpawnerServer");
 
 		UnityEngine.Debug.Log(exePath + commandLineArgs);

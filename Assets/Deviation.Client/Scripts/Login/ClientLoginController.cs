@@ -122,7 +122,7 @@ public class ClientLoginController : ControllerBase
 
 	public void CreateAccount()
 	{
-		Application.OpenURL("http://unity3d.com/");
+		Application.OpenURL("https://deviationgame.com/");
 	}
 
 	public void OnRememberMe()

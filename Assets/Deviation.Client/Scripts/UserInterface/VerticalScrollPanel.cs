@@ -28,6 +28,7 @@ namespace Assets.Deviation.Client.Scripts.UserInterface
 			LayoutGroup = GetComponentInChildren<VerticalLayoutGroup>();
 
 			Scroll.onValueChanged.AddListener(OnScroll);
+			PanelEnabled(false);
 		}
 
 		public void Start()

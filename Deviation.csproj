@@ -294,6 +294,9 @@
   <ItemGroup>
     <Compile Include="Assets\Deviation.Client\Scripts\UserInterface\DragableUIFactory.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\UserInterface\LayoutGroupFactory.cs" />
+    <Compile Include="Assets\Deviation\Recipes\Recipe.cs" />
+    <Compile Include="Assets\Deviation\Recipes\RecipeDetailsPanel.cs" />
+    <Compile Include="Assets\Deviation\Recipes\RecipeLibrary.cs" />
     <Compile Include="Assets\_MK\MKGlowFree\MKGlowFree.cs" />
     <Compile Include="Assets\Barebones\Contributions\EmilsConnectionTest\EmilsTestClient.cs" />
     <Compile Include="Assets\Barebones\Contributions\EmilsConnectionTest\EmilsTestServer.cs" />
@@ -532,7 +535,7 @@
     <Compile Include="Assets\Deviation.Client.Test\TestClientMatchController.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\CraftingController.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\MatchmakingController.cs" />
-    <Compile Include="Assets\Deviation.Client\Scripts\Client\MaterialDetailsPanel.cs" />
+    <Compile Include="Assets\Deviation\Materials\MaterialDetailsPanel.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\RecipeComponent.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\ClientController.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\ClientDataRepository.cs" />

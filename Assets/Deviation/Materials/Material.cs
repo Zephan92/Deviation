@@ -38,5 +38,10 @@
 		{
 			return string.Format("Name: {0}. Type: {1}. Rarity: {2}. DropRate: {3}", Name, Type, Rarity, DropRate);
 		}
+
+		public bool Equals(Material material)
+		{
+			return Name == material.Name && Type == material.Type && Rarity == material.Rarity && DropRate == material.DropRate;
+		}
 	}
 }

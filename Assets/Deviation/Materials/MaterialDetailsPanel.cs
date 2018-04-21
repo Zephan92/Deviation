@@ -50,5 +50,20 @@ namespace Assets.Deviation.Client.Scripts.Client
 				Count.text = $"x{count}";
 			}
 		}
+
+		public void UpdateMaterialDetails(Materials.Material material)
+		{
+			Material = material;
+
+			if (Name)
+			{
+				Name.text = material.Name;
+			}
+
+			if (Count)
+			{
+				Count.text = "";
+			}
+		}
 	}
 }

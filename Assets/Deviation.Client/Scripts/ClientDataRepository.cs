@@ -89,11 +89,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			if (Instance == null)
 			{
 				Instance = this;
-				if (_onInstanceCreated != null)
-				{
-					Debug.LogError("OnInstanceCreated");
-					_onInstanceCreated();
-				}
+				_onInstanceCreated?.Invoke();
 				DontDestroyOnLoad(Instance);
 			}
 			else if (Instance != this)
@@ -130,11 +126,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			{
 				Msf.Client.Auth.LogInAsGuest((successful, error) =>
 				{
-					if (OnLogin != null)
-					{
-						OnLogin(successful, error);
-					}
-
+					OnLogin?.Invoke(successful, error);
 					LoggedIn = true;
 					UnityEngine.Debug.Log("Logged in successfully");
 				});
@@ -160,10 +152,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 					{
 
 						PlayerAccount = response.Deserialize(new PlayerAccountPacket());
-						if (PlayerAccountRecieved != null)
-						{
-							PlayerAccountRecieved();
-						}
+						PlayerAccountRecieved?.Invoke();
 
 						HasPlayerAccount = true;
 						Debug.Log("Player Account Successfully Recieved");

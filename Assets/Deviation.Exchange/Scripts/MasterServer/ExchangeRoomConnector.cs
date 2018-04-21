@@ -103,7 +103,7 @@ namespace Assets.Deviation.Exchange.Scripts
 		protected virtual void OnFailedToConnect()
 		{
 			if (ConnectionFailedScene != null)
-				SceneManager.LoadScene(ConnectionFailedScene.SceneName);
+				SceneManager.LoadScene("DeviationClient - Client");
 		}
 
 		public IEnumerator WaitForConnection(RoomAccessPacket access)

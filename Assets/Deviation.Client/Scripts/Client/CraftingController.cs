@@ -3,6 +3,7 @@ using Assets.Deviation.Client.Scripts.UserInterface;
 using Assets.Deviation.MasterServer.Scripts;
 using Assets.Deviation.MasterServer.Scripts.MaterialBank;
 using Assets.Deviation.Materials;
+using Assets.Deviation.Recipes;
 using Assets.Scripts.Library;
 using Assets.Scripts.ModuleEditor;
 using Barebones.MasterServer;
@@ -21,6 +22,7 @@ namespace Assets.Deviation.Client.Scripts.Client
 	public class CraftingController : MonoBehaviour
 	{
 		public MaterialBag Bag;
+		public HashSet<Recipe> Recipes;
 
 		public Transform MenuBar;
 		public Transform CraftActions;
@@ -30,6 +32,7 @@ namespace Assets.Deviation.Client.Scripts.Client
 		public VerticalScrollPanel BaseMaterials;
 		public VerticalScrollPanel SpecialMaterials;
 		public VerticalScrollPanel TypeMaterials;
+		public VerticalScrollPanel RecipeScrollPanel;
 
 		public Transform BaseRecipeComponent;
 		public Transform SpecialRecipeComponent;
@@ -42,6 +45,7 @@ namespace Assets.Deviation.Client.Scripts.Client
 		private UnityAction<int> onBaseListChange;
 		private UnityAction<int> onSpecialListChange;
 		private UnityAction<int> onTypeListChange;
+		private UnityAction<int> onRecipesListChange;
 
 		private int numBaseMaterialRows;
 		private int numSpecialMaterialRows;
@@ -51,11 +55,14 @@ namespace Assets.Deviation.Client.Scripts.Client
 		private bool specialComponentReady;
 		private bool typeComponentReady;
 
+		private bool _initialized = false;
+
 		public delegate bool onEndDrag(MaterialType type);
 
 		public void Awake()
 		{
 			Bag = new MaterialBag();
+			Recipes = new HashSet<Recipe>();
 
 			var parent = GameObject.Find("CraftingUI");
 			MenuBar = parent.transform.Find("Menu Bar");
@@ -66,6 +73,8 @@ namespace Assets.Deviation.Client.Scripts.Client
 			BaseMaterials = Materials.Find("Base").GetComponentInChildren<VerticalScrollPanel>();
 			SpecialMaterials = Materials.Find("Special").GetComponentInChildren<VerticalScrollPanel>();
 			TypeMaterials = Materials.Find("Type").GetComponentInChildren<VerticalScrollPanel>();
+
+			RecipeScrollPanel = CraftActions.Find("Recipes").GetComponentInChildren<VerticalScrollPanel>();
 
 			BaseRecipeComponent = CraftInteface.Find("Recipe").Find("BaseComponent");
 			SpecialRecipeComponent = CraftInteface.Find("Recipe").Find("SpecialComponent");
@@ -85,6 +94,7 @@ namespace Assets.Deviation.Client.Scripts.Client
 			onBaseListChange += BaseMaterials.OnListChange;
 			onSpecialListChange += SpecialMaterials.OnListChange;
 			onTypeListChange += TypeMaterials.OnListChange;
+			onRecipesListChange += RecipeScrollPanel.OnListChange;
 
 			numBaseMaterialRows = 0;
 			numSpecialMaterialRows = 0;
@@ -95,13 +105,25 @@ namespace Assets.Deviation.Client.Scripts.Client
 			GetMaterialBag();
 		}
 
+		public void Start()
+		{
+			_initialized = true;
+		}
+
 		public void OnEnable()
 		{
-			RefreshMaterialLists();
+			if (_initialized)
+			{
+				RefreshMaterialLists();
+				PopulateRecipesList();
+			}
 		}
 
 		public void Craft()
 		{
+			Recipe recipe = GetRecipeFromComponents();
+			Recipes.Add(recipe);
+			PopulateRecipesList();
 			Debug.Log("Crafting!");
 		}
 
@@ -159,6 +181,22 @@ namespace Assets.Deviation.Client.Scripts.Client
 			return numRows;
 		}
 
+		private void PopulateRecipesList()
+		{
+			foreach (Transform child in RecipeScrollPanel.List.transform)
+			{
+				//super inefficient..
+				Destroy(child.gameObject);
+			}
+
+			foreach (var recipe in Recipes)
+			{
+				CreateRecipePanel(recipe);
+			}
+
+			onRecipesListChange(Recipes.Count);
+		}
+
 		private GameObject CreateMaterialPanel(KeyValuePair<Materials.Material, int> material, GameObject parent)
 		{
 			var materialPanel = Instantiate(Resources.Load("MaterialPanel"), parent.transform) as GameObject;
@@ -166,6 +204,14 @@ namespace Assets.Deviation.Client.Scripts.Client
 			materialDetailsPanel.UpdateMaterialDetails(material.Key, material.Value);
 			DragableUIFactory.CreateDraggableUI(materialPanel, ValidSnapCheck, material.Key.Type);
 			return materialPanel;
+		}
+
+		private GameObject CreateRecipePanel(Recipe recipe)
+		{
+			var recipePanel = Instantiate(Resources.Load("RecipePanel"), RecipeScrollPanel.List.transform) as GameObject;
+			var recipeDetailsPanel = recipePanel.GetComponent<RecipeDetailsPanel>();
+			recipeDetailsPanel.UpdateRecipeDetails(recipe);
+			return recipePanel;
 		}
 
 		private bool ValidSnapCheck(SnapPoint snap, MaterialType type)
@@ -193,28 +239,54 @@ namespace Assets.Deviation.Client.Scripts.Client
 
 			if (baseComponentReady && specialComponentReady && typeComponentReady)
 			{
-				CreateButton.interactable = true;
 				UpdateRecipeResult(true);
 			}
 			else
 			{
-				CreateButton.interactable = false;
 				UpdateRecipeResult(false);
 			}
 
 		}
 
-		public void UpdateRecipeResult(bool recipeReady)
+		private void UpdateRecipeResult(bool recipeReady)
 		{
-			if (recipeReady)
+			if (!recipeReady || !RecipeExistFromComponent())
 			{
-				//verify recipe and retrieve appropriate action
-				ActionPanel.UpdateActionDetails(ActionLibrary.GetActionInstance("Ambush"));
+				ActionPanel.ResetActionDetails();
+				CreateButton.interactable = false;
+				return;
+			}
+
+			Recipe recipe = GetRecipeFromComponents();
+			ActionPanel.UpdateActionDetails(recipe.Action);
+			CreateButton.interactable = true;
+		}
+
+		private bool RecipeExistFromComponent()
+		{
+			Materials.Material baseMaterial = BaseRecipeComponent.GetComponentInChildren<MaterialDetailsPanel>().Material;
+			Materials.Material specialMaterial = SpecialRecipeComponent.GetComponentInChildren<MaterialDetailsPanel>().Material;
+			Materials.Material typeMaterial = TypeRecipeComponent.GetComponentInChildren<MaterialDetailsPanel>().Material;
+
+			return RecipeLibrary.RecipeExists(baseMaterial, specialMaterial, typeMaterial);
+		}
+
+		private Recipe GetRecipeFromComponents()
+		{
+			Materials.Material baseMaterial = BaseRecipeComponent.GetComponentInChildren<MaterialDetailsPanel>().Material;
+			Materials.Material specialMaterial = SpecialRecipeComponent.GetComponentInChildren<MaterialDetailsPanel>().Material;
+			Materials.Material typeMaterial = TypeRecipeComponent.GetComponentInChildren<MaterialDetailsPanel>().Material;
+
+			if (RecipeLibrary.RecipeExists(baseMaterial, specialMaterial, typeMaterial))
+			{
+				return RecipeLibrary.GetRecipe(baseMaterial, specialMaterial, typeMaterial);
 			}
 			else
 			{
-				ActionPanel.ResetActionDetails();
+				return null;
+
 			}
+
 		}
 
 		public void GetMaterial()

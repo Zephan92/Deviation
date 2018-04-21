@@ -25,7 +25,7 @@ namespace Barebones.MasterServer
         public bool ReadMasterServerAddressFromCmd = true;
 
         [Tooltip("Address to the server")]
-        public string ServerIp = "127.0.0.1";
+        public string ServerIp = "24.1.58.41";
 
         [Tooltip("Port of the server")]
         public int ServerPort = 5000;
