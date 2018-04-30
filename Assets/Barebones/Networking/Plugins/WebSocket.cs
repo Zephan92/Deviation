@@ -8,41 +8,40 @@ using System.Threading;
 
 namespace Barebones.Networking
 {
-    public class WebSocket
-    {
-        private Uri mUrl;
-    
-        public WebSocket(Uri url)
-        {
-            mUrl = url;
+	public class WebSocket
+	{
+		private Uri mUrl;
 
-            string protocol = mUrl.Scheme;
-            if (!protocol.Equals("ws") && !protocol.Equals("wss"))
-                throw new ArgumentException("Unsupported protocol: " + protocol);
-        }
+		public WebSocket(Uri url)
+		{
+			mUrl = url;
+
+			string protocol = mUrl.Scheme;
+			if (!protocol.Equals("ws") && !protocol.Equals("wss"))
+				throw new ArgumentException("Unsupported protocol: " + protocol);
+		}
 
 
-#if !UNITY_EDITOR && (UNITY_WEBGL || !UNITY_WEBPLAYER)
-        private bool SuportsThreads { get { return false; } }
-
+#if !UNITY_EDITOR && (UNITY_WEBGL)
+        private bool SupportsThreads { get { return false; } }
 #else
-        private bool SuportsThreads { get { return true; } }
+		private bool SupportsThreads { get { return true; } }
 #endif
 
-        public void SendString(string str)
-        {
-            Send(Encoding.UTF8.GetBytes (str));
-        }
+		public void SendString(string str)
+		{
+			Send(Encoding.UTF8.GetBytes(str));
+		}
 
-        public string RecvString()
-        {
-            byte[] retval = Recv();
-            if (retval == null)
-                return null;
-            return Encoding.UTF8.GetString (retval);
-        }
+		public string RecvString()
+		{
+			byte[] retval = Recv();
+			if (retval == null)
+				return null;
+			return Encoding.UTF8.GetString(retval);
+		}
 
-        public bool IsConnecting { get; private set; }
+		public bool IsConnecting { get; private set; }
 
 #if UNITY_WEBGL && !UNITY_EDITOR
 	[DllImport("__Internal")]
@@ -114,75 +113,120 @@ namespace Barebones.Networking
 		}
 	}
 #else
-        WebSocketSharp.WebSocket m_Socket;
-        Queue<byte[]> m_Messages = new Queue<byte[]>();
-        bool m_IsConnected = false;
-        string m_Error = null;
+		WebSocketSharp.WebSocket m_Socket;
+		Queue<byte[]> m_Messages = new Queue<byte[]>();
+		bool m_IsConnected = false;
+		string m_Error = null;
 
-        public bool IsConnected { get { return m_IsConnected; } }
+		public bool IsConnected { get { return m_IsConnected; } }
 
-        public IEnumerator Connect()
-        {
-            m_Socket = new WebSocketSharp.WebSocket(mUrl.ToString());
-            m_Socket.OnMessage += (sender, e) =>
-            {
-                m_Messages.Enqueue(e.RawData);
-            };
-            m_Socket.OnOpen += (sender, e) =>
-            {
-                m_IsConnected = true;
-            };
-            m_Socket.OnError += (sender, e) =>
-            {
-                m_Error = e.Message;
-                Logs.Error(e.Message);
-            };
-            m_Socket.OnClose += (sender, args) => m_IsConnected = false;
+		public IEnumerator Connect()
+		{
+			m_Socket = new WebSocketSharp.WebSocket(mUrl.ToString());
+			m_Socket.OnMessage += (sender, e) =>
+			{
+				m_Messages.Enqueue(e.RawData);
+			};
+			m_Socket.OnOpen += (sender, e) =>
+			{
+				m_IsConnected = true;
+			};
+			m_Socket.OnError += (sender, e) =>
+			{
+				m_Error = e.Message;
+				Logs.Error(e.Message);
+			};
+			m_Socket.OnClose += (sender, args) => m_IsConnected = false;
 
-            if (SuportsThreads)
-            {
-                ThreadPool.QueueUserWorkItem((status) =>
-                {
-                    m_Socket.Connect();
-                });
-            }
-            else
-            {
-                m_Socket.Connect();
-            }
+			if (SupportsThreads)
+			{
+				//HACK: When restarting in the Unity Editor, send a ping to the destination first to avoid having Connect() hang for 90 seconds.
+				//https://github.com/alvyxaz/barebones-masterserver/pull/142
 
-            IsConnecting = true;
-            while (!m_IsConnected && m_Error == null)
-            {
-                yield return null;
-            }
-            IsConnecting = false;
-        }
+				//Note: On Windows Store Apps, a stream socket is used to mimic ping functionality. It will try to open connection to specified ip address with port 80. Also you need to enable InternetClient capability in Package.appxmanifest.
+				//https://docs.unity3d.com/ScriptReference/Ping.html
+				Ping ping = new Ping(mUrl.Host);
 
-        public void Send(byte[] buffer)
-        {
-            m_Socket.Send(buffer);
-        }
+				//The ping send/receive takes about a second, so we wait for it to complete.
+				while (!ping.isDone)
+				{
+					yield return null;
+				}
 
-        public byte[] Recv()
-        {
-            if (m_Messages.Count == 0)
-                return null;
+				//If the ping succeeded, the time will be 0 or higher, otherwise -1. 
+				if (ping.time >= 0)
+				{
+					runThread(() =>
+					{
+						m_Socket.Connect();
+					});
+				}
+				else
+				{
+					m_Error = "Barebones Websocket: Could not contact \"" + mUrl.Host + "\" with Ping.";
+				}
+			}
+			else
+			{
+				m_Socket.Connect();
+			}
 
-            return m_Messages.Dequeue();
-        }
+			IsConnecting = true;
+			while (!m_IsConnected && m_Error == null)
+			{
+				yield return null;
+			}
+			IsConnecting = false;
+		}
 
-        public void Close()
-        {
-            m_Socket.Close();
-        }
+		public void Send(byte[] buffer)
+		{
+			m_Socket.Send(buffer);
+		}
 
-        public string error
-        {
-            get {
-                return m_Error;
-            }
-        }
-#endif 
-    }
+		public byte[] Recv()
+		{
+			if (m_Messages.Count == 0)
+				return null;
+
+			return m_Messages.Dequeue();
+		}
+
+		public void Close()
+		{
+			if (IsConnected)
+			{
+				if (SupportsThreads)
+				{
+					runThread(() =>
+					{
+						m_Socket.Close();
+					});
+				}
+				else
+				{
+					m_Socket.Close();
+				}
+			}
+		}
+
+		public string error
+		{
+			get
+			{
+				return m_Error;
+			}
+		}
+
+		void runThread(Action action)
+		{
+			Thread newThread = new Thread(new ThreadStart(() =>
+			{
+				action();
+			}));
+			newThread.Start();
+		}
+
+#endif
+	}
 }

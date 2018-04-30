@@ -292,11 +292,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Deviation.Client\Scripts\UserInterface\DragableUIFactory.cs" />
-    <Compile Include="Assets\Deviation.Client\Scripts\UserInterface\LayoutGroupFactory.cs" />
-    <Compile Include="Assets\Deviation\Recipes\Recipe.cs" />
-    <Compile Include="Assets\Deviation\Recipes\RecipeDetailsPanel.cs" />
-    <Compile Include="Assets\Deviation\Recipes\RecipeLibrary.cs" />
+    <Compile Include="Assets\Deviation\PopupController.cs" />
     <Compile Include="Assets\_MK\MKGlowFree\MKGlowFree.cs" />
     <Compile Include="Assets\Barebones\Contributions\EmilsConnectionTest\EmilsTestClient.cs" />
     <Compile Include="Assets\Barebones\Contributions\EmilsConnectionTest\EmilsTestServer.cs" />
@@ -535,7 +531,6 @@
     <Compile Include="Assets\Deviation.Client.Test\TestClientMatchController.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\CraftingController.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\MatchmakingController.cs" />
-    <Compile Include="Assets\Deviation\Materials\MaterialDetailsPanel.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\RecipeComponent.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\ClientController.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\ClientDataRepository.cs" />
@@ -547,8 +542,6 @@
     <Compile Include="Assets\Deviation.Client\Scripts\Login\ClientLoginController.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseActions\ActionDetailsPanel.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseActions\ChooseActionsUIController.cs" />
-    <Compile Include="Assets\Deviation.Client\Scripts\UserInterface\DragableUI.cs" />
-    <Compile Include="Assets\Deviation.Client\Scripts\UserInterface\SnapPoint.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseTrader\ChooseTraderUIController.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseTrader\Trader.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseTrader\TraderDetailsPanel.cs" />
@@ -560,6 +553,10 @@
     <Compile Include="Assets\Deviation.Client\Scripts\Match\Summary\SummaryUIController.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Match\UIController.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Results\ClientResultsController.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\UserInterface\DragableUI.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\UserInterface\DragableUIFactory.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\UserInterface\LayoutGroupFactory.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\UserInterface\SnapPoint.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\UserInterface\VerticalScrollPanel.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\ActionObjectMover.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Attacks\ActionObject.cs" />
@@ -662,12 +659,18 @@
     <Compile Include="Assets\Deviation.MasterServer\Scripts\MaterialBank\Packets\MaterialPacket.cs" />
     <Compile Include="Assets\Deviation.MasterServer\Scripts\PlayerDataAccess.cs" />
     <Compile Include="Assets\Deviation.Scene\Scripts\FrameRateLimiter.cs" />
+    <Compile Include="Assets\Deviation\DeviationServerConnection.cs" />
     <Compile Include="Assets\Deviation\Materials\Material.cs" />
     <Compile Include="Assets\Deviation\Materials\MaterialBag.cs" />
     <Compile Include="Assets\Deviation\Materials\MaterialBank.cs" />
     <Compile Include="Assets\Deviation\Materials\MaterialBankFactory.cs" />
     <Compile Include="Assets\Deviation\Materials\MaterialBankType.cs" />
+    <Compile Include="Assets\Deviation\Materials\MaterialDetailsPanel.cs" />
     <Compile Include="Assets\Deviation\Materials\MaterialLibrary.cs" />
+    <Compile Include="Assets\Deviation\Recipes\Recipe.cs" />
+    <Compile Include="Assets\Deviation\Recipes\RecipeDetailsPanel.cs" />
+    <Compile Include="Assets\Deviation\Recipes\RecipeLibrary.cs" />
+    <Compile Include="Assets\Deviation\RotateImage.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Barebones\Credits.txt" />

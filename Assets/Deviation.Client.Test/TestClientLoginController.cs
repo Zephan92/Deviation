@@ -25,17 +25,21 @@ namespace Assets.Deviation.Client.Test
 				var testArgs = Msf.Args.ExtractValue("-test");
 				if (testArgs != null && testArgs.Equals("GuestLogin"))
 				{
-					UnityEngine.Debug.LogError("Test: ClientController");
-
-					StartCoroutine(LoginAsGuest());
+					Msf.Client.Connection.Connected += Login;
 				}
 			}
+		}
+
+		private void Login()
+		{
+			StartCoroutine(LoginAsGuest());
 		}
 
 		private IEnumerator LoginAsGuest()
 		{
 			yield return new WaitForSeconds(1f);
 			ClientDataRepository.Instance.LoginAsGuest();
+			Msf.Client.Connection.Connected -= Login;
 		}
 	}
 }
