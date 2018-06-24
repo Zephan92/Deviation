@@ -11,19 +11,23 @@ namespace Assets.Deviation.Client.Scripts.UserInterface
 {
 	public class DragableUIFactory
 	{
-		public static void CreateDraggableUI<T>(GameObject panel, DragableUI.onEndDrag<T> onEndDrag, T type)
+		public static DragableUI CreateDraggableUI<T>(GameObject panel, DragableUI.onEndDrag<T> onEndDrag, T type)
 		{
 			DragableUI dragable = panel.AddComponent<DragableUI>();
 			EventTrigger et = panel.AddComponent<EventTrigger>();
 			et.triggers.Add(CreateEventTriggerEntry(EventTriggerType.BeginDrag, dragable, onEndDrag, type));
 			et.triggers.Add(CreateEventTriggerEntry(EventTriggerType.Drag, dragable, onEndDrag, type));
 			et.triggers.Add(CreateEventTriggerEntry(EventTriggerType.EndDrag, dragable, onEndDrag, type));
+
+			return dragable;
 		}
 
 		private static EventTrigger.Entry CreateEventTriggerEntry<T>(EventTriggerType eventTriggerType, DragableUI dragable, DragableUI.onEndDrag<T> onEndDrag, T type)
 		{
-			EventTrigger.Entry entry = new EventTrigger.Entry();
-			entry.eventID = eventTriggerType;
+			EventTrigger.Entry entry = new EventTrigger.Entry
+			{
+				eventID = eventTriggerType
+			};
 
 			switch (eventTriggerType)
 			{

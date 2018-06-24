@@ -21,6 +21,11 @@ namespace Assets.Scripts.ModuleEditor
 		private Transform _origParent;
 		private SnapPoint _currentSnap;
 
+		public UnityAction OnBeginDragAction;
+		public UnityAction OnDragAction;
+		public UnityAction OnEndDragSuccessAction;
+		public UnityAction OnEndDragFailureAction;
+
 		public void Awake()
 		{
 			_origParent = gameObject.transform.parent;
@@ -33,6 +38,7 @@ namespace Assets.Scripts.ModuleEditor
 
 		public void BeginDrag()
 		{
+			OnBeginDragAction?.Invoke();
 			_oldPos = transform.position;
 			transform.SetParent(transform.root);
 
@@ -41,6 +47,7 @@ namespace Assets.Scripts.ModuleEditor
 
 		public void OnDrag()
 		{
+			OnDragAction?.Invoke();
 			transform.position = new Vector3(Offset.x + Input.mousePosition.x, Offset.y + Input.mousePosition.y, 0);
 		}
 
@@ -63,6 +70,7 @@ namespace Assets.Scripts.ModuleEditor
 
 					snap.OccupySnap(gameObject);
 					_currentSnap = snap;
+					OnEndDragSuccessAction?.Invoke();
 					return;
 				}
 			}
@@ -72,9 +80,12 @@ namespace Assets.Scripts.ModuleEditor
 
 		public void ReturnToOrignalParent()
 		{
+			OnEndDragFailureAction?.Invoke();
 			_currentSnap?.UnoccupySnap();
 			transform.SetParent(_origParent);
 			transform.position = _oldPos;
 		}
+
+
 	}
 }

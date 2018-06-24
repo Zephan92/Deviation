@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.DTO.Exchange;
+﻿using Assets.Deviation.Exchange.Scripts;
+using Assets.Scripts.DTO.Exchange;
 using Assets.Scripts.Enum;
 using Assets.Scripts.Interface;
 using Assets.Scripts.Interface.DTO;
@@ -15,6 +16,7 @@ using UnityEngine.Networking;
 [RequireComponent(typeof(Health))]
 [RequireComponent(typeof(Mover))]
 [RequireComponent(typeof(Status))]
+[RequireComponent(typeof(Splat))]
 [RequireComponent(typeof(PlayerController))]
 public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 {
@@ -32,6 +34,7 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	private Health _health;
 	private Mover _mover;
 	private Status _status;
+	private Splat _splat;
 
 	public int PeerId { get { return _peerId; } set { _peerId = value; } }
 	public long PlayerId { get { return _playerId; } set { _playerId = value; } }
@@ -40,6 +43,7 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	public Health Health { get { return _health; } }
 	public Mover Mover { get { return _mover; } }
 	public Status Status { get { return _status; } }
+	public Splat Splat { get { return _splat; } }
 	public BattlefieldZone Zone { get { return _zone; } }
 	public BattlefieldZone EnemyZone { get { return _zone == BattlefieldZone.Left ? BattlefieldZone.Right : BattlefieldZone.Left; } }
 	public bool Initialized { get { return _initialized;  } }
@@ -65,6 +69,7 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 		_health = GetComponent<Health>();
 		_mover = GetComponent<Mover>();
 		_status = GetComponent<Status>();
+		_splat = GetComponent<Splat>();
 		_renderers = GetComponentsInChildren<Renderer>();
 		_actionsDisabled = new ConcurrentDictionary<int, bool>();
 		_actionsDisabled.Add(0, false);

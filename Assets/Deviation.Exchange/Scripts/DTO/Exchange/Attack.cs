@@ -82,10 +82,21 @@ namespace Assets.Scripts.DTO.Exchange
 
 		private void DeliverDamage(List<IExchangePlayer> targets, float energyModifier, float healthModifier)
 		{
+			int energy = GetDamage(energyModifier);
+			int health = GetDamage(healthModifier);
+
 			foreach (IExchangePlayer player in targets)
 			{
-				player.Energy.Add(GetDamage(energyModifier));
-				player.Health.Add(GetDamage(healthModifier));
+				if (energy != 0)
+				{
+					player.Energy.Add(energy);
+				}
+
+				if (health != 0)
+				{
+					player.Health.Add(health);
+					player.Splat.TakeDamage(health, player.Position);
+				}
 			}
 		}
 

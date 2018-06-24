@@ -2,6 +2,7 @@
 using UnityEngine;
 using System;
 using Assets.Scripts.Interface.DTO;
+using Assets.Deviation.Exchange.Scripts;
 
 public interface IExchangePlayer
 {
@@ -13,6 +14,7 @@ public interface IExchangePlayer
 	Health Health { get; }
 	Mover Mover { get; }
 	Status Status { get; }
+	Splat Splat { get; }
 	BattlefieldZone Zone { get; }
 	BattlefieldZone EnemyZone { get; }
 	Vector3 Position { get; }

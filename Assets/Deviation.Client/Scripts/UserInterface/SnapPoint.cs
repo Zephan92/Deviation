@@ -15,8 +15,9 @@ namespace Assets.Scripts.ModuleEditor
 		public UnityAction onOccupied;
 		public UnityAction onUnoccupied;
 
+		public bool NeverOccupied = false;
 		private bool _isOccupied = false;
-		public bool IsOccupied { get { return _isOccupied; } }
+		public bool IsOccupied { get { return _isOccupied && !NeverOccupied; } }
 
 		public void Awake()
 		{
