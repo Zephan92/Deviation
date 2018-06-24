@@ -95,7 +95,6 @@ namespace Assets.Scripts.DTO.Exchange
 				if (health != 0)
 				{
 					player.Health.Add(health);
-					player.Splat.TakeDamage(health, player.Position);
 				}
 			}
 		}

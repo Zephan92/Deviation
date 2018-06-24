@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Deviation.Exchange.Scripts;
+using UnityEngine;
 using UnityEngine.Networking;
 
 public class Health : NetworkBehaviour
@@ -8,6 +9,7 @@ public class Health : NetworkBehaviour
 	public int Min { get { return _min; } set { _min = value; } }
 	public int Max { get { return _max; } set { _max = value; } }
 	public float Rate { get { return _rate; } set { _rate = value; } }
+	public Splat Splat { get; set; }
 
 	[SyncVar]
 	private int _current;
@@ -33,6 +35,7 @@ public class Health : NetworkBehaviour
 		_healBlock = false;
 		_rate = 0;
 		_health = 0;
+		Splat = GetComponent<Splat>();
 	}
 
 	public void UpdateMax(int increase)
@@ -56,7 +59,10 @@ public class Health : NetworkBehaviour
 			currentMax = _current;
 		}
 
-		_current = Mathf.Clamp(_current + add, currentMin, currentMax);
+		int newCurrent = Mathf.Clamp(_current + add, currentMin, currentMax);
+		int difference = newCurrent - _current;
+		_current = newCurrent;
+		Splat.AddHealth(difference);
 	}
 
 	public void ReInit()
@@ -72,7 +78,7 @@ public class Health : NetworkBehaviour
 		}
 
 		_health += _max * _rate;
-		if (_health > 1 || _health < -1)
+		if (_health > 2 || _health < -2)
 		{
 			var add = (int)_health;
 			Add(add);

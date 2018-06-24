@@ -16,50 +16,65 @@ namespace Assets.Deviation.Exchange.Scripts
 		public GameObject SplatGO;
 		public Transform SplatTransform;
 		public ObjectPool<GameObject> DamageSplatTextPool;
-		
+		public ObjectPool<GameObject> HealthSplatTextPool;
+		public IExchangePlayer Player;
+
 		public void Start()
 		{
+			Player = GetComponent<ExchangePlayer>();
 			SplatGO = GameObject.Find("ExchangeCanvas");
 			SplatTransform = SplatGO.transform.Find("Splat");
 
-			if (SplatTransform.childCount == 0)
+			DamageSplatTextPool = new ObjectPool<GameObject>(5, CreateDamageSplat);
+			HealthSplatTextPool = new ObjectPool<GameObject>(5, CreateHealthSplat);
+		}
+
+		public void AddHealth(int value)
+		{
+			Vector2 screenPosition = GetScreenPosition();
+			GameObject splatText;
+			if (value < 0)
 			{
-				DamageSplatTextPool = new ObjectPool<GameObject>(5, CreateDamageSplat);
+				splatText = DamageSplatTextPool.Get();
 			}
 			else
 			{
-				DamageSplatTextPool = new ObjectPool<GameObject>(0, CreateDamageSplat);
-				Debug.LogError("Hmm some how we already have objects");
-				Text[] pool = SplatTransform.GetComponentsInChildren<Text>();
-				foreach (var text in pool)
-				{
-					DamageSplatTextPool.Release(text.gameObject);
-				}
+				splatText = HealthSplatTextPool.Get();
 			}
-		}
 
-		public void TakeDamage(int value, Vector3 playerPosition)
-		{
-			Vector2 screenPosition = Camera.main.WorldToScreenPoint(playerPosition);
-			GameObject damageSplat = DamageSplatTextPool.Get();
-			damageSplat.SetActive(true);
-			Text damageSplatText = damageSplat.GetComponentInChildren<Text>();
+			splatText.SetActive(true);
+			Text damageSplatText = splatText.GetComponentInChildren<Text>();
 			damageSplatText.text = value.ToString();
-			damageSplat.transform.position = screenPosition;
-			RpcTakeDamage(value, playerPosition);
-			StartCoroutine(ReleaseDamageSplat(damageSplat));
+			splatText.transform.position = screenPosition;
+			RpcTakeDamage(value);
+			StartCoroutine(ReleaseDamageSplat(splatText));
 		}
 
 		[ClientRpc]
-		private void RpcTakeDamage(int value, Vector3 playerPosition)
+		private void RpcTakeDamage(int value)
 		{
-			Vector2 screenPosition = Camera.main.WorldToScreenPoint(playerPosition);
-			GameObject damageSplat = DamageSplatTextPool.Get();
-			damageSplat.SetActive(true);
-			Text damageSplatText = damageSplat.GetComponentInChildren<Text>();
+			Vector2 screenPosition = GetScreenPosition();
+			GameObject splatText;
+			if (value < 0)
+			{
+				splatText = DamageSplatTextPool.Get();
+			}
+			else
+			{
+				splatText = HealthSplatTextPool.Get();
+			}
+			splatText.SetActive(true);
+			Text damageSplatText = splatText.GetComponentInChildren<Text>();
 			damageSplatText.text = value.ToString();
-			damageSplat.transform.position = screenPosition;
-			StartCoroutine(ReleaseDamageSplat(damageSplat));
+			splatText.transform.position = screenPosition;
+			if (value < 0)
+			{
+				StartCoroutine(ReleaseDamageSplat(splatText));
+			}
+			else
+			{
+				StartCoroutine(ReleaseHealthSplat(splatText));
+			}
 		}
 
 		private IEnumerator ReleaseDamageSplat(GameObject poolObject)
@@ -69,11 +84,37 @@ namespace Assets.Deviation.Exchange.Scripts
 			DamageSplatTextPool.Release(poolObject);
 		}
 
+		private IEnumerator ReleaseHealthSplat(GameObject poolObject)
+		{
+			yield return new WaitForSeconds(1f);
+			poolObject.SetActive(false);
+			HealthSplatTextPool.Release(poolObject);
+		}
+
 		private GameObject CreateDamageSplat()
 		{
 			var gameObject = (GameObject)Instantiate(Resources.Load("DamageSplat"), new Vector3(), new Quaternion(), SplatTransform);
 			gameObject.SetActive(false);
 			return gameObject;
+		}
+
+		private GameObject CreateHealthSplat()
+		{
+			var gameObject = (GameObject)Instantiate(Resources.Load("HealthSplat"), new Vector3(), new Quaternion(), SplatTransform);
+			gameObject.SetActive(false);
+			return gameObject;
+		}
+
+		private Vector2 GetScreenPosition()
+		{
+			Vector2 screenPosition = Camera.main.WorldToScreenPoint(Player.Position);
+
+			int x = UnityEngine.Random.Range(-20, 21);
+			int y = UnityEngine.Random.Range(-20, 21);
+
+			screenPosition += new Vector2(x, y);
+
+			return screenPosition;
 		}
 	}
 }

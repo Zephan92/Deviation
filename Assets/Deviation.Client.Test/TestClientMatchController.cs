@@ -58,10 +58,10 @@ public class TestClientMatchController : TestBase
 		List<IExchangeAction> actions;
 		chosenTrader = new Trader("TestTrader", "The ultimate avenger", Assets.Scripts.Enum.TraderType.Test, "Testing Description", System.Guid.NewGuid());
 		actions = new List<IExchangeAction>();
-		actions.Add(ActionLibrary.GetActionInstance("Ambush"));
+		actions.Add(ActionLibrary.GetActionInstance("Drain"));
 		actions.Add(ActionLibrary.GetActionInstance("ShockWave"));
 		actions.Add(ActionLibrary.GetActionInstance("Wall Push"));
-		actions.Add(ActionLibrary.GetActionInstance("Medium Projectile"));
+		actions.Add(ActionLibrary.GetActionInstance("StunField"));
 
 		cmc.ConfirmTrader(chosenTrader);
 		cmc.ConfirmActions(actions);

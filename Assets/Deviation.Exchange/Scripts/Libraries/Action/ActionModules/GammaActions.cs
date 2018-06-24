@@ -21,7 +21,16 @@ namespace Assets.Scripts.Library.Action.ActionModules
 
 			List<IExchangeAction> actions = new List<IExchangeAction>()
 			{
-				
+				new ExchangeAction
+				(
+					id: new Guid("12e42930-6c89-4a80-95df-ebeb4772a4a4"),
+					name: "StunField",
+					attack: new Attack(baseDamage: 15, energyRecoilModifier: -1.0f),
+					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
+					primaryActionName: "StunField",
+					cooldown: 1f,
+					type: Type
+				)
 			};
 
 			actions.ForEach(x => Actions_ByName.Add(x.Name, x));

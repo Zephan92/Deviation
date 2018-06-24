@@ -54,7 +54,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 				new ExchangeAction
 				(
 					id: new Guid("071d4f85-728e-41d6-95a3-31fa013a7289"),
-					name: "LargeProjectile",
+					name: "Large Projectile",
 					attack: new Attack(baseDamage: 10, healthDrainModifier: -1f, energyRecoilModifier: -0.0f),
 					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
 					primaryActionName: "LargeProjectile",
