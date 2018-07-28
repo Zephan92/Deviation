@@ -54,11 +54,11 @@ namespace Assets.Scripts.Exchange.Display
 		{
 			_ec = FindObjectOfType<ExchangeController1v1>();
 			cdc = FindObjectOfType<ClientDataRepository>();
-			outlineTex = Resources.Load("User Interface/Black") as Texture2D;
-			emptyTex = Resources.Load("User Interface/White") as Texture2D;
-			fullEnergyTex = Resources.Load("User Interface/Purple") as Texture2D;
-			fullHealthTex = Resources.Load("User Interface/Green") as Texture2D;
-			outerActionBarTex = Resources.Load("User Interface/Green") as Texture2D;
+			outlineTex = Resources.Load("Color/Black") as Texture2D;
+			emptyTex = Resources.Load("Color/White") as Texture2D;
+			fullEnergyTex = Resources.Load("Color/Purple") as Texture2D;
+			fullHealthTex = Resources.Load("Color/Green") as Texture2D;
+			outerActionBarTex = Resources.Load("Color/Green") as Texture2D;
 			cooldownTex = Resources.Load("AbilityIcons/CooldownTexture")as Texture2D;
 			progressBar = new ProgressBar();
 			actionBar = new ActionBar();
