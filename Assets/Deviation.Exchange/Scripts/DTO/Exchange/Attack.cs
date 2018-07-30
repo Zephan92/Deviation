@@ -27,10 +27,10 @@ namespace Assets.Scripts.DTO.Exchange
 			EnergyRecoilModifier = energyRecoilModifier;
 		}
 
-		public void InitiateAttack(List<IExchangePlayer> allies, List<IExchangePlayer> enemies)
+		public void InitiateAttack(IExchangePlayer provoker, List<IExchangePlayer> allies, List<IExchangePlayer> enemies)
 		{
-			InitiateAttack(allies, AttackAlignment.Allies);
-			InitiateAttack(enemies, AttackAlignment.Enemies);
+			InitiateAttack(provoker, allies, AttackAlignment.Allies);
+			InitiateAttack(provoker, enemies, AttackAlignment.Enemies);
 		}
 
 		public void ApplyEffect(List<IExchangePlayer> targets, StatusEffect effect, float timeout, float rate = 0f)
@@ -41,15 +41,15 @@ namespace Assets.Scripts.DTO.Exchange
 			}
 		}
 
-		public void InitiateAttack(List<IExchangePlayer> targets, AttackAlignment alignment)
+		public void InitiateAttack(IExchangePlayer provoker, List<IExchangePlayer> targets, AttackAlignment alignment)
 		{
 			switch (alignment)
 			{
 				case AttackAlignment.Allies:
-					DeliverDamage(targets, EnergyRecoilModifier, HealthRecoilModifier);
+					DeliverDamage(provoker, targets, EnergyRecoilModifier, HealthRecoilModifier);
 					break;
 				case AttackAlignment.Enemies:
-					DeliverDamage(targets, EnergyDrainModifier, HealthDrainModifier);
+					DeliverDamage(provoker, targets, EnergyDrainModifier, HealthDrainModifier);
 					break;
 			}
 		}
@@ -80,7 +80,7 @@ namespace Assets.Scripts.DTO.Exchange
 			}
 		}
 
-		private void DeliverDamage(List<IExchangePlayer> targets, float energyModifier, float healthModifier)
+		private void DeliverDamage(IExchangePlayer provoker, List<IExchangePlayer> targets, float energyModifier, float healthModifier)
 		{
 			int energy = GetDamage(energyModifier);
 			int health = GetDamage(healthModifier);
@@ -94,7 +94,12 @@ namespace Assets.Scripts.DTO.Exchange
 
 				if (health != 0)
 				{
-					player.Health.Add(health);
+					int damage = player.Health.Add(health);
+					if (player.Health.Current == 0)
+					{
+						provoker.PlayerStats.KnockoutsDealt++;
+					}
+					provoker.PlayerStats.DamageDealt -= damage;
 				}
 			}
 		}

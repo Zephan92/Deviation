@@ -8,6 +8,9 @@ using Barebones.MasterServer;
 using System;
 using UnityEngine.SceneManagement;
 using Assets.Deviation.Exchange.Scripts.Client;
+using UnityEngine.Events;
+using Assets.Deviation.MasterServer.Scripts;
+using Assets.Deviation.Exchange.Scripts;
 
 public interface IGameController
 {
@@ -15,11 +18,12 @@ public interface IGameController
 
 public interface IExchangeController1v1 : IGameController
 {
+	UnityAction<ExchangeState> OnExchangeStateChange { get; set; }
 	ExchangeState ExchangeState { get; set; }
 	void ServerResponse(int peerId);
 	IExchangePlayer GetPlayerByPeerId(int peerId);
 	void ResetExchange();
-
+	IExchangePlayer GetWinner();
 }
 
 [RequireComponent(typeof(NetworkIdentity))]
@@ -27,10 +31,12 @@ public interface IExchangeController1v1 : IGameController
 [RequireComponent(typeof(CoroutineManager))]
 public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 {
-	private const int Round_Time_Seconds = 500;
+	private const int Round_Time_Seconds = 90;
+	private const int Round_End_Time_Seconds = 10;
 
 	[SyncVar]
 	private ExchangeState _exchangeState;
+	public UnityAction<ExchangeState> OnExchangeStateChange { get; set; }
 
 	public ExchangeState ExchangeState
 	{
@@ -43,14 +49,22 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 			if (isServer)
 			{
 				_exchangeState = value;
+				RpcOnExchangeStateChange(value);
+				OnExchangeStateChange?.Invoke(value);
 				Debug.Log(_exchangeState);
 			}
 		}
 	}
 
+	[ClientRpc]
+	private void RpcOnExchangeStateChange(ExchangeState value)
+	{
+		OnExchangeStateChange?.Invoke(value);
+	}
+
 	public static bool AllPlayersConnected;
 	private IExchangePlayer [] _exchangePlayers;
-	private InitExchangePlayerPacket[] _playerInitData;
+	private ExchangeDataEntry[] _playerInitData;
 	private PlayerController[] Players { get; set; }
 	private TimerManager tm;
 	private ExchangeBattlefieldController bc;
@@ -63,10 +77,11 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 	private System.Collections.IEnumerator _coroutine;
 	private int ExchangeDataId;
 	private ExchangeNetworkManager etm;
+
 	private void Awake()
 	{
 		etm = FindObjectOfType<ExchangeNetworkManager>();
-		_playerInitData = new InitExchangePlayerPacket[2];
+		_playerInitData = new ExchangeDataEntry[2];
 		clientReady = new ConcurrentDictionary<int, bool>();
 		_stateStatus = new Dictionary<ExchangeState, bool>();
 		if (gameObject.tag != "GameController")
@@ -77,8 +92,56 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 		ExchangeState = ExchangeState.Setup;
 
 		ExchangeDataId = Msf.Args.ExtractValueInt("-exchangeId");
+
+		OnExchangeStateChange += ExchangeStateChange;
 	}
 
+	private void ExchangeStateChange(ExchangeState value)
+	{
+		switch (ExchangeState)
+		{
+			case ExchangeState.Setup:
+				break;
+			case ExchangeState.PreBattle:
+				break;
+			case ExchangeState.Start:
+				break;
+			case ExchangeState.Battle:
+				break;
+			case ExchangeState.End:
+				if (isServer)
+				{
+					IExchangePlayer winner = GetWinner();
+
+					if (winner != null)
+					{
+						winner.PlayerStats.Wins++;
+
+						foreach (IExchangePlayer player in _exchangePlayers)
+						{
+							if (player != winner)
+							{
+								player.PlayerStats.Losses++;
+							}
+						}
+					}
+					else
+					{
+						foreach (IExchangePlayer player in _exchangePlayers)
+						{
+							player.PlayerStats.Draws++;
+						}
+					}		
+				}
+				break;
+			case ExchangeState.PostBattle:
+				break;
+			case ExchangeState.Teardown:
+				break;
+			default:
+				break;
+		}
+	}
 
 	private void Start()
 	{
@@ -86,6 +149,7 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 		cm = GetComponent<CoroutineManager>();
 		bc = FindObjectOfType<ExchangeBattlefieldController>();
 		tm.AddTimer("ExchangeTimer", Round_Time_Seconds);
+		tm.AddTimer("RoundEndTimer", Round_End_Time_Seconds);
 	}
 
 	private void FixedUpdate()
@@ -169,10 +233,11 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 
 	private void ExchangePreBattle()
 	{
+		_exchangePlayers = FindObjectsOfType<ExchangePlayer>();
+
 		if (isServer)
 		{
 			bc.Init();
-			_exchangePlayers = FindObjectsOfType<ExchangePlayer>();
 
 			foreach (var player in _exchangePlayers)
 			{
@@ -194,10 +259,10 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 						new ExchangePlayerPacket(ExchangeDataId, info.Username), 
 						(status, response) =>
 					{
-						InitExchangePlayerPacket playerInitData = response.Deserialize(new InitExchangePlayerPacket());
+						ExchangeDataEntry playerInitData = response.Deserialize(new ExchangeDataEntry());
 						_playerInitData[playerIndex] = playerInitData;
 						BattlefieldZone zone = (BattlefieldZone)playerIndex;
-						player.Init(0, 100, 0.001f, 0, 100, zone, playerInitData.PlayerAccount.Id, playerInitData.ActionModule.GetActionGuids());
+						player.Init(0, 100, 0.001f, 0, 100, zone, playerInitData.Player.Id, playerInitData.ActionGuids.GetActionGuids());
 					});
 				});
 			}
@@ -234,20 +299,35 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 
 		if (isServer)
 		{
-			if (tm.TimerUp("ExchangeTimer"))
+			bool playerDefeated = false;
+			foreach (IExchangePlayer player in _exchangePlayers)
+			{
+				if (player.Health.Current == 0)
+				{
+					playerDefeated = true;
+					break;
+				}
+			}
+
+			if (tm.TimerUp("ExchangeTimer") || playerDefeated)
 			{
 				_stateStatus[ExchangeState] = true;
-				WaitForClients(() => { ExchangeState = ExchangeState.End; });
+				WaitForClients(() => { tm.RestartTimer("RoundEndTimer"); ExchangeState = ExchangeState.End;	});
 			}
 		}
 	}
 
 	private void ExchangeEnd()
 	{
+		tm.UpdateCountdowns();
+
 		if (isServer)
 		{
-			_stateStatus[ExchangeState] = true;
-			WaitForClients(() => { ExchangeState = ExchangeState.PostBattle; });
+			if (tm.TimerUp("RoundEndTimer"))
+			{
+				_stateStatus[ExchangeState] = true;
+				WaitForClients(() => { ExchangeState = ExchangeState.PostBattle; });
+			}
 		}
 
 		if (isClient)
@@ -261,6 +341,16 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 		if (isServer)
 		{
 			_stateStatus[ExchangeState] = true;
+
+			DateTime timestamp = DateTime.Now;
+			foreach (var player in _exchangePlayers)
+			{
+				int playerIndex = System.Array.IndexOf(_exchangePlayers, player);
+				var initPacket = _playerInitData[playerIndex];
+				PlayerStatsPacket playerStats = player.PlayerStats.Packet;
+				ExchangeResult result = new ExchangeResult(initPacket.ExchangeId, timestamp, initPacket.Player, playerStats, initPacket.ActionGuids, initPacket.CharacterGuid);
+				Msf.Connection.SendMessage((short)ExchangePlayerOpCodes.CreateExchangeResultData, result);
+			}
 			WaitForClients(() => { ExchangeState = ExchangeState.Teardown; });
 		}
 
@@ -277,6 +367,27 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 			etm.StopClient();
 			SceneManager.LoadScene("DeviationClient - Results");
 		}
+	}
+
+	public IExchangePlayer GetWinner()
+	{
+		IExchangePlayer winner = null;
+		int maxHealth = 0;
+
+		foreach (IExchangePlayer player in _exchangePlayers)
+		{
+			if (player.Health.Current > maxHealth)
+			{
+				winner = player;
+				maxHealth = player.Health.Current;
+			}
+			else if(player.Health.Current == maxHealth)
+			{
+				winner = null;
+			}
+		}
+
+		return winner;
 	}
 
 	public IExchangePlayer GetPlayerByPeerId(int peerId)

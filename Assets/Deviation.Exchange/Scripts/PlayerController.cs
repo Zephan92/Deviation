@@ -4,10 +4,15 @@ using Assets.Scripts.Enum;
 using Assets.Scripts.Interface;
 using UnityEngine;
 using Barebones.MasterServer;
-
+using UnityEngine.UI;
+using Assets.Deviation.Exchange.Scripts.Display;
 
 public class PlayerController : NetworkBehaviour
 {
+	public Transform ExchangeCanvas;
+	public Sprite WinScreen;
+	public Sprite LoseScreen;
+
 	public IInput InputWrapper { get; set; }
 	public IExchangePlayer Player { get; set; }
 	public IExchangeController1v1 ec { get; set; }
@@ -23,7 +28,12 @@ public class PlayerController : NetworkBehaviour
 		if (ec == null)
 		{
 			ec = FindObjectOfType<ExchangeController1v1>();
+			ec.OnExchangeStateChange += ExchangeStateChange;
 		}
+
+		WinScreen = Resources.Load<Sprite>("Splash/Win");
+		LoseScreen = Resources.Load<Sprite>("Splash/Defeat");
+		ExchangeCanvas = GameObject.Find("ExchangeCanvas").transform;
 	}
 
 	public void Update()
@@ -46,6 +56,37 @@ public class PlayerController : NetworkBehaviour
 				break;
 		}
 		CheckForUserAction();
+	}
+
+	private void ExchangeStateChange(ExchangeState value)
+	{
+		switch (value)
+		{
+			case ExchangeState.End:
+				DisplaySplash();
+				break;
+		}
+	}
+
+	private void DisplaySplash()
+	{
+		if (isLocalPlayer)
+		{
+			Sprite splashScreen = LoseScreen;
+			IExchangePlayer winner = ec.GetWinner();
+
+			if (winner == null)
+			{
+				//draw screen
+				splashScreen = LoseScreen;
+			}
+			else if (winner.PlayerId == Player.PlayerId)
+			{
+				splashScreen = WinScreen;
+			}
+
+			StartCoroutine(FadeImage.Fade(ExchangeCanvas, splashScreen, 1.0f, 5.0f));
+		}
 	}
 
 	//check for user movement

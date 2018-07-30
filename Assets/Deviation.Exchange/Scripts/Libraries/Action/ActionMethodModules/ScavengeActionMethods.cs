@@ -16,7 +16,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 				delegate (IBattlefieldController bc, IAttack attack, IExchangePlayer player, BattlefieldZone zone)
 				{
 					var enemyZone = ActionUtilities.GetEnemyBattlefieldZone(zone);
-					attack.InitiateAttack(new List<IExchangePlayer>{ player}, AttackAlignment.Allies );
+					attack.InitiateAttack(player, new List<IExchangePlayer>{ player}, AttackAlignment.Allies );
 					
 					Vector3 origin = bc.GetBattlefieldCoordinates(enemyZone);
 					float originX = origin.x;
@@ -27,7 +27,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 						IExchangePlayer otherPlayer = other.GetComponent<IExchangePlayer>();
 						if(otherPlayer != null)
 						{
-							actionAttack.InitiateAttack(new List<IExchangePlayer>{ otherPlayer}, AttackAlignment.Enemies );
+							actionAttack.InitiateAttack(player, new List<IExchangePlayer>{ otherPlayer}, AttackAlignment.Enemies );
 							actionAttack.ApplyEffect(new List<IExchangePlayer>{ otherPlayer}, StatusEffect.Root, 1f);
 							actionAttack.ApplyEffect(new List<IExchangePlayer>{ otherPlayer}, StatusEffect.HealthRate, 1f, -0.005f);
 							Destroy(actionGO);

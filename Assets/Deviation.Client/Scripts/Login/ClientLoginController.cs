@@ -53,7 +53,7 @@ public class ClientLoginController : ControllerBase
 		}
 	}
 
-	public override void OnDataCreated()
+	internal override void OnDataCreated()
 	{
 		//We don't want this method to do anything in the base class when we test
 	}

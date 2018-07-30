@@ -6,17 +6,18 @@ using System;
 using System.Collections.Generic;
 using Assets.Scripts.DTO.Exchange;
 using Assets.Deviation.Exchange.Scripts.Client;
-using Assets.Deviation.Exchange.Scripts.Interface;
 using Assets.Deviation.Exchange.Scripts;
 using Assets.Deviation.Exchange;
 using System.IO;
+using Assets.Deviation.MasterServer.Scripts;
+using LiteDB;
 
 public class ActionModulePacket : SerializablePacket
 {
-	public Guid Q;
-	public Guid W;
-	public Guid E;
-	public Guid R;
+	public Guid Q { get; set; }
+	public Guid W { get; set; }
+	public Guid E { get; set; }
+	public Guid R { get; set; }
 
 	public ActionModulePacket()
 	{
@@ -28,6 +29,26 @@ public class ActionModulePacket : SerializablePacket
 		W = w;
 		E = e;
 		R = r;
+	}
+
+	public ActionModulePacket(BsonDocument document)
+	{
+		Q = document["Q"];
+		W = document["W"];
+		E = document["E"];
+		R = document["R"];
+	}
+
+	public BsonDocument ToBsonDocument()
+	{
+		var retVal = new BsonDocument();
+
+		retVal.Add("Q", Q);
+		retVal.Add("W", W);
+		retVal.Add("E", E);
+		retVal.Add("R", R);
+
+		return retVal;
 	}
 
 	public override void ToBinaryWriter(EndianBinaryWriter writer)
@@ -53,135 +74,42 @@ public class ActionModulePacket : SerializablePacket
 
 	public override string ToString()
 	{
-		return String.Format("Q: {0}\nW: {1}\nE: {2}\nR: {3}", Q, W, E, R);
-	}
-}
-
-public class PlayerAccountPacket : SerializablePacket
-{
-	public long Id;
-	public string Name;
-	public string Alias;
-
-	public PlayerAccountPacket()
-	{
-
-	}
-
-	public PlayerAccountPacket(long id, string name, string alias)
-	{
-		Id = id;
-		Name = name;
-		Alias = alias;
-	}
-
-	public PlayerAccountPacket(PlayerAccount account)
-	{
-		Id = account.Id;
-		Name = account.Name;
-		Alias = account.Alias;
-	}
-
-	public override void ToBinaryWriter(EndianBinaryWriter writer)
-	{
-		writer.Write(Id);
-		writer.Write(Name);
-		writer.Write(Alias);
-	}
-
-	public override void FromBinaryReader(EndianBinaryReader reader)
-	{
-		Id = reader.ReadInt64();
-		Name = reader.ReadString();
-		Alias = reader.ReadString();
-	}
-
-	public override string ToString()
-	{
-		return String.Format("Id: {0}\nName: {1}\nAlias: {2}", Id, Name, Alias);
+		return  $"--ActionModulePacket--" +
+				$"\nQ: {Q}" +
+				$"\nW: {W}" +
+				$"\nE: {E}" +
+				$"\nR: {R}";
 	}
 }
 
 public class ExchangePlayerPacket : SerializablePacket
 {
-	public int ExchangeDataId;
-	public string Username;
+	public long ExchangeId { get; set; }
+	public string Username { get; set; }
 
-	public ExchangePlayerPacket()
+	public ExchangePlayerPacket(){}
+
+	public ExchangePlayerPacket(long id, string name)
 	{
-
-	}
-
-	public ExchangePlayerPacket(int id, string name)
-	{
-		ExchangeDataId = id;
+		ExchangeId = id;
 		Username = name;
 	}
 
-
 	public override void ToBinaryWriter(EndianBinaryWriter writer)
 	{
-		writer.Write(ExchangeDataId);
+		writer.Write(ExchangeId);
 		writer.Write(Username);
 	}
 
 	public override void FromBinaryReader(EndianBinaryReader reader)
 	{
-		ExchangeDataId = reader.ReadInt32();
+		ExchangeId = reader.ReadInt64();
 		Username = reader.ReadString();
 	}
 
 	public override string ToString()
 	{
-		return String.Format("ExchangeDataId: {0}\nUsername: {1}", ExchangeDataId, Username);
-	}
-}
-
-public class InitExchangePlayerPacket : SerializablePacket
-{
-	public int ExchangeId;
-	public PlayerAccountPacket PlayerAccount;
-	public Guid CharacterGuid;
-	public ActionModulePacket ActionModule;
-
-	public InitExchangePlayerPacket()
-	{
-
-	}
-
-	public InitExchangePlayerPacket(int exchangeId, PlayerAccountPacket playerAccount, Guid characterGuid, ActionModulePacket actionModule)
-	{
-		ExchangeId = exchangeId;
-		PlayerAccount = playerAccount;
-		CharacterGuid = characterGuid;
-		ActionModule = actionModule;
-	}
-
-
-	public override void ToBinaryWriter(EndianBinaryWriter writer)
-	{
-		writer.Write(ExchangeId);
-		writer.Write(PlayerAccount);
-		writer.Write(CharacterGuid.ToByteArray());
-		writer.Write(ActionModule);
-	}
-
-	public override void FromBinaryReader(EndianBinaryReader reader)
-	{
-		ExchangeId = reader.ReadInt32();
-		PlayerAccount = reader.ReadPacket(new PlayerAccountPacket());
-		CharacterGuid = new Guid(reader.ReadBytes(16));
-		ActionModule = reader.ReadPacket(new ActionModulePacket());
-	}
-
-	public void FromBytes()
-	{
-
-	}
-
-	public override string ToString()
-	{
-		return String.Format("ExchangeId: {0}.\n\nPlayerAccount: {1}\nCharacterGuid: {2}\nActionModule: {3}", ExchangeId, PlayerAccount, CharacterGuid, ActionModule);
+		return String.Format("ExchangeDataId: {0}\nUsername: {1}", ExchangeId, Username);
 	}
 }
 
@@ -190,6 +118,8 @@ public enum ExchangePlayerOpCodes
 	GetPlayerAccount = 0,
 	GetExchangePlayerInfo = 4,
 	CreateExchangeData = 8,
+	CreateExchangeResultData = 12,
+	GetExchangeResultData = 16
 	// (OpCodes should be unique. MSF internal opCodes 
 	// start from 32000, so you can use anything from 0 to 32000
 }
@@ -206,18 +136,28 @@ public class Exchange1v1Module : ServerModuleBehaviour
 		server.SetHandler((short)ExchangePlayerOpCodes.GetPlayerAccount, HandleGetPlayerAccount);
 		server.SetHandler((short)ExchangePlayerOpCodes.GetExchangePlayerInfo, HandleGetExchangePlayerInfo);
 		server.SetHandler((short)ExchangePlayerOpCodes.CreateExchangeData, HandleCreateExchangeData);
+		server.SetHandler((short)ExchangePlayerOpCodes.CreateExchangeResultData, HandleCreateExchangeResultData);
+		server.SetHandler((short)ExchangePlayerOpCodes.GetExchangeResultData, HandleGetExchangeResultData);
+	}
+
+	private void HandleGetExchangeResultData(IIncommingMessage message)
+	{
+		ExchangePlayerPacket player = message.Deserialize(new ExchangePlayerPacket());
+		List<ExchangeResult> results = eda.GetExchangeResults(player.ExchangeId);
+		ExchangeResults packet = new ExchangeResults(results[0].ExchangeId, results[0].Timestamp, results); 
+		message.Respond(packet, ResponseStatus.Success);		
 	}
 
 	private void HandleGetExchangePlayerInfo(IIncommingMessage message)
 	{
 		ExchangePlayerPacket player = message.Deserialize(new ExchangePlayerPacket());
-		InitExchangePlayerPacket packet = GetExchangePlayerInfo(player.Username, player.ExchangeDataId);
+		ExchangeDataEntry packet = GetExchangePlayerInfo(player.Username, player.ExchangeId);
 		message.Respond(packet);
 	}
 
 	private void HandleGetPlayerAccount(IIncommingMessage message)
 	{
-		PlayerAccountPacket account = GetPlayerAccount(message.AsString());
+		PlayerAccount account = GetPlayerAccount(message.AsString());
 		if (account != null)
 		{
 			message.Respond(account, ResponseStatus.Success);
@@ -230,20 +170,27 @@ public class Exchange1v1Module : ServerModuleBehaviour
 
 	private void HandleCreateExchangeData(IIncommingMessage message)
 	{
-		InitExchangePlayerPacket packet = message.Deserialize(new InitExchangePlayerPacket());
+		ExchangeDataEntry packet = message.Deserialize(new ExchangeDataEntry());
 		eda.CreateExchangeData(packet);
 		message.Respond("Success", ResponseStatus.Success);
 	}
 
-	private InitExchangePlayerPacket GetExchangePlayerInfo(string username, int exchangeDataId)
+	private void HandleCreateExchangeResultData(IIncommingMessage message)
 	{
-		PlayerAccountPacket playerAccount = GetPlayerAccount(username);
+		ExchangeResult packet = message.Deserialize(new ExchangeResult());
+		eda.CreateExchangeResult(packet);
+		message.Respond("Success", ResponseStatus.Success);
+	}
+
+	private ExchangeDataEntry GetExchangePlayerInfo(string username, long exchangeDataId)
+	{
+		PlayerAccount playerAccount = GetPlayerAccount(username);
 		
-		ExchangeDataEntry data = eda.GetExchange1v1Entry(exchangeDataId, playerAccount.Id);
+		ExchangeDataEntry data = eda.GetExchangeDataEntry(exchangeDataId, playerAccount);
 
 		if (data != null)
 		{
-			return new InitExchangePlayerPacket(exchangeDataId, playerAccount, new Guid(data.CharacterGuid), data.ActionGuids);
+			return new ExchangeDataEntry(exchangeDataId, playerAccount, data.ActionGuids, data.CharacterGuid);
 		}
 		else
 		{
@@ -252,7 +199,7 @@ public class Exchange1v1Module : ServerModuleBehaviour
 		}
 	}
 
-	private PlayerAccountPacket GetPlayerAccount(string username)
+	private PlayerAccount GetPlayerAccount(string username)
 	{
 		PlayerAccount playerAccount;
 
@@ -267,7 +214,7 @@ public class Exchange1v1Module : ServerModuleBehaviour
 
 		if (playerAccount != null)
 		{
-			return new PlayerAccountPacket(playerAccount);
+			return playerAccount;
 		}
 		else
 		{

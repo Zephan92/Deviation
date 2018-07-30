@@ -98,7 +98,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 							}
 						}
 
-						attack.InitiateAttack(enemiesHit, AttackAlignment.Enemies);
+						attack.InitiateAttack(player, enemiesHit, AttackAlignment.Enemies);
 						player.Mover.Move(originalCoordinate, new Vector3(0,180,0));
 					};
 
@@ -144,7 +144,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 								IExchangePlayer otherPlayer = other.GetComponent<IExchangePlayer>();
 								if(!otherPlayer.Equals(player))
 								{
-									actionAttack.InitiateAttack(new List<IExchangePlayer>{ otherPlayer}, AttackAlignment.Enemies);
+									actionAttack.InitiateAttack(player, new List<IExchangePlayer>{ otherPlayer}, AttackAlignment.Enemies);
 									otherPlayer.Mover.Move(Direction.Left, 1);
 								}
 							}

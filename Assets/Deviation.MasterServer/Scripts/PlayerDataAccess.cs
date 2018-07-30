@@ -1,21 +1,23 @@
-﻿using Assets.Deviation.Exchange.Scripts.Client;
-using Assets.Deviation.Exchange.Scripts.Interface;
-using LiteDB;
+﻿using LiteDB;
 using UnityEngine;
 
-namespace Assets.Deviation.Exchange.Scripts
+namespace Assets.Deviation.MasterServer.Scripts
 {
 	public class PlayerDataAccess
 	{
-		LiteDatabase db = new LiteDatabase(@"exchangePlayers.db");
+		LiteDatabase db = new LiteDatabase(@"Players.db");
 		LiteCollection<PlayerAccount> _players;
-		LiteCollection<PlayerAccount> _exchanges;
-
-		string collectionName = "players";
+		string playerCollectionName = "Player";
 
 		public PlayerDataAccess()
 		{
-			_players = db.GetCollection<PlayerAccount>(collectionName);
+			BsonMapper.Global.RegisterType
+			(
+				serialize: (packet) => packet.ToBsonDocument(),
+				deserialize: (bson) => new PlayerAccount(bson.AsDocument)
+			);
+
+			_players = db.GetCollection<PlayerAccount>(playerCollectionName);
 		}
 
 		public PlayerAccount CreatePlayer(string name, string alias = "")
@@ -28,7 +30,6 @@ namespace Assets.Deviation.Exchange.Scripts
 				}
 
 				PlayerAccount playerAccount = new PlayerAccount(_players.Count(), name, alias);
-				Debug.LogErrorFormat("Creating Player and Inserting into DB. {0}", playerAccount);
 				_players.Insert(playerAccount);
 				return playerAccount;
 			}
@@ -41,26 +42,12 @@ namespace Assets.Deviation.Exchange.Scripts
 
 		public bool PlayerExists(long id)
 		{
-			if (GetPlayer(id) != null)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return GetPlayer(id) != null;
 		}
 
 		public bool PlayerExists(string name)
 		{
-			if(GetPlayer(name) != null)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			return GetPlayer(name) != null;
 		}
 
 		public PlayerAccount GetPlayer(long id)
@@ -70,7 +57,7 @@ namespace Assets.Deviation.Exchange.Scripts
 
 		public PlayerAccount GetPlayer(string name)
 		{
-			return _players.FindOne(x => x.Name.Equals(name));
+			return _players.FindOne(x => x.Name == name);
 		}
 	}
 }

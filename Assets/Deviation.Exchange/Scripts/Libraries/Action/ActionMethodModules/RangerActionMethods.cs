@@ -17,7 +17,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 			{"SmallProjectile",
 				delegate (IBattlefieldController bc, IAttack attack, IExchangePlayer player, BattlefieldZone zone)
 				{
-					attack.InitiateAttack(new List<IExchangePlayer>{ player}, AttackAlignment.Allies );
+					attack.InitiateAttack(player, new List<IExchangePlayer>{ player}, AttackAlignment.Allies );
 
 					System.Action<GameObject> onStartMethod = delegate(GameObject actionGO)
 					{
@@ -32,7 +32,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 							IExchangePlayer otherPlayer = other.GetComponent<IExchangePlayer>();
 							if(!otherPlayer.Equals(player))
 							{
-								actionAttack.InitiateAttack(new List<IExchangePlayer>{ otherPlayer}, AttackAlignment.Enemies );
+								actionAttack.InitiateAttack(player, new List<IExchangePlayer>{ otherPlayer}, AttackAlignment.Enemies );
 								actionGO.GetComponent<ActionObject>().DisableRenderer();
 								actionGO.GetComponent<ActionObjectMover>().StopObject();
 								Destroy(actionGO, 1f);
@@ -49,7 +49,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 			{"MediumProjectile",
 				delegate (IBattlefieldController bc, IAttack attack, IExchangePlayer player, BattlefieldZone zone)
 				{
-					attack.InitiateAttack(new List<IExchangePlayer>{ player}, AttackAlignment.Allies );
+					attack.InitiateAttack(player, new List<IExchangePlayer>{ player}, AttackAlignment.Allies );
 
 					System.Action<GameObject> onStartMethod = delegate(GameObject actionGO)
 					{
@@ -64,7 +64,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 							IExchangePlayer otherPlayer = other.GetComponent<IExchangePlayer>();
 							if(!otherPlayer.Equals(player))
 							{
-								actionAttack.InitiateAttack(new List<IExchangePlayer>{ otherPlayer}, AttackAlignment.Enemies );
+								actionAttack.InitiateAttack(player, new List<IExchangePlayer>{ otherPlayer}, AttackAlignment.Enemies );
 								actionGO.GetComponent<ActionObject>().DisableRenderer();
 								actionGO.GetComponent<ActionObjectMover>().StopObject();
 								Destroy(actionGO, 1f);
@@ -81,7 +81,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 			{"LargeProjectile",
 				delegate (IBattlefieldController bc, IAttack attack, IExchangePlayer player, BattlefieldZone zone)
 				{
-					attack.InitiateAttack(new List<IExchangePlayer>{ player}, AttackAlignment.Allies );
+					attack.InitiateAttack(player, new List<IExchangePlayer>{ player}, AttackAlignment.Allies );
 
 					System.Action<GameObject> onStartMethod = delegate(GameObject actionGO)
 					{
@@ -96,7 +96,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 							IExchangePlayer otherPlayer = other.GetComponent<IExchangePlayer>();
 							if(!otherPlayer.Equals(player))
 							{
-								actionAttack.InitiateAttack(new List<IExchangePlayer>{ otherPlayer}, AttackAlignment.Enemies );
+								actionAttack.InitiateAttack(player, new List<IExchangePlayer>{ otherPlayer}, AttackAlignment.Enemies );
 								actionGO.GetComponent<ActionObject>().DisableRenderer();
 								actionGO.GetComponent<ActionObjectMover>().StopObject();
 								Destroy(actionGO, 1f);

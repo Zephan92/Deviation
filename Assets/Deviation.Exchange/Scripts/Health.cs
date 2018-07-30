@@ -10,6 +10,7 @@ public class Health : NetworkBehaviour
 	public int Max { get { return _max; } set { _max = value; } }
 	public float Rate { get { return _rate; } set { _rate = value; } }
 	public Splat Splat { get; set; }
+	public PlayerStats PlayerStats {get;set;}
 
 	[SyncVar]
 	private int _current;
@@ -36,6 +37,7 @@ public class Health : NetworkBehaviour
 		_rate = 0;
 		_health = 0;
 		Splat = GetComponent<Splat>();
+		PlayerStats = GetComponent<PlayerStats>();
 	}
 
 	public void UpdateMax(int increase)
@@ -44,7 +46,7 @@ public class Health : NetworkBehaviour
 		_current += increase;
 	}
 
-	public void Add(int add)
+	public int Add(int add)
 	{
 		int currentMin = _min;
 		int currentMax = _max;
@@ -61,8 +63,23 @@ public class Health : NetworkBehaviour
 
 		int newCurrent = Mathf.Clamp(_current + add, currentMin, currentMax);
 		int difference = newCurrent - _current;
-		_current = newCurrent;
 		Splat.AddHealth(difference);
+		if (add > 0)
+		{
+			PlayerStats.TotalHealed += difference;
+		}
+		else
+		{
+			if (newCurrent == 0)
+			{
+				PlayerStats.KnockoutsTaken++;
+			}
+
+			PlayerStats.DamageTaken -= difference;
+		}
+
+		_current = newCurrent;
+		return difference;
 	}
 
 	public void ReInit()

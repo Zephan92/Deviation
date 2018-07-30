@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets.Deviation.Exchange
+namespace Assets.Deviation.MasterServer.Scripts
 {
 	public enum QueueTypes
 	{
@@ -93,8 +93,7 @@ namespace Assets.Deviation.Exchange
 		public QueueTypes Queue;
 		public PlayerClass PlayerClass;
 
-		public ExchangeMatchMakingPacket()
-		{ }
+		public ExchangeMatchMakingPacket(){}
 
 		public ExchangeMatchMakingPacket(long playerId, QueueTypes queue, PlayerClass playerClass)
 		{
@@ -139,7 +138,7 @@ namespace Assets.Deviation.Exchange
 
 	public class MatchFound
 	{
-		public int ExchangeId;
+		public long ExchangeId;
 		public QueueTypes Queue;
 		public PlayerClass PlayerClass;
 		public MatchFoundPacket Packet;
@@ -147,7 +146,7 @@ namespace Assets.Deviation.Exchange
 		public DateTime MatchFoundStart;
 		public SpawnTask SpawnTask;
 
-		public MatchFound(int exchangeId, IPeer player1, long player1Id, IPeer player2, long player2Id, QueueTypes queue, PlayerClass playerClass)
+		public MatchFound(long exchangeId, IPeer player1, long player1Id, IPeer player2, long player2Id, QueueTypes queue, PlayerClass playerClass)
 		{
 			ExchangeId = exchangeId;
 			Queue = queue;
@@ -222,15 +221,14 @@ namespace Assets.Deviation.Exchange
 
 	public class MatchFoundPacket : SerializablePacket
 	{
-		public int ExchangeId;
+		public long ExchangeId;
 		public long Player1Id;
 		public long Player2Id;
 		public QueueTypes Queue;
 
-		public MatchFoundPacket()
-		{ }
+		public MatchFoundPacket(){}
 
-		public MatchFoundPacket(int exchangeId, long player1Id, long player2Id, QueueTypes queue)
+		public MatchFoundPacket(long exchangeId, long player1Id, long player2Id, QueueTypes queue)
 		{
 			ExchangeId = exchangeId;
 			Player1Id = player1Id;
@@ -248,7 +246,7 @@ namespace Assets.Deviation.Exchange
 
 		public override void FromBinaryReader(EndianBinaryReader reader)
 		{
-			ExchangeId = reader.ReadInt32();
+			ExchangeId = reader.ReadInt64();
 			Player1Id = reader.ReadInt64();
 			Player2Id = reader.ReadInt64();
 			Queue = (QueueTypes) reader.ReadInt16();
@@ -285,7 +283,6 @@ namespace Assets.Deviation.Exchange
 		{
 			//data is not correct...
 			var packet = message.Deserialize(new ExchangeMatchMakingPacket());
-			Debug.LogErrorFormat("HandleRequestJoin1v1Queue: {0}", packet);
 			bool success = matchMaker.JoinQueue(packet, message.Peer);
 
 			if (success)
@@ -301,7 +298,6 @@ namespace Assets.Deviation.Exchange
 		private void HandleRequestLeave1v1Queue(IIncommingMessage message)
 		{
 			var packet = message.Deserialize(new ExchangeMatchMakingPacket());
-			Debug.LogErrorFormat("HandleRequestLeave1v1Queue: {0}", packet);
 			bool success = matchMaker.LeaveQueue(packet);
 
 			if (success)
@@ -317,7 +313,6 @@ namespace Assets.Deviation.Exchange
 		private void HandleRequestChange1v1QueuePool(IIncommingMessage message)
 		{
 			var packet = message.Deserialize(new ExchangeMatchMakingPacket());
-			Debug.LogErrorFormat("HandleRequestChange1v1QueuePool: {0}", packet);
 			matchMaker.ChangeQueuePool(packet);
 			message.Respond(ResponseStatus.Success);
 		}
@@ -325,7 +320,6 @@ namespace Assets.Deviation.Exchange
 		private void HandleRequestJoinMatch(IIncommingMessage message)
 		{
 			var packet = message.Deserialize(new MatchFoundPacket());
-			Debug.LogErrorFormat("HandleRequestJoinMatch: {0}", packet);
 			matchMaker.JoinMatch(packet.ExchangeId, packet.Player1Id);
 			message.Respond(ResponseStatus.Success);
 		}
@@ -333,7 +327,6 @@ namespace Assets.Deviation.Exchange
 		private void HandleRequestDeclineMatch(IIncommingMessage message)
 		{
 			var packet = message.Deserialize(new MatchFoundPacket());
-			Debug.LogErrorFormat("HandleRequestDeclineMatch: {0}", packet);
 			matchMaker.DeclineMatch(packet.ExchangeId, packet.Player1Id);
 			message.Respond(ResponseStatus.Success);
 		}

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace Assets.Deviation.Exchange
+namespace Assets.Deviation.MasterServer.Scripts
 {
 	public class ExchangeMatchMaking : MonoBehaviour
 	{
@@ -20,8 +20,8 @@ namespace Assets.Deviation.Exchange
 
 		private Dictionary<PlayerClass, Dictionary<long, PlayerMMR>> _poolsExchange1v1;
 		private Dictionary<long, IPeer> connections = new Dictionary<long, IPeer>();
-		private ConcurrentDictionary<int, MatchFound> matchs = new ConcurrentDictionary<int, MatchFound>();
-		private ConcurrentDictionary<int, MatchFound> spawns = new ConcurrentDictionary<int, MatchFound>();
+		private ConcurrentDictionary<long, MatchFound> matchs = new ConcurrentDictionary<long, MatchFound>();
+		private ConcurrentDictionary<long, MatchFound> spawns = new ConcurrentDictionary<long, MatchFound>();
 		private SpawnersModule spawners;
 		//private ExchangeDataAccess eda = new ExchangeDataAccess();
 
@@ -51,7 +51,6 @@ namespace Assets.Deviation.Exchange
 			}
 			else
 			{
-				Debug.LogErrorFormat("Player already in queue", packet);
 				return false;
 			}
 
@@ -77,7 +76,6 @@ namespace Assets.Deviation.Exchange
 			}
 			else
 			{
-				Debug.LogErrorFormat("Player not in queue", packet);
 				return false;
 			}
 
@@ -109,16 +107,15 @@ namespace Assets.Deviation.Exchange
 			}
 		}
 
-		public void JoinMatch(int exchangeId, long playerId)
+		public void JoinMatch(long exchangeId, long playerId)
 		{
 			matchs[exchangeId].AcceptMatch(playerId);
 		}
 
-		public void DeclineMatch(int exchangeId, long playerId)
+		public void DeclineMatch(long exchangeId, long playerId)
 		{
 			if (matchs.ContainsKey(exchangeId) && connections.ContainsKey(playerId))
 			{
-				Debug.LogErrorFormat("Declining Match: {0}. Player {1}", exchangeId, playerId);
 				RemoveMatchup(matchs[exchangeId], playerId);
 			}
 		}
@@ -129,7 +126,6 @@ namespace Assets.Deviation.Exchange
 			_matchesFound++;
 
 			MatchFound match = new MatchFound(exchangeId, connections[player1Id], player1Id, connections[player2Id], player2Id, queue, playerClass);
-			Debug.LogErrorFormat("MatchFound: {0}", match.Packet);
 			matchs.Add(exchangeId, match);
 			match.InformPlayers();
 		}
@@ -137,7 +133,6 @@ namespace Assets.Deviation.Exchange
 		private void RequestChangeQueue(PlayerMMR player)
 		{
 			var packet = new ExchangeMatchMakingPacket(player.PlayerId, QueueTypes.Exchange1v1, player.PlayerClass + 1);
-			Debug.LogErrorFormat("ChangeQueue: {0}", packet);
 			connections[player.PlayerId].SendMessage((short)Exchange1v1MatchMakingOpCodes.RespondChangeQueuePool, packet);
 		}
 
@@ -223,14 +218,10 @@ namespace Assets.Deviation.Exchange
 			{
 				if (match.MatchReady())
 				{
-					Debug.LogError("Match Ready. Exchange: " + match.ExchangeId);
-
 					MatchReady(match);
 				}
 				else if (match.MatchFoundTimerUp())
 				{
-					Debug.LogError("Timer is up for Match. Exchange: " + match.ExchangeId);
-
 					RemoveMatchup(match);
 				}
 			}
@@ -281,7 +272,6 @@ namespace Assets.Deviation.Exchange
 		{
 			if (declinedPlayerId >= 0)
 			{
-				Debug.LogError("Player Declined");
 				foreach (var player in match.Players)
 				{
 					if (player.Id != declinedPlayerId)
@@ -297,7 +287,6 @@ namespace Assets.Deviation.Exchange
 				connections.Remove(player.Id);
 				match.Players.Remove(player);
 				var packet = new ExchangeMatchMakingPacket(player.Id, match.Queue, match.PlayerClass);
-				Debug.LogError("Adding Player Back to Queue" + packet);
 				JoinQueue(packet, player.Peer);
 			}
 
@@ -305,7 +294,6 @@ namespace Assets.Deviation.Exchange
 			{
 				if (connections.ContainsKey(player.Id))
 				{
-					Debug.LogErrorFormat("Removing connection for player: {0}", player.Id);
 					connections.Remove(player.Id);
 				}
 			}

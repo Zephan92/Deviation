@@ -85,7 +85,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 					delegate (IBattlefieldController bc, IAttack attack, IExchangePlayer player, BattlefieldZone zone)
 					{
 						var enemyZone = ActionUtilities.GetEnemyBattlefieldZone(zone);
-						attack.InitiateAttack(new List<IExchangePlayer>{ player}, AttackAlignment.Allies );
+						attack.InitiateAttack(player, new List<IExchangePlayer>{ player}, AttackAlignment.Allies );
 
 						Vector3 origin = bc.GetBattlefieldCoordinates(enemyZone);
 						float originX = origin.x;
@@ -119,7 +119,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 				{"ShockWave", //this method breaks 3 tiles around the opponent
 					delegate (IBattlefieldController bc, IAttack attack, IExchangePlayer player, BattlefieldZone zone)
 					{
-						attack.InitiateAttack(new List<IExchangePlayer>{ player}, AttackAlignment.Allies );
+						attack.InitiateAttack(player, new List<IExchangePlayer>{ player}, AttackAlignment.Allies );
 
 						System.Action<GameObject> onStartMethod = delegate(GameObject actionGO)
 						{
@@ -150,7 +150,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 								IExchangePlayer otherPlayer = other.GetComponent<IExchangePlayer>();
 								if(!otherPlayer.Equals(player))
 								{
-									actionAttack.InitiateAttack(new List<IExchangePlayer>{ otherPlayer}, AttackAlignment.Enemies );
+									actionAttack.InitiateAttack(player, new List<IExchangePlayer>{ otherPlayer}, AttackAlignment.Enemies );
 								}
 							}
 						};

@@ -17,7 +17,7 @@ namespace Assets.Scripts.Library.Action.ModuleActions
 				{
 					var enemyZone = ActionUtilities.GetEnemyBattlefieldZone(zone);
 					List<IExchangePlayer> enemies = bc.GetPlayers(enemyZone);
-					attack.InitiateAttack(new List<IExchangePlayer>{ player}, enemies);
+					attack.InitiateAttack(player, new List<IExchangePlayer>{ player}, enemies);
 				}
 			},
 		};

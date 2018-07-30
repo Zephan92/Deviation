@@ -292,8 +292,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Display\FadeImage.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\PlayerStats.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Splat.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Utilities\ObjectPool.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\ExchangeDataEntry.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\ExchangeResults.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\ExchangeResult.cs" />
     <Compile Include="Assets\Deviation.Odysseys\HotspotController.cs" />
     <Compile Include="Assets\Deviation.Odysseys\ResourceHotspot.cs" />
     <Compile Include="Assets\Deviation\PopupController.cs" />
@@ -542,7 +547,7 @@
     <Compile Include="Assets\Deviation.Client\Scripts\ControllerBase.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Deprecated\DeviationClient.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Deprecated\ModuleEditor\ModuleEditor.cs" />
-    <Compile Include="Assets\Deviation.Client\Scripts\Deprecated\PlayerAccount.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\PlayerAccount.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Login\ClientLoginController.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseActions\ActionDetailsPanel.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Match\ChooseActions\ChooseActionsUIController.cs" />
@@ -608,7 +613,6 @@
     <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\IGameController.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\IInput.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\IMultiplayerController.cs" />
-    <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\IPlayerAccount.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\ITimerManager.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\IUnityTimer.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Libraries\Action\ActionLibrary.cs" />

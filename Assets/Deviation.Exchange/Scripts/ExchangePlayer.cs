@@ -17,6 +17,7 @@ using UnityEngine.Networking;
 [RequireComponent(typeof(Mover))]
 [RequireComponent(typeof(Status))]
 [RequireComponent(typeof(Splat))]
+[RequireComponent(typeof(PlayerStats))]
 [RequireComponent(typeof(PlayerController))]
 public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 {
@@ -35,6 +36,7 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	private Mover _mover;
 	private Status _status;
 	private Splat _splat;
+	private PlayerStats _playerStats;
 
 	public int PeerId { get { return _peerId; } set { _peerId = value; } }
 	public long PlayerId { get { return _playerId; } set { _playerId = value; } }
@@ -44,6 +46,7 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	public Mover Mover { get { return _mover; } }
 	public Status Status { get { return _status; } }
 	public Splat Splat { get { return _splat; } }
+	public PlayerStats PlayerStats { get { return _playerStats; } }
 	public BattlefieldZone Zone { get { return _zone; } }
 	public BattlefieldZone EnemyZone { get { return _zone == BattlefieldZone.Left ? BattlefieldZone.Right : BattlefieldZone.Left; } }
 	public bool Initialized { get { return _initialized;  } }
@@ -70,6 +73,7 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 		_mover = GetComponent<Mover>();
 		_status = GetComponent<Status>();
 		_splat = GetComponent<Splat>();
+		_playerStats = GetComponent<PlayerStats>();
 		_renderers = GetComponentsInChildren<Renderer>();
 		_actionsDisabled = new ConcurrentDictionary<int, bool>();
 		_actionsDisabled.Add(0, false);
@@ -130,7 +134,8 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 		int attackCost = (int)(action.Attack.EnergyRecoilModifier * action.Attack.BaseDamage);
 		int potentialEnergy = _energy.Current + attackCost;
 		if (tm.TimerUp(action.Name, (int)_zone) && potentialEnergy >= _energy.Min)
-		{			
+		{
+			PlayerStats.AbilitiesUsed++;
 			CmdAction(actionNumber);
 			tm.StartTimer(action.Name, (int)_zone);
 			success = true;

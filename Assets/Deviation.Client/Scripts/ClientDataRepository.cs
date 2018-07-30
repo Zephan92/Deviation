@@ -35,16 +35,12 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			set
 			{
 				_state = value;
-
-				if (OnClientDataStateChange != null)
-				{
-					OnClientDataStateChange(value);
-				}
+				OnClientDataStateChange?.Invoke(value);
 			}
 		}
 		public UnityAction<ClientState> OnClientDataStateChange;
 
-		public PlayerAccountPacket PlayerAccount;
+		public PlayerAccount PlayerAccount;
 
 		public MatchFoundPacket Exchange;
 
@@ -60,11 +56,11 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		public void Awake()
 		{
 			InstanceExists();
-			OnClientDataStateChange += OnClienDataStateChange;
+			OnClientDataStateChange += ClientDataStateChange;
 			Msf.Client.SetHandler((short)Exchange1v1MatchMakingOpCodes.RespondRoomId, HandleReceiveRoomId);
 		}
 
-		private void OnClienDataStateChange(ClientState state)
+		private void ClientDataStateChange(ClientState state)
 		{
 			switch (state)
 			{
@@ -77,8 +73,8 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 				case ClientState.Match:
 					break;
 				case ClientState.Results:
-					Exchange = null;
 					RoomId = -1;
+					Exchange = null;
 					HasExchange = false;
 					break;
 			}
@@ -151,7 +147,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 					Msf.Client.Connection.SendMessage((short)ExchangePlayerOpCodes.GetPlayerAccount, Msf.Client.Auth.AccountInfo.Username, (status, response) =>
 					{
 
-						PlayerAccount = response.Deserialize(new PlayerAccountPacket());
+						PlayerAccount = response.Deserialize(new PlayerAccount());
 						PlayerAccountRecieved?.Invoke();
 
 						HasPlayerAccount = true;

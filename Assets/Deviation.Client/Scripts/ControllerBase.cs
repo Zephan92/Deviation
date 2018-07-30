@@ -26,7 +26,7 @@ namespace Assets.Deviation.Client.Scripts
 			}
 		}
 
-		public virtual void OnDataCreated()
+		internal virtual void OnDataCreated()
 		{
 			ClientDataRepository.Instance.OnLogin += (AccountInfoPacket account, string error) => {
 				ClientDataRepository.Instance.GetPlayerAccount();
@@ -44,7 +44,7 @@ namespace Assets.Deviation.Client.Scripts
 			}
 		}
 
-		public void CreateClientDataRepository()
+		internal void CreateClientDataRepository()
 		{
 			if (FindObjectOfType<ClientDataRepository>() == null)
 			{

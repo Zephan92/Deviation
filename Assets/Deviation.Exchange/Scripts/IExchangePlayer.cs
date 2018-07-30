@@ -15,6 +15,7 @@ public interface IExchangePlayer
 	Mover Mover { get; }
 	Status Status { get; }
 	Splat Splat { get; }
+	PlayerStats PlayerStats { get; }
 	BattlefieldZone Zone { get; }
 	BattlefieldZone EnemyZone { get; }
 	Vector3 Position { get; }

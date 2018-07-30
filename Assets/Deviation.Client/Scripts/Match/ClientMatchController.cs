@@ -1,5 +1,6 @@
 ﻿using Assets.Deviation.Client.Scripts;
 using Assets.Deviation.Client.Scripts.Match;
+using Assets.Deviation.MasterServer.Scripts;
 using Assets.Scripts.Interface;
 using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Library;
@@ -216,8 +217,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			{
 				Guid characterGuid = _chosenTrader.Guid;
 				ActionModulePacket module = GetPlayerActionModule();
-				InitExchangePlayerPacket packet = new InitExchangePlayerPacket(ClientDataRepository.Instance.Exchange.ExchangeId, ClientDataRepository.Instance.PlayerAccount, characterGuid, module);
-
+				ExchangeDataEntry packet = new ExchangeDataEntry(ClientDataRepository.Instance.Exchange.ExchangeId, ClientDataRepository.Instance.PlayerAccount, module, characterGuid);
 				Msf.Client.Connection.SendMessage((short)ExchangePlayerOpCodes.CreateExchangeData, packet, (response, error) => {
 					if (response == ResponseStatus.Error)
 					{

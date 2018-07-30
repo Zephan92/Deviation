@@ -1,4 +1,6 @@
-﻿using Barebones.Networking;
+﻿using Assets.Deviation.Exchange.Scripts;
+using Assets.Deviation.MasterServer.Scripts;
+using Barebones.Networking;
 using LiteDB;
 using System;
 using System.Collections.Generic;
@@ -6,96 +8,87 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace Assets.Deviation.Exchange
+namespace Assets.Deviation.MasterServer.Scripts
 {
-	public class ExchangeDataEntry
-	{
-		public int ExchangeId { get; set; }
-		public long PlayerId { get; set; }
-		public ActionModulePacket ActionGuids;
-		public string CharacterGuid;
-
-		public ExchangeDataEntry()
-		{
-
-		}
-
-		public ExchangeDataEntry(int id, long playerId, ActionModulePacket actionGuids, Guid characterGuid)
-		{
-			ExchangeId = id;
-			PlayerId = playerId;
-			ActionGuids = actionGuids;
-			CharacterGuid = characterGuid.ToString();
-		}
-
-		public ExchangeDataEntry(InitExchangePlayerPacket packet)
-		{
-			ExchangeId = packet.ExchangeId;
-			PlayerId = packet.PlayerAccount.Id;
-			ActionGuids = packet.ActionModule;
-			CharacterGuid = packet.CharacterGuid.ToString();
-		}
-
-		public override string ToString()
-		{
-			return String.Format("ExchangeData - ExchangeId: {0}. PlayerID: {1}. ActionGuids: {2}. CharacterGuid {3}", ExchangeId, PlayerId, ActionGuids, CharacterGuid);
-		}
-	}
-
 	public class ExchangeDataAccess
 	{
-		private Dictionary<int, List<ExchangeDataEntry>> _exchangeData = new Dictionary<int, List<ExchangeDataEntry>>();
+		LiteDatabase db = new LiteDatabase(@"Exchange.db");
+		LiteCollection<ExchangeResult> _exchangeResult;
+		LiteCollection<ExchangeDataEntry> _exchangeData;
+		string exchangeResultName = "ExchangeResult";
+		string exchangeDataName = "ExchangeData";
 
-		public List<ExchangeDataEntry> GetExchange1v1Data(int exchangeDataId)
+		public ExchangeDataAccess()
 		{
-			return _exchangeData[exchangeDataId];
+			BsonMapper.Global.RegisterType
+			(
+				serialize: (packet) => packet.ToBsonDocument(),
+				deserialize: (bson) => new PlayerStatsPacket(bson.AsDocument)
+			);
+
+			BsonMapper.Global.RegisterType
+			(
+				serialize: (packet) => packet.ToBsonDocument(),
+				deserialize: (bson) => new ActionModulePacket(bson.AsDocument)
+			);
+
+			BsonMapper.Global.RegisterType
+			(
+				serialize: (packet) => packet.ToBsonDocument(),
+				deserialize: (bson) => new ExchangeResult(bson.AsDocument)
+			);
+
+			BsonMapper.Global.RegisterType
+			(
+				serialize: (packet) => packet.ToBsonDocument(),
+				deserialize: (bson) => new ExchangeDataEntry(bson.AsDocument)
+			);
+
+			_exchangeResult = db.GetCollection<ExchangeResult>(exchangeResultName);
+			_exchangeData = db.GetCollection<ExchangeDataEntry>(exchangeDataName);
 		}
 
-		public ExchangeDataEntry GetExchange1v1Entry(int exchangeDataId, long playerId)
+		//ExchangeResult Logic
+		public List<ExchangeResult> GetExchangeResults(long exchangeDataId)
 		{
-			if (_exchangeData.ContainsKey(exchangeDataId))
-			{
-				foreach (var entry in _exchangeData[exchangeDataId])
-				{
-					if (entry.PlayerId == playerId)
-					{
-						return entry;
-					}
-				}
-			}
-
-			return null;
+			return _exchangeResult.Find(x => x.ExchangeId == exchangeDataId).ToList();
 		}
 
-		public ExchangeDataEntry CreateExchangeData(int exchangeDataId, long playerId, ActionModulePacket actionModule, Guid characterGuid)
+		public List<ExchangeResult> GetExchangeResults(PlayerAccount player)
 		{
-			ExchangeDataEntry exchange = new ExchangeDataEntry(exchangeDataId, playerId, actionModule, characterGuid);
-			InsertExchangeData(exchange);
-			return exchange;
+			return _exchangeResult.Find(x => x.Player== player).ToList();
 		}
 
-		public ExchangeDataEntry CreateExchangeData(InitExchangePlayerPacket packet)
+		public ExchangeResult GetExchangeResult(long exchangeDataId, PlayerAccount player)
 		{
-			ExchangeDataEntry exchange = new ExchangeDataEntry(packet);
-			InsertExchangeData(exchange);
-			return exchange;
+			return _exchangeResult.FindOne(x => x.ExchangeId == exchangeDataId && x.Player == player);
 		}
 
-		public void DeleteExchangeData(int exchangeId)
+		public void CreateExchangeResult(ExchangeResult result)
 		{
-			_exchangeData.Remove(exchangeId);
+			_exchangeResult.Insert(result);
 		}
 
-		private void InsertExchangeData(ExchangeDataEntry entry)
+		
+		//ExchangeDataEntry Logic
+		public List<ExchangeDataEntry> GetExchangeDataEntries(long exchangeDataId)
 		{
-			if (_exchangeData.ContainsKey(entry.ExchangeId))
-			{
-				_exchangeData[entry.ExchangeId].Add(entry);
-			}
-			else
-			{
-				_exchangeData.Add(entry.ExchangeId, new List<ExchangeDataEntry>() { entry });
-			}
+			return _exchangeData.Find(x => x.ExchangeId == exchangeDataId).ToList();
+		}
+
+		public List<ExchangeDataEntry> GetExchangeDataEntries(PlayerAccount player)
+		{
+			return _exchangeData.Find(x => x.Player == player).ToList();
+		}
+
+		public ExchangeDataEntry GetExchangeDataEntry(long exchangeDataId, PlayerAccount player)
+		{
+			return _exchangeData.FindOne(x => x.ExchangeId == exchangeDataId && x.Player == player);
+		}
+
+		public void CreateExchangeData(ExchangeDataEntry entry)
+		{
+			_exchangeData.Insert(entry);
 		}
 	}
 }
