@@ -90,5 +90,12 @@ namespace Assets.Deviation.MasterServer.Scripts
 		{
 			_exchangeData.Insert(entry);
 		}
+
+		//ExchangeID
+		public long GetNewExchangeId()
+		{
+			long lastExchangeId = _exchangeData.Max(x => x.ExchangeId);
+			return (lastExchangeId + 1);
+		}
 	}
 }

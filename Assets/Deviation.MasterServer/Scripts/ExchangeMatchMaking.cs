@@ -12,7 +12,6 @@ namespace Assets.Deviation.MasterServer.Scripts
 {
 	public class ExchangeMatchMaking : MonoBehaviour
 	{
-		private int _matchesFound;
 		private const int dequeueBatchSize = 500;
 		private ConcurrentQueue<long> _joinExchange1v1;
 		private ConcurrentQueue<long> _changeExchange1v1;
@@ -23,7 +22,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 		private ConcurrentDictionary<long, MatchFound> matchs = new ConcurrentDictionary<long, MatchFound>();
 		private ConcurrentDictionary<long, MatchFound> spawns = new ConcurrentDictionary<long, MatchFound>();
 		private SpawnersModule spawners;
-		//private ExchangeDataAccess eda = new ExchangeDataAccess();
+		private ExchangeDataAccess eda = new ExchangeDataAccess();
 
 		public void Awake()
 		{
@@ -37,7 +36,6 @@ namespace Assets.Deviation.MasterServer.Scripts
 			_poolsExchange1v1.Add(PlayerClass.B, new Dictionary<long, PlayerMMR>());
 			_poolsExchange1v1.Add(PlayerClass.A, new Dictionary<long, PlayerMMR>());
 			_poolsExchange1v1.Add(PlayerClass.S, new Dictionary<long, PlayerMMR>());
-			_matchesFound = 0;
 
 			StartCoroutine(Match(QueueTypes.Exchange1v1));
 			spawners = FindObjectOfType<SpawnersModule>();
@@ -122,9 +120,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 
 		private void MatchFound(long player1Id, long player2Id, QueueTypes queue, PlayerClass playerClass)
 		{
-			int exchangeId = _matchesFound;
-			_matchesFound++;
-
+			long exchangeId = eda.GetNewExchangeId();
 			MatchFound match = new MatchFound(exchangeId, connections[player1Id], player1Id, connections[player2Id], player2Id, queue, playerClass);
 			matchs.Add(exchangeId, match);
 			match.InformPlayers();
