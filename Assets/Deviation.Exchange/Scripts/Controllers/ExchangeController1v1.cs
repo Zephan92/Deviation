@@ -3,41 +3,31 @@ using Assets.Scripts.Interface;
 using Assets.Scripts.Utilities;
 using UnityEngine.Networking;
 using UnityEngine;
-using System.Collections.Generic;
-using Barebones.MasterServer;
-using System;
-using UnityEngine.SceneManagement;
-using Assets.Deviation.Exchange.Scripts.Client;
 using UnityEngine.Events;
-using Assets.Deviation.MasterServer.Scripts;
-using Assets.Deviation.Exchange.Scripts;
+using Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelpers;
 
-public interface IGameController
-{
-}
-
-public interface IExchangeController1v1 : IGameController
+public interface IExchangeController1v1
 {
 	UnityAction<ExchangeState> OnExchangeStateChange { get; set; }
 	ExchangeState ExchangeState { get; set; }
 	void ServerResponse(int peerId);
-	IExchangePlayer GetPlayerByPeerId(int peerId);
 	void ResetExchange();
-	IExchangePlayer GetWinner();
+	IExchangePlayer GetRoundWinner();
 }
 
 [RequireComponent(typeof(NetworkIdentity))]
 [RequireComponent(typeof(TimerManager))]
 [RequireComponent(typeof(CoroutineManager))]
+[RequireComponent(typeof(ClientExchangeControllerHelper))]
+[RequireComponent(typeof(ServerExchangeControllerHelper))]
 public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 {
+	//private constants
 	private const int Round_Time_Seconds = 90;
 	private const int Round_End_Time_Seconds = 10;
 
 	[SyncVar]
 	private ExchangeState _exchangeState;
-	public UnityAction<ExchangeState> OnExchangeStateChange { get; set; }
-
 	public ExchangeState ExchangeState
 	{
 		get
@@ -48,13 +38,14 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 		{
 			if (isServer)
 			{
+				Debug.Log(_exchangeState);
 				_exchangeState = value;
 				RpcOnExchangeStateChange(value);
 				OnExchangeStateChange?.Invoke(value);
-				Debug.Log(_exchangeState);
 			}
 		}
 	}
+	public UnityAction<ExchangeState> OnExchangeStateChange { get; set; }
 
 	[ClientRpc]
 	private void RpcOnExchangeStateChange(ExchangeState value)
@@ -62,314 +53,98 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 		OnExchangeStateChange?.Invoke(value);
 	}
 
-	public static bool AllPlayersConnected;
+	public static bool _allPlayersConnected;
+	public static bool AllPlayersConnected
+	{
+		get
+		{
+			return _allPlayersConnected;
+		}
+		set
+		{
+			_allPlayersConnected = value;
+			OnAllPlayersConnectedChange?.Invoke(value);			
+		}
+	}
+	public static UnityAction<bool> OnAllPlayersConnectedChange { get; set; }
+
 	private IExchangePlayer [] _exchangePlayers;
-	private ExchangeDataEntry[] _playerInitData;
-	private PlayerController[] Players { get; set; }
 	private TimerManager tm;
-	private ExchangeBattlefieldController bc;
-	private ICoroutineManager cm;
 
-	private Dictionary<ExchangeState,bool> _stateStatus;
-
-	private ConcurrentDictionary<int, bool> clientReady;
-	private bool _waitingForClients;
-	private System.Collections.IEnumerator _coroutine;
-	private int ExchangeDataId;
-	private ExchangeNetworkManager etm;
+	private IClientExchangeControllerHelper client;
+	private IServerExchangeControllerHelper server;
 
 	private void Awake()
 	{
-		etm = FindObjectOfType<ExchangeNetworkManager>();
-		_playerInitData = new ExchangeDataEntry[2];
-		clientReady = new ConcurrentDictionary<int, bool>();
-		_stateStatus = new Dictionary<ExchangeState, bool>();
+		ExchangeState = ExchangeState.Setup;
+
+		client = GetComponent<ClientExchangeControllerHelper>();
+		server = GetComponent<ServerExchangeControllerHelper>();
+		client.Init();
+		server.Init();
+
 		if (gameObject.tag != "GameController")
 		{
 			gameObject.tag = "GameController";
 		}
 		
-		ExchangeState = ExchangeState.Setup;
-
-		ExchangeDataId = Msf.Args.ExtractValueInt("-exchangeId");
-
 		OnExchangeStateChange += ExchangeStateChange;
+		OnAllPlayersConnectedChange += (value) => server.Setup();
+	}
+
+	public void Start()
+	{
+		tm = GetComponent<TimerManager>();
+		tm.AddTimer("ExchangeTimer", Round_Time_Seconds);
+		tm.AddTimer("RoundEndTimer", Round_End_Time_Seconds);
 	}
 
 	private void ExchangeStateChange(ExchangeState value)
 	{
 		switch (ExchangeState)
 		{
-			case ExchangeState.Setup:
-				break;
 			case ExchangeState.PreBattle:
+				_exchangePlayers = FindObjectsOfType<ExchangePlayer>();
+				server.PreBattle();
 				break;
-			case ExchangeState.Start:
-				break;
-			case ExchangeState.Battle:
+			case ExchangeState.Begin:
+				tm.RestartTimer("ExchangeTimer");
+				server.Begin();
 				break;
 			case ExchangeState.End:
-				if (isServer)
-				{
-					IExchangePlayer winner = GetWinner();
-
-					if (winner != null)
-					{
-						winner.PlayerStats.Wins++;
-
-						foreach (IExchangePlayer player in _exchangePlayers)
-						{
-							if (player != winner)
-							{
-								player.PlayerStats.Losses++;
-							}
-						}
-					}
-					else
-					{
-						foreach (IExchangePlayer player in _exchangePlayers)
-						{
-							player.PlayerStats.Draws++;
-						}
-					}		
-				}
+				server.End();
 				break;
 			case ExchangeState.PostBattle:
+				tm.RestartTimer("RoundEndTimer");
+				server.PostBattle();
 				break;
 			case ExchangeState.Teardown:
-				break;
-			default:
+				client.Teardown();
 				break;
 		}
-	}
-
-	private void Start()
-	{
-		tm = GetComponent<TimerManager>();
-		cm = GetComponent<CoroutineManager>();
-		bc = FindObjectOfType<ExchangeBattlefieldController>();
-		tm.AddTimer("ExchangeTimer", Round_Time_Seconds);
-		tm.AddTimer("RoundEndTimer", Round_End_Time_Seconds);
 	}
 
 	private void FixedUpdate()
 	{
-		if (CheckStateCompleteStatus())
-		{
-			return;
-		}
-
 		switch (ExchangeState)
 		{
-			case ExchangeState.Setup:
-				ExchangeSetup();
-				break;
-			case ExchangeState.PreBattle:
-				ExchangePreBattle();
-				break;
-			case ExchangeState.Start:
-				ExchangeStart();
-				break;
 			case ExchangeState.Battle:
-				ExchangeBattle();
+				tm.UpdateCountdowns();
+				server.Battle();
 				break;
 			case ExchangeState.End:
-				ExchangeEnd();
-				break;
-			case ExchangeState.PostBattle:
-				ExchangePostBattle();
-				break;
-			case ExchangeState.Teardown:
-				ExchangeTeardown();
-				break;
-			default:
+				tm.UpdateCountdowns();
+				server.End_FixedUpdate();
 				break;
 		}
 	}
 
 	public void ResetExchange()
 	{
-		if (!isServer)
-		{
-			return;
-		}
-
-		Debug.LogError("Reset Exchange");
-		tm.RestartTimers();
-		bc.ResetBattlefield();
-
-		foreach (IExchangePlayer player in _exchangePlayers)
-		{
-			player.Init(0, 100, 0.001f, 0, 100, player.Zone, player.PlayerId, player.Kit.ActionsGuids);
-		}
-
-		_stateStatus = new Dictionary<ExchangeState, bool>();
-		ExchangeState = ExchangeState.Start;
-		RpcResetExchange();
+		server.ResetExchange();
 	}
 
-	[ClientRpc]
-	private void RpcResetExchange()
-	{
-		tm.RestartTimers();
-	}
-
-	private void ExchangeSetup()
-	{
-		if (isServer && AllPlayersConnected)
-		{
-			ExchangeState = ExchangeState.PreBattle;
-			if (Players == null)
-			{
-				Players = FindObjectsOfType<PlayerController>();
-			}
-		}
-
-		if (isClient)
-		{
-			_stateStatus[ExchangeState] = true;
-		}
-	}
-
-	private void ExchangePreBattle()
-	{
-		_exchangePlayers = FindObjectsOfType<ExchangePlayer>();
-
-		if (isServer)
-		{
-			bc.Init();
-
-			foreach (var player in _exchangePlayers)
-			{
-				int playerIndex = System.Array.IndexOf(_exchangePlayers, player);
-				if (!clientReady.ContainsKey(player.PeerId))
-				{
-					clientReady.Add(player.PeerId, false);
-				}
-
-				Msf.Server.Auth.GetPeerAccountInfo(player.PeerId, (info, error) => {
-					if (info == null)
-					{
-						Debug.LogErrorFormat("GetPeerAccountInfo, failed to get username. Peerid: {0}. Error {1}", error, player.PeerId);
-						return;
-					}
-
-					Msf.Connection.SendMessage(
-						(short)ExchangePlayerOpCodes.GetExchangePlayerInfo, 
-						new ExchangePlayerPacket(ExchangeDataId, info.Username), 
-						(status, response) =>
-					{
-						ExchangeDataEntry playerInitData = response.Deserialize(new ExchangeDataEntry());
-						_playerInitData[playerIndex] = playerInitData;
-						BattlefieldZone zone = (BattlefieldZone)playerIndex;
-						player.Init(0, 100, 0.001f, 0, 100, zone, playerInitData.Player.Id, playerInitData.ActionGuids.GetActionGuids());
-					});
-				});
-			}
-
-			_stateStatus[ExchangeState] = true;
-			WaitForClients(() => { ExchangeState = ExchangeState.Start; });
-		}
-
-		if (isClient)
-		{
-			_stateStatus[ExchangeState] = true;
-		}
-	}
-
-	private void ExchangeStart()
-	{
-		tm.RestartTimer("ExchangeTimer");
-
-		if (isServer)
-		{
-			_stateStatus[ExchangeState] = true;
-			WaitForClients(() => { ExchangeState = ExchangeState.Battle; });
-		}
-
-		if (isClient)
-		{
-			_stateStatus[ExchangeState] = true;
-		}
-	}
-
-	private void ExchangeBattle()
-	{
-		tm.UpdateCountdowns();
-
-		if (isServer)
-		{
-			bool playerDefeated = false;
-			foreach (IExchangePlayer player in _exchangePlayers)
-			{
-				if (player.Health.Current == 0)
-				{
-					playerDefeated = true;
-					break;
-				}
-			}
-
-			if (tm.TimerUp("ExchangeTimer") || playerDefeated)
-			{
-				_stateStatus[ExchangeState] = true;
-				WaitForClients(() => { tm.RestartTimer("RoundEndTimer"); ExchangeState = ExchangeState.End;	});
-			}
-		}
-	}
-
-	private void ExchangeEnd()
-	{
-		tm.UpdateCountdowns();
-
-		if (isServer)
-		{
-			if (tm.TimerUp("RoundEndTimer"))
-			{
-				_stateStatus[ExchangeState] = true;
-				WaitForClients(() => { ExchangeState = ExchangeState.PostBattle; });
-			}
-		}
-
-		if (isClient)
-		{
-			_stateStatus[ExchangeState] = true;
-		}
-	}
-
-	private void ExchangePostBattle()
-	{
-		if (isServer)
-		{
-			_stateStatus[ExchangeState] = true;
-
-			DateTime timestamp = DateTime.Now;
-			foreach (var player in _exchangePlayers)
-			{
-				int playerIndex = System.Array.IndexOf(_exchangePlayers, player);
-				var initPacket = _playerInitData[playerIndex];
-				PlayerStatsPacket playerStats = player.PlayerStats.Packet;
-				ExchangeResult result = new ExchangeResult(initPacket.ExchangeId, timestamp, initPacket.Player, playerStats, initPacket.ActionGuids, initPacket.CharacterGuid);
-				Msf.Connection.SendMessage((short)ExchangePlayerOpCodes.CreateExchangeResultData, result);
-			}
-			WaitForClients(() => { ExchangeState = ExchangeState.Teardown; });
-		}
-
-		if (isClient)
-		{
-			_stateStatus[ExchangeState] = true;
-		}
-	}
-
-	private void ExchangeTeardown()
-	{
-		if (isClient)
-		{
-			etm.StopClient();
-			SceneManager.LoadScene("DeviationClient - Results");
-		}
-	}
-
-	public IExchangePlayer GetWinner()
+	public IExchangePlayer GetRoundWinner()
 	{
 		IExchangePlayer winner = null;
 		int maxHealth = 0;
@@ -381,7 +156,7 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 				winner = player;
 				maxHealth = player.Health.Current;
 			}
-			else if(player.Health.Current == maxHealth)
+			else if (player.Health.Current == maxHealth)
 			{
 				winner = null;
 			}
@@ -390,92 +165,8 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 		return winner;
 	}
 
-	public IExchangePlayer GetPlayerByPeerId(int peerId)
-	{
-		if (_exchangePlayers == null || _exchangePlayers.Length != ExchangeConstants.PLAYER_COUNT)
-		{
-			_exchangePlayers = FindObjectsOfType<ExchangePlayer>();
-			Debug.LogError("Exchange Players Count: " + _exchangePlayers.Length);
-			return null;
-		}
-
-		foreach (IExchangePlayer player in _exchangePlayers)
-		{
-			if (player.PeerId == peerId)
-			{
-				Debug.LogError("Exchange Players Peer Id: " + player.PeerId);
-				return player;
-			}
-		}
-
-		return null;
-	}
-
-	private bool CheckStateCompleteStatus()
-	{
-		if (_stateStatus.ContainsKey(ExchangeState))
-		{
-			return _stateStatus[ExchangeState];
-		}
-		else
-		{
-			_stateStatus.Add(ExchangeState, false);
-			return false;
-		}
-	}
-
-
-	private void WaitForClients(Action callback)
-	{
-		if (_waitingForClients)
-		{
-			return;
-		}
-		//Debug.LogErrorFormat("Starting to Wait For Clients");
-
-		_waitingForClients = true;
-		foreach (int peerId in clientReady.GetKeysArray())
-		{
-			clientReady[peerId] = false;
-			foreach (PlayerController playerController in Players)
-			{
-				if (playerController.Player.PeerId == peerId)
-				{
-					//Debug.LogErrorFormat("Sending Request to {0}", peerId);
-					playerController.RpcClientRequest();
-				}
-			}
-		}
-
-		cm.StartCoroutineThread_WhileLoop(WaitForClientsMethod, new object[] { callback }, 0f, ref _coroutine);
-	}
-
 	public void ServerResponse(int peerId)
 	{
-		clientReady[peerId] = true;
+		server.ServerResponse(peerId);
 	}
-
-	private void WaitForClientsMethod(object[] callbackParameters)
-	{
-		if (_coroutine == null)
-		{
-			return;
-		}
-
-		foreach (int peerId in clientReady.GetKeysArray())
-		{
-			if (!clientReady[peerId])
-			{
-				//Debug.LogErrorFormat("Peer: {0}. Was not ready", peerId);
-				return;
-			}
-		}
-
-		cm.StopCoroutineThread(ref _coroutine);
-		_coroutine = null;
-		//Debug.LogError("All Clients Are Ready");
-		((Action)callbackParameters[0]).Invoke();
-		_waitingForClients = false;
-	}
-
 }

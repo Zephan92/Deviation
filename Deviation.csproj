@@ -292,6 +292,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Controllers\ExchangeControllerHelpers\ClientExchangeControllerHelper.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Controllers\ExchangeControllerHelpers\ExchangeControllerHelper.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\Controllers\ExchangeControllerHelpers\ServerExchangeControllerHelper.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Display\FadeImage.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\PlayerStats.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Splat.cs" />

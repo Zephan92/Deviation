@@ -4,7 +4,7 @@
     {
         Setup,
         PreBattle,	//user can interact here
-        Start,
+        Begin,
         Battle,     //user can interact here
 		End,
         PostBattle,	//user can interact here

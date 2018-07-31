@@ -67,9 +67,9 @@ public class ActionModulePacket : SerializablePacket
 		R = new Guid(reader.ReadBytes(16));
 	}
 
-	public Guid[] GetActionGuids()
+	public Guid[] Guids
 	{
-		return new Guid[4] { Q, W, E, R };
+		get { return new Guid[4] { Q, W, E, R }; }
 	}
 
 	public override string ToString()

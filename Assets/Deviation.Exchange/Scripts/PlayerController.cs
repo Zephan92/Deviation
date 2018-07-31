@@ -73,7 +73,7 @@ public class PlayerController : NetworkBehaviour
 		if (isLocalPlayer)
 		{
 			Sprite splashScreen = LoseScreen;
-			IExchangePlayer winner = ec.GetWinner();
+			IExchangePlayer winner = ec.GetRoundWinner();
 
 			if (winner == null)
 			{
@@ -154,6 +154,9 @@ public class PlayerController : NetworkBehaviour
 		{
 			return;
 		}
+
+		Debug.LogErrorFormat("Recieved Request from Server");
+
 		CmdServerResponse(Player.PeerId);
 	}
 

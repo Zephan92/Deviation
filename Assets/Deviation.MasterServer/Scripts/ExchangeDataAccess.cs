@@ -45,7 +45,9 @@ namespace Assets.Deviation.MasterServer.Scripts
 			);
 
 			_exchangeResult = db.GetCollection<ExchangeResult>(exchangeResultName);
+			_exchangeResult.EnsureIndex(x => x.ExchangeId);
 			_exchangeData = db.GetCollection<ExchangeDataEntry>(exchangeDataName);
+			_exchangeData.EnsureIndex(x => x.ExchangeId);
 		}
 
 		//ExchangeResult Logic
@@ -94,8 +96,15 @@ namespace Assets.Deviation.MasterServer.Scripts
 		//ExchangeID
 		public long GetNewExchangeId()
 		{
-			long lastExchangeId = _exchangeData.Max(x => x.ExchangeId);
-			return (lastExchangeId + 1);
+			if (_exchangeData.Count() > 0)
+			{
+				long lastExchangeId = _exchangeData.Max(x => x.ExchangeId);
+				return ++lastExchangeId;
+			}
+			else
+			{
+				return 0;
+			}
 		}
 	}
 }

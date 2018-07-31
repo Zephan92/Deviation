@@ -138,7 +138,7 @@ namespace Assets.Scripts.Exchange.Display
 					break;
 				case Enum.ExchangeState.PreBattle:
 					break;
-				case Enum.ExchangeState.Start:
+				case Enum.ExchangeState.Begin:
 					BattleGUI();
 					break;
 				case Enum.ExchangeState.Battle:
