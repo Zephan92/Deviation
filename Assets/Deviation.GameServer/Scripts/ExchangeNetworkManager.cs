@@ -1,4 +1,6 @@
 ﻿using Assets.Deviation.Exchange.Scripts;
+using Assets.Scripts.Enum;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -12,8 +14,8 @@ public class ExchangeNetworkManager : NetworkManager
 	// Set this in the inspector
 	public GameRoom GameRoom;
 	public short playercount;
-	
-	void Awake()
+
+	public void Awake()
 	{
 		GameRoom = GameRoom ?? FindObjectOfType<GameRoom>();
 
@@ -57,8 +59,8 @@ public class ExchangeNetworkManager : NetworkManager
 	private void OnServerFull()
 	{
 		Logs.Error("Server is full invoking method ");
-
-		ExchangeController1v1.AllPlayersConnected = true;
+		var ec = FindObjectOfType<ExchangeController1v1>();
+		ec.ExchangeState = ExchangeState.Setup;
 	}
 
 	private void OnServerEmpty()

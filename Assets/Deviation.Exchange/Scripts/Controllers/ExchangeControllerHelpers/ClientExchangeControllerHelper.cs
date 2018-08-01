@@ -29,6 +29,7 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 
 		public override void Teardown()
 		{
+			if (!ShouldExecute()) { return; }
 			base.Teardown();
 
 			etm.StopClient();

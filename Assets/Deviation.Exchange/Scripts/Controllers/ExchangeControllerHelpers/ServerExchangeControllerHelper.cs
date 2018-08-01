@@ -58,6 +58,7 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 
 		public override void Setup()
 		{
+			if (!ShouldExecute()) { return; }
 			base.Setup();
 
 			if (_players == null)
@@ -68,12 +69,10 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 			if (_exchangePlayers == null)
 			{
 				_exchangePlayers = FindObjectsOfType<ExchangePlayer>();
-				Debug.LogError($"ExchangePlayer Count: {_exchangePlayers.Count()}");
 				foreach (var player in _exchangePlayers)
 				{
 					if (!_clientReady.ContainsKey(player.PeerId))
 					{
-						Debug.LogError($"Adding Player: {player.PeerId} to clients.");
 						_clientReady.Add(player.PeerId, false);
 					}
 				}
@@ -84,6 +83,7 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 
 		public override void PreBattle()
 		{
+			if (!ShouldExecute()) { return; }
 			base.PreBattle();
 			bc.Init();
 
@@ -111,18 +111,19 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 				});
 			}
 
-			Debug.LogError("Server - PreBattle: Done Initializing Battlefield and Players");
 			WaitForClients(() => { ec.ExchangeState = ExchangeState.Begin; });
 		}
 
 		public override void Begin()
 		{
+			if (!ShouldExecute()) { return; }
 			base.Begin();
 			WaitForClients(() => { ec.ExchangeState = ExchangeState.Battle; });
 		}
 
 		public override void Battle_FixedUpdate()
 		{
+			if (!ShouldExecute()) { return; }
 			base.Battle_FixedUpdate();
 
 			bool playerDefeated = false;
@@ -143,6 +144,7 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 
 		public override void End()
 		{
+			if (!ShouldExecute()) { return; }
 			base.End();
 			IExchangePlayer winner = ec.GetRoundWinner();
 
@@ -169,6 +171,7 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 
 		public override void End_FixedUpdate()
 		{
+			if (!ShouldExecute()) { return; }
 			base.End_FixedUpdate();
 
 			if (tm.TimerUp("RoundEndTimer"))
@@ -179,6 +182,7 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 
 		public override void PostBattle()
 		{
+			if (!ShouldExecute()) { return; }
 			base.PostBattle();
 
 			DateTime timestamp = DateTime.Now;
@@ -206,7 +210,6 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 				return;
 			}
 
-			Debug.LogError("Waiting For Clients");
 			_waitingForClients = true;
 			foreach (int peerId in _clientReady.GetKeysArray())
 			{
@@ -215,7 +218,6 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 				{
 					if (playerController.Player.PeerId == peerId)
 					{
-						Debug.LogError($"Requesting Response From - {peerId}");
 						playerController.RpcClientRequest();
 					}
 				}
@@ -257,7 +259,6 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 				}
 			}
 
-			Debug.LogError($"Got All Responses From Clients");
 			cm.StopCoroutineThread(ref _coroutine);
 			_coroutine = null;
 			_waitingForClients = false;

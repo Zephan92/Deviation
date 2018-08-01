@@ -190,11 +190,11 @@ public class Exchange1v1Module : ServerModuleBehaviour
 
 		if (data != null)
 		{
-			return new ExchangeDataEntry(exchangeDataId, playerAccount, data.ActionGuids, data.CharacterGuid);
+			return data;
 		}
 		else
 		{
-			Debug.LogError("ExchangeDataEntry was empty");
+			Debug.LogError($"Failed to find Exchange Data Entry for Exchange: {exchangeDataId}, Player {playerAccount}.");
 			return null;
 		}
 	}

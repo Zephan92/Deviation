@@ -2,6 +2,7 @@
 {
     public enum ExchangeState
     {
+		Awake,
         Setup,
         PreBattle,	//user can interact here
         Begin,

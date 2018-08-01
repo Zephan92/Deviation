@@ -216,6 +216,11 @@ namespace Assets.Deviation.MasterServer.Scripts
 
 			return true;
 		}
+
+		public override string ToString()
+		{
+			return Packet.ToString();
+		}
 	}
 
 
@@ -254,7 +259,11 @@ namespace Assets.Deviation.MasterServer.Scripts
 
 		public override string ToString()
 		{
-			return String.Format("MatchFoundPacket - ExchangeId: {0}. Player1Id: {1}. Player2Id: {2}. Queue: {3}.", ExchangeId, Player1Id, Player2Id, Queue);
+			return	$"--MatchFoundPacket--" +
+					$"\nExchangeId: {ExchangeId}. " +
+					$"\nPlayer1Id: {Player1Id}. " +
+					$"\nPlayer2Id: {Player2Id}. " +
+					$"\nQueue: {Queue}.";
 		}
 	}
 

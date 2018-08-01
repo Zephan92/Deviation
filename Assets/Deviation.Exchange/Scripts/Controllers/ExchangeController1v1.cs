@@ -38,7 +38,6 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 		{
 			if (isServer)
 			{
-				Debug.Log(_exchangeState);
 				_exchangeState = value;
 				RpcOnExchangeStateChange(value);
 				OnExchangeStateChange?.Invoke(value);
@@ -53,30 +52,14 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 		OnExchangeStateChange?.Invoke(value);
 	}
 
-	public static bool _allPlayersConnected;
-	public static bool AllPlayersConnected
-	{
-		get
-		{
-			return _allPlayersConnected;
-		}
-		set
-		{
-			_allPlayersConnected = value;
-			OnAllPlayersConnectedChange?.Invoke(value);			
-		}
-	}
-	public static UnityAction<bool> OnAllPlayersConnectedChange { get; set; }
-
-	private IExchangePlayer [] _exchangePlayers;
-	private TimerManager tm;
-
+	private ITimerManager tm;
 	private IClientExchangeControllerHelper client;
 	private IServerExchangeControllerHelper server;
+	private IExchangePlayer[] _exchangePlayers;
 
 	private void Awake()
 	{
-		ExchangeState = ExchangeState.Setup;
+		ExchangeState = ExchangeState.Awake;
 
 		client = GetComponent<ClientExchangeControllerHelper>();
 		server = GetComponent<ServerExchangeControllerHelper>();
@@ -89,7 +72,6 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 		}
 		
 		OnExchangeStateChange += ExchangeStateChange;
-		OnAllPlayersConnectedChange += (value) => server.Setup();
 	}
 
 	public void Start()
@@ -101,8 +83,11 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 
 	private void ExchangeStateChange(ExchangeState value)
 	{
-		switch (ExchangeState)
+		switch (value)
 		{
+			case ExchangeState.Setup:
+				server.Setup();
+				break;
 			case ExchangeState.PreBattle:
 				_exchangePlayers = FindObjectsOfType<ExchangePlayer>();
 				server.PreBattle();
@@ -130,7 +115,7 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 		{
 			case ExchangeState.Battle:
 				tm.UpdateCountdowns();
-				server.Battle();
+				server.Battle_FixedUpdate();
 				break;
 			case ExchangeState.End:
 				tm.UpdateCountdowns();

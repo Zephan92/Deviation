@@ -52,7 +52,7 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 
 		public abstract void Init();
 
-		private bool ShouldExecute()
+		internal bool ShouldExecute()
 		{
 			switch (HelperType)
 			{
@@ -75,28 +75,28 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 			ec = GetComponent<ExchangeController1v1>();
 		}
 
-		public virtual void Setup() { if (!ShouldExecute()) { return; } LogState(); }
-		public virtual void Setup_FixedUpdate() { if (!ShouldExecute()) { return; } LogState(); }
+		public virtual void Setup() { LogState(); }
+		public virtual void Setup_FixedUpdate() {}
 
-		public virtual void PreBattle() { if (!ShouldExecute()) { return; } LogState(); }
-		public virtual void PreBattle_FixedUpdate() { if (!ShouldExecute()) { return; } LogState(); }
+		public virtual void PreBattle() { LogState(); }
+		public virtual void PreBattle_FixedUpdate() { }
 
-		public virtual void Begin() { if (!ShouldExecute()) { return; } LogState(); }
-		public virtual void Begin_FixedUpdate() { if (!ShouldExecute()) { return; } LogState(); }
+		public virtual void Begin() { LogState(); }
+		public virtual void Begin_FixedUpdate() { }
 
-		public virtual void Battle() { if (!ShouldExecute()) { return; } LogState(); }
-		public virtual void Battle_FixedUpdate() { if (!ShouldExecute()) { return; } LogState(); }
+		public virtual void Battle() { LogState(); }
+		public virtual void Battle_FixedUpdate() { }
 
-		public virtual void End() { if (!ShouldExecute()) { return; } LogState(); }
-		public virtual void End_FixedUpdate() { if (!ShouldExecute()) { return; } LogState(); }
+		public virtual void End() { LogState(); }
+		public virtual void End_FixedUpdate() { }
 
-		public virtual void PostBattle() { if (!ShouldExecute()) { return; } LogState(); }
-		public virtual void PostBattle_FixedUpdate() { if (!ShouldExecute()) { return; } LogState(); }
+		public virtual void PostBattle() { LogState(); }
+		public virtual void PostBattle_FixedUpdate() { }
 
-		public virtual void Teardown() { if (!ShouldExecute()) { return; } LogState(); }
-		public virtual void Teardown_FixedUpdate() { if (!ShouldExecute()) { return; } LogState(); }
+		public virtual void Teardown() { LogState(); }
+		public virtual void Teardown_FixedUpdate() {}
 
-		//public virtual void Paused(){ if(!ShouldExecute()) { return; } LogState(); }
-		//public virtual void Paused_FixedUpdate(){ if(!ShouldExecute()) { return; } LogState(); }
+		//public virtual void Paused(){ LogState(); }
+		//public virtual void Paused_FixedUpdate(){ }
 	}
 }

@@ -155,15 +155,12 @@ public class PlayerController : NetworkBehaviour
 			return;
 		}
 
-		Debug.LogErrorFormat("Recieved Request from Server");
-
 		CmdServerResponse(Player.PeerId);
 	}
 
 	[Command]
 	private void CmdServerResponse(int peerId)
 	{
-		//Debug.LogErrorFormat("Recieved Response from {0}", peerId);
 		ec.ServerResponse(peerId);
 	}
 }

@@ -122,6 +122,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 		{
 			long exchangeId = eda.GetNewExchangeId();
 			MatchFound match = new MatchFound(exchangeId, connections[player1Id], player1Id, connections[player2Id], player2Id, queue, playerClass);
+			Debug.LogError($"Match Found: {match}");
 			matchs.Add(exchangeId, match);
 			match.InformPlayers();
 		}
