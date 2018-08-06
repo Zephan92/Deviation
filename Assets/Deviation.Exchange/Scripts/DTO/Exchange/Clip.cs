@@ -40,7 +40,10 @@ namespace Assets.Deviation.Exchange.Scripts.DTO.Exchange
 		private RNGCryptoServiceProvider _provider = new RNGCryptoServiceProvider();
 		private IUnityTimer2 _timer = UnityTimer.Get;
 
-		public Clip(){}
+		public Clip()
+		{
+			Actions = new Dictionary<IExchangeAction, int>();
+		}
 
 		public Clip(Dictionary<IExchangeAction, int> actions)
 		{
@@ -85,6 +88,11 @@ namespace Assets.Deviation.Exchange.Scripts.DTO.Exchange
 			{
 				Add(action, 1);
 			}
+		}
+
+		public Clip(BsonDocument document) : this(JsonUtility.FromJson<Dictionary<string, int>>(document["Actions"]))
+		{
+
 		}
 
 		public IExchangeAction Peek()
@@ -183,42 +191,57 @@ namespace Assets.Deviation.Exchange.Scripts.DTO.Exchange
 
 		public override void ToBinaryWriter(EndianBinaryWriter writer)
 		{
-			writer.Write(Actions.Keys.Count);
-			foreach (var action in Actions)
+			try
 			{
-				writer.Write(action.Key.Name);
-				writer.Write(action.Value);
+				writer.Write(Actions.Keys.Count);
+				foreach (var action in Actions)
+				{
+					writer.Write(action.Key.Name);
+					writer.Write(action.Value);
+				}
+			}
+			catch(Exception ex)
+			{
+				throw new ClipException($"Failed to serialize Clip.", ex);
 			}
 		}
 
 		public override void FromBinaryReader(EndianBinaryReader reader)
 		{
-			int actionCount = reader.ReadInt32();
-			for (int i = 0; i < actionCount; i++)
+			try
 			{
-				string name = reader.ReadString();
-				int count = reader.ReadInt32();
-				Add(name, count);
+				int actionCount = reader.ReadInt32();
+				for (int i = 0; i < actionCount; i++)
+				{
+					string name = reader.ReadString();
+					int count = reader.ReadInt32();
+					Add(name, count);
+				}
 			}
-		}
-
-		public Clip(BsonDocument document) : this(JsonUtility.FromJson<Dictionary<string, int>>(document["Actions"]))
-		{
-
+			catch (Exception ex)
+			{
+				throw new ClipException($"Failed to deserialize Clip.", ex);
+			}
 		}
 
 		public BsonDocument ToBsonDocument()
 		{
+			var retVal = new BsonDocument();
 			Dictionary<string, int> actions = new Dictionary<string, int>();
 
-			foreach (var action in Actions)
+			try
 			{
-				actions.Add(action.Key.Name, action.Value);
+				foreach (var action in Actions)
+				{
+					actions.Add(action.Key.Name, action.Value);
+				}
+				
+				retVal.Add("Actions", JsonUtility.ToJson(actions));
 			}
-
-			var retVal = new BsonDocument();
-
-			retVal.Add("Actions", JsonUtility.ToJson(actions));
+			catch (Exception ex)
+			{
+				throw new ClipException($"Failed to serialize Clip.", ex);
+			}
 
 			return retVal;
 		}

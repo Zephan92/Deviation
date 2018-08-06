@@ -57,9 +57,9 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 			bc = FindObjectOfType<ExchangeBattlefieldController>();
 		}
 
-		[Server]
 		public override void Setup()
 		{
+			if (!ShouldExecute()) { return; }
 			base.Setup();
 
 			if (_players == null)
@@ -82,9 +82,9 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 			WaitForClients(() => { ec.ExchangeState = ExchangeState.PreBattle; });
 		}
 
-		[Server]
 		public override void PreBattle()
 		{
+			if (!ShouldExecute()) { return; }
 			base.PreBattle();
 			bc.Init();
 
@@ -119,16 +119,16 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 			WaitForClients(() => { ec.ExchangeState = ExchangeState.Begin; });
 		}
 
-		[Server]
 		public override void Begin()
 		{
+			if (!ShouldExecute()) { return; }
 			base.Begin();
 			WaitForClients(() => { ec.ExchangeState = ExchangeState.Battle; });
 		}
 
-		[Server]
 		public override void Battle_FixedUpdate()
 		{
+			if (!ShouldExecute()) { return; }
 			base.Battle_FixedUpdate();
 
 			bool playerDefeated = false;
@@ -147,9 +147,9 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 			}
 		}
 
-		[Server]
 		public override void End()
 		{
+			if (!ShouldExecute()) { return; }
 			base.End();
 			IExchangePlayer winner = ec.GetRoundWinner();
 
@@ -197,9 +197,9 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 			}
 		}
 
-		[Server]
 		public override void End_FixedUpdate()
 		{
+			if (!ShouldExecute()) { return; }
 			base.End_FixedUpdate();
 
 			if (tm.TimerUp("RoundEndTimer"))
@@ -208,9 +208,9 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 			}
 		}
 
-		[Server]
 		public override void PostBattle()
 		{
+			if (!ShouldExecute()) { return; }
 			base.PostBattle();
 
 			DateTime timestamp = DateTime.Now;
@@ -231,9 +231,9 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 			WaitForClients(() => { ec.ExchangeState = ExchangeState.Teardown; });
 		}
 
-		[Server]
 		public void ResetExchange()
 		{
+			if (!ShouldExecute()) { return; }
 			tm.RestartTimers();
 			bc.ResetBattlefield();
 
@@ -248,7 +248,6 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 			WaitForClients(() => { ec.ExchangeState = ExchangeState.Begin; });
 		}
 
-		[Server]
 		public void ServerResponse(int peerId)
 		{
 			_clientReady[peerId] = true;

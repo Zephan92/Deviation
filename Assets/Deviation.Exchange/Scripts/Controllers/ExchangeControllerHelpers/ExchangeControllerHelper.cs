@@ -52,6 +52,19 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 
 		public abstract void Init();
 
+		internal bool ShouldExecute()
+		{
+			switch (HelperType)
+			{
+				case ExchangeControllerHelperType.Client:
+					return isClient;
+				case ExchangeControllerHelperType.Server:
+					return isServer;
+			}
+
+			return false;
+		}
+
 		private void LogState()
 		{
 			Debug.LogError($"Exchange - {HelperType}: {ec.ExchangeState}");

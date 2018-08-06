@@ -3,6 +3,7 @@ using Assets.Scripts.Controllers;
 using Assets.Scripts.Interface;
 using Assets.Scripts.Utilities;
 using Barebones.MasterServer;
+using System;
 using UnityEngine;
 
 namespace Assets.Scripts.Exchange.Display
@@ -166,7 +167,9 @@ namespace Assets.Scripts.Exchange.Display
 				progressBar.DrawProgressBar(player.Position, player1healthBar, player.Health.CurrentPercentage, player.Health.Current.ToString() + "/" + player.Health.Max.ToString());
 			}
 
-			actionBar.DrawActionBar(player1actionBar);
+			
+			//actionBar.DrawActionBar(player1actionBar);
+			
 			
 			exchangeTimer.DrawExchangeTimer(exchangeTimerDetails, ((int)tm.GetRemainingCooldown("ExchangeTimer")).ToString());
 			GUI.Label(new Rect(Vector2.one, exchangeTimerDetails.Size - new Vector2(1, 1)), _ec.ExchangeState.ToString(), new GUIStyle());
