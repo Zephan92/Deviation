@@ -296,6 +296,7 @@
     <Compile Include="Assets\Deviation.Exchange\Scripts\Controllers\ExchangeControllerHelpers\ExchangeControllerHelper.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Controllers\ExchangeControllerHelpers\ServerExchangeControllerHelper.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Display\FadeImage.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\DTO\Exchange\Clip.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\PlayerStats.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Splat.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Utilities\ObjectPool.cs" />
@@ -587,7 +588,6 @@
     <Compile Include="Assets\Deviation.Exchange\Scripts\DTO\Exchange\GridCoordinate.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\DTO\Exchange\Kit.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\DTO\Exchange\MovingDetails.cs" />
-    <Compile Include="Assets\Deviation.Exchange\Scripts\Energy.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Enum\AttackAlignment.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Enum\BattlefieldZone.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Enum\Decision.cs" />
@@ -604,7 +604,6 @@
     <Compile Include="Assets\Deviation.Exchange\Scripts\IExchangePlayer.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\DTO\IAction.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\DTO\IAttack.cs" />
-    <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\DTO\IKit.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\Exchange\IActionObject.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\Exchange\IBattlefieldController.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Interface\Exchange\IExchangeAttack.cs" />

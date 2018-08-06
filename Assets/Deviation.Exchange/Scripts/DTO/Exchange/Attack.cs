@@ -12,19 +12,15 @@ namespace Assets.Scripts.DTO.Exchange
 
 		//these modifiers apply to the basedamage and only affect the attacker
 		public float HealthRecoilModifier { get; set; }
-		public float EnergyRecoilModifier { get; set; }
 
 		//these modifiers apply to the basedamage and only affect the defender
 		public float HealthDrainModifier { get; set; }
-		public float EnergyDrainModifier { get; set; }
 
-		public Attack( int baseDamage = 0, float healthDrainModifier = -1.0f, float energyDrainModifier = 0.0f, float healthRecoilModifier = 0.0f, float energyRecoilModifier = -1.0f)
+		public Attack( int baseDamage = 0, float healthDrainModifier = -1.0f, float healthRecoilModifier = 0.0f)
 		{
 			BaseDamage = baseDamage;
 			HealthDrainModifier = healthDrainModifier;
-			EnergyDrainModifier = energyDrainModifier;
 			HealthRecoilModifier = healthRecoilModifier;
-			EnergyRecoilModifier = energyRecoilModifier;
 		}
 
 		public void InitiateAttack(IExchangePlayer provoker, List<IExchangePlayer> allies, List<IExchangePlayer> enemies)
@@ -46,10 +42,10 @@ namespace Assets.Scripts.DTO.Exchange
 			switch (alignment)
 			{
 				case AttackAlignment.Allies:
-					DeliverDamage(provoker, targets, EnergyRecoilModifier, HealthRecoilModifier);
+					DeliverDamage(provoker, targets, HealthRecoilModifier);
 					break;
 				case AttackAlignment.Enemies:
-					DeliverDamage(provoker, targets, EnergyDrainModifier, HealthDrainModifier);
+					DeliverDamage(provoker, targets, HealthDrainModifier);
 					break;
 			}
 		}
@@ -67,31 +63,12 @@ namespace Assets.Scripts.DTO.Exchange
 			}
 		}
 
-		public int GetEnergyCost(AttackAlignment alignment)
+		private void DeliverDamage(IExchangePlayer provoker, List<IExchangePlayer> targets, float healthModifier)
 		{
-			switch (alignment)
-			{
-				case AttackAlignment.Allies:
-					return GetDamage(EnergyRecoilModifier);
-				case AttackAlignment.Enemies:
-					return GetDamage(EnergyDrainModifier);
-				default:
-					return 0;
-			}
-		}
-
-		private void DeliverDamage(IExchangePlayer provoker, List<IExchangePlayer> targets, float energyModifier, float healthModifier)
-		{
-			int energy = GetDamage(energyModifier);
 			int health = GetDamage(healthModifier);
 
 			foreach (IExchangePlayer player in targets)
 			{
-				if (energy != 0)
-				{
-					player.Energy.Add(energy);
-				}
-
 				if (health != 0)
 				{
 					int damage = player.Health.Add(health);

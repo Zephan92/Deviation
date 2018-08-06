@@ -11,76 +11,7 @@ using Assets.Deviation.Exchange;
 using System.IO;
 using Assets.Deviation.MasterServer.Scripts;
 using LiteDB;
-
-public class ActionModulePacket : SerializablePacket
-{
-	public Guid Q { get; set; }
-	public Guid W { get; set; }
-	public Guid E { get; set; }
-	public Guid R { get; set; }
-
-	public ActionModulePacket()
-	{
-	}
-
-	public ActionModulePacket(Guid q, Guid w, Guid e, Guid r)
-	{
-		Q = q;
-		W = w;
-		E = e;
-		R = r;
-	}
-
-	public ActionModulePacket(BsonDocument document)
-	{
-		Q = document["Q"];
-		W = document["W"];
-		E = document["E"];
-		R = document["R"];
-	}
-
-	public BsonDocument ToBsonDocument()
-	{
-		var retVal = new BsonDocument();
-
-		retVal.Add("Q", Q);
-		retVal.Add("W", W);
-		retVal.Add("E", E);
-		retVal.Add("R", R);
-
-		return retVal;
-	}
-
-	public override void ToBinaryWriter(EndianBinaryWriter writer)
-	{
-		writer.Write(Q.ToByteArray());
-		writer.Write(W.ToByteArray());
-		writer.Write(E.ToByteArray());
-		writer.Write(R.ToByteArray());
-	}
-
-	public override void FromBinaryReader(EndianBinaryReader reader)
-	{
-		Q = new Guid(reader.ReadBytes(16));
-		W = new Guid(reader.ReadBytes(16));
-		E = new Guid(reader.ReadBytes(16));
-		R = new Guid(reader.ReadBytes(16));
-	}
-
-	public Guid[] Guids
-	{
-		get { return new Guid[4] { Q, W, E, R }; }
-	}
-
-	public override string ToString()
-	{
-		return  $"--ActionModulePacket--" +
-				$"\nQ: {Q}" +
-				$"\nW: {W}" +
-				$"\nE: {E}" +
-				$"\nR: {R}";
-	}
-}
+using Assets.Deviation.Exchange.Scripts.DTO.Exchange;
 
 public class ExchangePlayerPacket : SerializablePacket
 {

@@ -1,4 +1,5 @@
 ﻿using Assets.Deviation.Exchange.Scripts;
+using Assets.Deviation.Exchange.Scripts.DTO.Exchange;
 using Assets.Scripts.DTO.Exchange;
 using Assets.Scripts.Enum;
 using Assets.Scripts.Interface;
@@ -12,7 +13,6 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 [RequireComponent(typeof(NetworkIdentity))]
-[RequireComponent(typeof(Energy))]
 [RequireComponent(typeof(Health))]
 [RequireComponent(typeof(Mover))]
 [RequireComponent(typeof(Status))]
@@ -31,7 +31,6 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	private BattlefieldZone _zone;
 
 	private IKit _kit;
-	private Energy _energy;
 	private Health _health;
 	private Mover _mover;
 	private Status _status;
@@ -41,7 +40,6 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	public int PeerId { get { return _peerId; } set { _peerId = value; } }
 	public long PlayerId { get { return _playerId; } set { _playerId = value; } }
 
-	public Energy Energy { get { return _energy; } }
 	public Health Health { get { return _health; } }
 	public Mover Mover { get { return _mover; } }
 	public Status Status { get { return _status; } }
@@ -57,8 +55,6 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	private ExchangeBattlefieldController bc;
 	private ITimerManager tm;
 	private IGridManager gm;
-	//private ICoroutineManager cm;
-	//private IEnumerator _coroutine;
 	private ConcurrentDictionary<int, bool> _actionsDisabled;
 	private Renderer [] _renderers;
 
@@ -67,8 +63,6 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 		bc = FindObjectOfType<ExchangeBattlefieldController>();
 		tm = FindObjectOfType<TimerManager>();
 		gm = FindObjectOfType<GridManager>();
-		//cm = FindObjectOfType<CoroutineManager>();
-		_energy = GetComponent<Energy>();
 		_health = GetComponent<Health>();
 		_mover = GetComponent<Mover>();
 		_status = GetComponent<Status>();
@@ -86,17 +80,16 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	{
 		if (_initialized)
 		{
-			_energy.Restore();
 			_health.Restore();
 		}
 	}
 
-	public void Init(int energyMin, int energyMax, float energyRate, int healthMin, int healthMax, BattlefieldZone zone, long playerId, Guid[] actionGuids)
+	public void Init(int healthMin, int healthMax, BattlefieldZone zone, long playerId, IKit kit)
 	{
-		_kit = new Kit(actionGuids);
+		_kit = kit;
 		_playerId = playerId;
-		ServerInit(energyMin, energyMax, energyRate, healthMin, healthMax, zone);
-		RpcInit(zone, _kit.ActionsNames);
+		ServerInit(healthMin, healthMax, zone);
+		RpcInit(zone);
 	}
 
 	public void ToggleRenderer(bool value)
@@ -124,42 +117,35 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 
 	public bool Action(int actionNumber)
 	{
-		if (!isLocalPlayer || _actionsDisabled[actionNumber] || !tm.TimerUp("ActionDelay", (int)_zone))
+		if (!isLocalPlayer || _actionsDisabled[actionNumber] || !_kit.Clips[actionNumber].Ready)
 		{
 			return false;
 		}
-		bool success = false;
-		IExchangeAction action = _kit.Actions[actionNumber];
 
-		int attackCost = (int)(action.Attack.EnergyRecoilModifier * action.Attack.BaseDamage);
-		int potentialEnergy = _energy.Current + attackCost;
-		if (tm.TimerUp(action.Name, (int)_zone) && potentialEnergy >= _energy.Min)
+		bool success = false;
+		IExchangeAction action = _kit.Clips[actionNumber].Peek();
+		if (_kit.Clips[actionNumber].Ready)
 		{
-			PlayerStats.AbilitiesUsed++;
-			CmdAction(actionNumber);
-			tm.StartTimer(action.Name, (int)_zone);
+			action = _kit.Clips[actionNumber].Pop();
+			CmdAction(action.Name);
 			success = true;
-			tm.StartTimer("ActionDelay", (int)_zone);
 		}
 
 		return success;
 	}
 
 	[Command]
-	private void CmdAction(int actionNumber)
+	private void CmdAction(string actionName)
 	{
-		IExchangeAction action = _kit.Actions[actionNumber];
+		PlayerStats.AbilitiesUsed++;
+		IExchangeAction action = ActionLibrary.GetActionInstance(actionName);
 		action.InitiateAttack(bc, _zone);
 	}
 
-	private void ServerInit(int energyMin, int energyMax, float energyRate, int healthMin, int healthMax, BattlefieldZone zone)
+	[Server]
+	private void ServerInit(int healthMin, int healthMax, BattlefieldZone zone)
 	{
-		if (!isServer)
-		{
-			return;
-		}
 		_mover.Init(zone, 1f);
-		_energy.Init(energyMin, energyMax, energyRate);
 		_health.Init(healthMin, healthMax);
 		_zone = zone;
 		_kit.Player = this;
@@ -168,13 +154,15 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	}
 
 	[ClientRpc]
-	private void RpcInit(BattlefieldZone zone, string[] actionNames)
+	[Client]
+	private void RpcInit(BattlefieldZone zone)
 	{
 		_mover.Init(zone, 1f);
-		_kit = new Kit(actionNames);
-		_kit.Player = this;
 
-		CreateTimersForKitActions(zone);
+		//TODO get clips
+
+		_kit = new Kit();
+		_kit.Player = this;
 
 		if (!isLocalPlayer)
 		{
@@ -194,21 +182,6 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 				Camera.main.transform.rotation = Quaternion.Euler(new Vector3(30,-60,0));
 				transform.rotation = Quaternion.Euler(new Vector3(0, -90, 0));
 				break;
-		}
-	}
-
-	//create a timer for each action in each module
-	private void CreateTimersForKitActions(BattlefieldZone zone)
-	{
-		IKit kit = _kit;
-		tm.AddTimer("ActionDelay", 0.1f, (int) zone);
-
-		for (int i = 0; i < kit.Actions.Length; i++)
-		{
-			foreach (IExchangeAction action in kit.Actions)
-			{
-				tm.AddTimer(action.Name, action.Cooldown, (int) zone);
-			}
 		}
 	}
 }

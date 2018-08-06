@@ -25,7 +25,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 				(
 					id: new Guid("bc98cc04-14fc-428c-a295-4fe3fc4e7c3a"),
 					name: "Portal Rocket",
-					attack: new Attack(baseDamage: 15, energyRecoilModifier: -3.0f),
+					attack: new Attack(baseDamage: 15),
 					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
 					primaryActionName: "PortalAttack",
 					cooldown: 1f,

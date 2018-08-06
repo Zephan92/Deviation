@@ -47,7 +47,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 				(
 					id: new Guid("9f2614a5-8f72-4b27-991a-d1ad36d010b9"),
 					name: "Short Attack",
-					attack: new DTO.Exchange.Attack(baseDamage: 10, energyRecoilModifier: -0.5f),
+					attack: new DTO.Exchange.Attack(baseDamage: 10),
 					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
 					primaryActionName: "ShortAttack",
 					cooldown: 1f,
@@ -57,7 +57,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 				(
 					id: new Guid("93657ced-1f32-4408-9d6d-12b4096e2cae"),
 					name: "Middle Attack",
-					attack: new Attack(baseDamage: 20, energyRecoilModifier: -0.3f),
+					attack: new Attack(baseDamage: 20),
 					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
 					primaryActionName: "MiddleAttack",
 					cooldown: 1f,

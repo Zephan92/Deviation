@@ -25,7 +25,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 				(
 					id: new Guid("4563ef95-0a47-4bbd-9942-bccb3bb240fe"),
 					name: "BOOOOOOM",
-					attack: new Attack(baseDamage: 0, energyRecoilModifier: 0f),
+					attack: new Attack(baseDamage: 0),
 					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
 					primaryActionName: "OneHitKO",
 					cooldown: 0f,

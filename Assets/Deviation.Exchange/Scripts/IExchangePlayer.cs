@@ -3,6 +3,8 @@ using UnityEngine;
 using System;
 using Assets.Scripts.Interface.DTO;
 using Assets.Deviation.Exchange.Scripts;
+using Assets.Scripts.DTO.Exchange;
+using Assets.Deviation.Exchange.Scripts.DTO.Exchange;
 
 public interface IExchangePlayer
 {
@@ -10,7 +12,6 @@ public interface IExchangePlayer
 	int PeerId { get; set; }
 	long PlayerId { get; set; }
 	IKit Kit { get; }
-	Energy Energy { get; }
 	Health Health { get; }
 	Mover Mover { get; }
 	Status Status { get; }
@@ -21,7 +22,7 @@ public interface IExchangePlayer
 	Vector3 Position { get; }
 	Quaternion Rotation { get; }
 
-	void Init(int energyMin, int energyMax, float energyRate, int healthMin, int healthMax, BattlefieldZone zone, long playerId, Guid[] actionGuids);
+	void Init(int healthMin, int healthMax, BattlefieldZone zone, long playerId, IKit kit);
 	bool Action(int actionNumber);
 	void DisableAction(bool disabled, int actionNumber = -1);
 	void ToggleRenderer(bool value);

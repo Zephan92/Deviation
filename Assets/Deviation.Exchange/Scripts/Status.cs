@@ -7,7 +7,6 @@ using UnityEngine.Networking;
 
 public class Status : NetworkBehaviour
 {
-	private Energy _energy;
 	private Health _health;
 	private Mover _mover;
 	private IExchangePlayer _player;
@@ -20,7 +19,6 @@ public class Status : NetworkBehaviour
 	{
 		//statusEffectsDict = new Dictionary<StatusEffect, IEnumerator>();//should use this lol
 		cm = FindObjectOfType<CoroutineManager>();
-		_energy = GetComponent<Energy>();
 		_health = GetComponent<Health>();
 		_mover = GetComponent<Mover>();
 		_player = GetComponent<ExchangePlayer>();
@@ -30,17 +28,6 @@ public class Status : NetworkBehaviour
 	{
 		switch (effect)
 		{
-			//energy
-			case StatusEffect.EnergyRate:
-				EnergyRate(timeout, rate);
-				break;
-			case StatusEffect.EnergyRecoilBlock:
-				EnergyRecoilBlock(timeout);
-				break;
-			case StatusEffect.EnergyRegenBlock:
-				EnergyRegenBlock(timeout);
-				break;
-
 			//health
 			case StatusEffect.HealthRate:
 				HealthRate(timeout, rate);
@@ -117,29 +104,7 @@ public class Status : NetworkBehaviour
 	{
 		_health.DamageBlock(false);
 	}
-
-	private void EnergyRecoilBlock(float timeout)
-	{
-		_energy.RecoilBlock(true);
-		cm.StartCoroutineThread_AfterTimout(EnergyRecoilBlockMethod, timeout, ref _coroutine);
-	}
-
-	private void EnergyRecoilBlockMethod()
-	{
-		_energy.RecoilBlock(false);
-	}
-
-	private void EnergyRegenBlock(float timeout)
-	{
-		_energy.RegenBlock(true);
-		cm.StartCoroutineThread_AfterTimout(EnergyRegenBlockMethod, timeout, ref _coroutine);
-	}
-
-	private void EnergyRegenBlockMethod()
-	{
-		_energy.RegenBlock(false);
-	}
-
+	
 	private void Disable(float timeout, int actionNumber)
 	{
 		_player.DisableAction(true, actionNumber);
@@ -160,16 +125,5 @@ public class Status : NetworkBehaviour
 	private void SilenceMethod()
 	{
 		_player.DisableAction(false);
-	}
-
-	private void EnergyRate(float timeout, float rate)
-	{
-		_energy.Rate += rate;
-		cm.StartCoroutineThread_AfterTimout(EnergyRateMethod, new object[] { rate }, timeout, ref _coroutine);
-	}
-
-	private void EnergyRateMethod(object [] objectArray)
-	{
-		_energy.Rate -= (float) objectArray[0];
 	}
 }

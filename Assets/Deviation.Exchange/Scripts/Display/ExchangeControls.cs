@@ -56,16 +56,13 @@ namespace Assets.Scripts.Exchange.Display
 			cdc = FindObjectOfType<ClientDataRepository>();
 			outlineTex = Resources.Load("Color/Black") as Texture2D;
 			emptyTex = Resources.Load("Color/White") as Texture2D;
-			fullEnergyTex = Resources.Load("Color/Purple") as Texture2D;
 			fullHealthTex = Resources.Load("Color/Green") as Texture2D;
 			outerActionBarTex = Resources.Load("Color/Green") as Texture2D;
 			cooldownTex = Resources.Load("AbilityIcons/CooldownTexture")as Texture2D;
 			progressBar = new ProgressBar();
 			actionBar = new ActionBar();
 			exchangeTimer = new ExchangeTimer();
-			player1energyBar = new ProgressBarDetails(outlineTex, emptyTex, fullEnergyTex, HealthPosition, BarSize);
 			player1healthBar = new ProgressBarDetails(outlineTex, emptyTex, fullHealthTex, EnergyPosition, BarSize);
-			//player2energyBar = new ProgressBarDetails(outlineTex, emptyTex, fullEnergyTex, HealthPosition1, BarSize);
 			//player2healthBar = new ProgressBarDetails(outlineTex, emptyTex, fullHealthTex, EnergyPosition1, BarSize);
 			exchangeTimerDetails = new ExchangeTimerDetails(outlineTex, ExchangeTimerPosition, ExchangeTimerSize);
 		}
@@ -80,9 +77,7 @@ namespace Assets.Scripts.Exchange.Display
 			BarSize = new Vector2(corners[2].x * 0.08f, corners[1].y * 0.025f);
 			ActionBarSize = new Vector2(corners[2].x * 0.4f, corners[1].y * 0.125f);
 			ExchangeTimerSize = new Vector2(corners[1].y * 0.1f, corners[1].y * 0.1f);
-			EnergyPosition = new Vector2(BarSize.x / 2, corners[1].y * 0.1f + BarSize.y);
 			HealthPosition = new Vector2(BarSize.x / 2, corners[1].y * 0.1f);
-			EnergyPosition1 = new Vector2(BarSize.x / 2, corners[1].y * 0.1f + BarSize.y);
 			HealthPosition1 = new Vector2(BarSize.x / 2, corners[1].y * 0.1f);
 			ActionBarPosition = new Vector2(0, corners[2].y - ActionBarSize.y);
 			ExchangeTimerPosition = new Vector2(corners[2].x - ExchangeTimerSize.x, 0);
@@ -134,54 +129,41 @@ namespace Assets.Scripts.Exchange.Display
 
 			switch (_ec.ExchangeState)
 			{
-				case Enum.ExchangeState.Setup:
-					break;
-				case Enum.ExchangeState.PreBattle:
-					break;
 				case Enum.ExchangeState.Begin:
 					BattleGUI();
 					break;
 				case Enum.ExchangeState.Battle:
 					BattleGUI();
 					break;
-				case Enum.ExchangeState.End:
-					BattleGUI();
-					break;
-				case Enum.ExchangeState.PostBattle:
-					break;
-				case Enum.ExchangeState.Teardown:
-					break;
 			}
 		}
 
 		private void BattleGUI()
 		{
-			player1energyBar = new ProgressBarDetails(outlineTex, emptyTex, fullEnergyTex, HealthPosition, BarSize);
 			player1healthBar = new ProgressBarDetails(outlineTex, emptyTex, fullHealthTex, EnergyPosition, BarSize);
 			//player2energyBar = new ProgressBarDetails(outlineTex, emptyTex, fullEnergyTex, HealthPosition1, BarSize);
 			//player2healthBar = new ProgressBarDetails(outlineTex, emptyTex, fullHealthTex, EnergyPosition1, BarSize);
-			actionTextures = new Texture2D[4]
-			{
-				_currentPlayer.Kit.Actions[0].ActionTexture,
-				_currentPlayer.Kit.Actions[1].ActionTexture,
-				_currentPlayer.Kit.Actions[2].ActionTexture,
-				_currentPlayer.Kit.Actions[3].ActionTexture
-			};
-			actionNames = new string[]
-			{
-				_currentPlayer.Kit.Actions[0].Name,
-				_currentPlayer.Kit.Actions[1].Name,
-				_currentPlayer.Kit.Actions[2].Name,
-				_currentPlayer.Kit.Actions[3].Name
-			};
+			//actionTextures = new Texture2D[4]
+			//{
+			//	_currentPlayer.Kit.Actions[0].ActionTexture,
+			//	_currentPlayer.Kit.Actions[1].ActionTexture,
+			//	_currentPlayer.Kit.Actions[2].ActionTexture,
+			//	_currentPlayer.Kit.Actions[3].ActionTexture
+			//};
+			//actionNames = new string[]
+			//{
+			//	_currentPlayer.Kit.Actions[0].Name,
+			//	_currentPlayer.Kit.Actions[1].Name,
+			//	_currentPlayer.Kit.Actions[2].Name,
+			//	_currentPlayer.Kit.Actions[3].Name
+			//};
 
-			player1actionBar = new ActionBarDetails(outerActionBarTex, actionTextures, cooldownTex, ActionBarPosition, ActionBarSize, actionNames, tm);
+			//player1actionBar = new ActionBarDetails(outerActionBarTex, actionTextures, cooldownTex, ActionBarPosition, ActionBarSize, actionNames, tm);
 			exchangeTimerDetails = new ExchangeTimerDetails(emptyTex, ExchangeTimerPosition, ExchangeTimerSize);
 
 			foreach (IExchangePlayer player in _players)
 			{
 				progressBar.DrawProgressBar(player.Position, player1healthBar, player.Health.CurrentPercentage, player.Health.Current.ToString() + "/" + player.Health.Max.ToString());
-				progressBar.DrawProgressBar(player.Position, player1energyBar, player.Energy.CurrentPercentage, player.Energy.Current.ToString() + "/" + player.Energy.Max.ToString());
 			}
 
 			actionBar.DrawActionBar(player1actionBar);

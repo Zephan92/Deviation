@@ -25,7 +25,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 				(
 					id: new Guid("de1eff34-adcb-4301-86bb-adb1e9c01f8d"),
 					name: "Avalanche",
-					attack: new Attack(baseDamage: 30, healthDrainModifier: -0.1f, energyRecoilModifier: -2.5f),
+					attack: new Attack(baseDamage: 30, healthDrainModifier: -0.1f),
 					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
 					primaryActionName: "Avalanche",
 					cooldown: 1f,
@@ -35,7 +35,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 				(
 					id: new Guid("28d4642e-7fdf-40fb-9bff-eb2a60aad15e"),
 					name: "Fire Blast",
-					attack: new Attack(baseDamage: 80, energyRecoilModifier: 1f),
+					attack: new Attack(baseDamage: 80),
 					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
 					primaryActionName: "FireBlast",
 					cooldown: 0f,
@@ -45,7 +45,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 				(
 					id: new Guid("d504df35-dc93-4f84-829e-01e202878341"),
 					name: "Tremor",
-					attack: new Attack(baseDamage: 20, energyRecoilModifier: -1.8f),
+					attack: new Attack(baseDamage: 20),
 					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
 					primaryActionName: "Tremor",
 					cooldown: 1f,
@@ -55,7 +55,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 				(
 					id: new Guid("688b267a-fde1-4250-91a0-300aa3343147"),
 					name: "ShockWave",
-					attack: new Attack(baseDamage: 20, healthDrainModifier: -0.6f,  energyRecoilModifier: -1.8f),
+					attack: new Attack(baseDamage: 20, healthDrainModifier: -0.6f),
 					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
 					primaryActionName: "ShockWave",
 					cooldown: 1f,

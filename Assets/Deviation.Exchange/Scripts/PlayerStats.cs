@@ -13,6 +13,8 @@ namespace Assets.Deviation.Exchange.Scripts
 		[SyncVar]
 		public int Draws;
 		[SyncVar]
+		public bool Winner;
+		[SyncVar]
 		public int DamageDealt;
 		[SyncVar]
 		public int DamageTaken;
@@ -36,6 +38,7 @@ namespace Assets.Deviation.Exchange.Scripts
 		public int Wins;
 		public int Losses;
 		public int Draws;
+		public bool Winner;
 		public int DamageDealt;
 		public int DamageTaken;
 		public int KnockoutsDealt;
@@ -50,6 +53,7 @@ namespace Assets.Deviation.Exchange.Scripts
 			Wins = stats.Wins;
 			Losses = stats.Losses;
 			Draws = stats.Draws;
+			Winner = stats.Winner;
 			DamageDealt = stats.DamageDealt;
 			DamageTaken = stats.DamageTaken;
 			KnockoutsDealt = stats.KnockoutsDealt;
@@ -65,6 +69,7 @@ namespace Assets.Deviation.Exchange.Scripts
 			retVal.Add("Wins", Wins);
 			retVal.Add("Losses", Losses);
 			retVal.Add("Draws", Draws);
+			retVal.Add("Winner", Winner);
 			retVal.Add("DamageDealt", DamageDealt);
 			retVal.Add("DamageTaken", DamageTaken);
 			retVal.Add("KnockoutsDealt", KnockoutsDealt);
@@ -80,6 +85,7 @@ namespace Assets.Deviation.Exchange.Scripts
 			Wins = stats["Wins"];
 			Losses = stats["Losses"];
 			Draws = stats["Draws"];
+			Winner = stats["Winner"];
 			DamageDealt = stats["DamageDealt"];
 			DamageTaken = stats["DamageTaken"];
 			KnockoutsDealt = stats["KnockoutsDealt"];
@@ -93,6 +99,7 @@ namespace Assets.Deviation.Exchange.Scripts
 			Wins = reader.ReadInt32();
 			Losses = reader.ReadInt32();
 			Draws = reader.ReadInt32();
+			Winner = reader.ReadBoolean();
 			DamageDealt = reader.ReadInt32();
 			DamageTaken = reader.ReadInt32();
 			KnockoutsDealt = reader.ReadInt32();
@@ -106,6 +113,7 @@ namespace Assets.Deviation.Exchange.Scripts
 			writer.Write(Wins);
 			writer.Write(Losses);
 			writer.Write(Draws);
+			writer.Write(Winner);
 			writer.Write(DamageDealt);
 			writer.Write(DamageTaken);
 			writer.Write(KnockoutsDealt);
@@ -120,6 +128,7 @@ namespace Assets.Deviation.Exchange.Scripts
 					$"\nWins: {Wins}" +
 					$"\nLosses: {Losses}" + 
 					$"\nDraws: {Draws}" +
+					$"\nWinner: {Winner}" +
 					$"\nDamageDealt: {DamageDealt}" +
 					$"\nDamageTaken: {DamageTaken}" +
 					$"\nKnockoutsDealt: {KnockoutsDealt}" +

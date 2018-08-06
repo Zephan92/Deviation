@@ -25,7 +25,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 				(
 					id: new Guid("33a4911e-73cb-4138-be21-f6728dd2756e"),
 					name: "Drain",
-					attack: new Attack(baseDamage: 35, healthRecoilModifier: 0.2f, energyRecoilModifier: -1.2f),
+					attack: new Attack(baseDamage: 35, healthRecoilModifier: 0.2f),
 					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
 					primaryActionName: "Drain",
 					cooldown: 3f,
@@ -35,7 +35,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 				(
 					id: new Guid("36a1cf13-8b79-4800-8574-7cec0c405594"),
 					name: "Small Projectile",
-					attack: new Attack(baseDamage: 1, healthDrainModifier: -1f, energyRecoilModifier: -0.0f),
+					attack: new Attack(baseDamage: 1, healthDrainModifier: -1f),
 					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
 					primaryActionName: "SmallProjectile",
 					cooldown: 0.1f,
@@ -45,7 +45,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 				(
 					id: new Guid("ba75f986-1bf3-40e4-a528-34b802ea0608"),
 					name: "Medium Projectile",
-					attack: new Attack(baseDamage: 5, healthDrainModifier: -1f, energyRecoilModifier: -0.0f),
+					attack: new Attack(baseDamage: 5, healthDrainModifier: -1f),
 					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
 					primaryActionName: "MediumProjectile",
 					cooldown: 0.5f,
@@ -55,7 +55,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 				(
 					id: new Guid("071d4f85-728e-41d6-95a3-31fa013a7289"),
 					name: "Large Projectile",
-					attack: new Attack(baseDamage: 10, healthDrainModifier: -1f, energyRecoilModifier: -0.0f),
+					attack: new Attack(baseDamage: 10, healthDrainModifier: -1f),
 					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
 					primaryActionName: "LargeProjectile",
 					cooldown: 1.0f,

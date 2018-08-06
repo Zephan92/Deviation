@@ -1,4 +1,5 @@
 ﻿using Assets.Deviation.Exchange.Scripts;
+using Assets.Scripts.DTO.Exchange;
 using Barebones.Networking;
 using LiteDB;
 using System;
@@ -11,7 +12,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 		public DateTime Timestamp { get; set; }
 		public PlayerAccount Player { get; set; }
 		public PlayerStatsPacket PlayerStats { get; set; }
-		public ActionModulePacket ActionGuids { get; set; }
+		public Kit Kit { get; set; }
 		public Guid CharacterGuid { get; set; }
 
 		public ExchangeResult(){}
@@ -20,14 +21,14 @@ namespace Assets.Deviation.MasterServer.Scripts
 								DateTime timestamp, 
 								PlayerAccount player, 
 								PlayerStatsPacket playerStats, 
-								ActionModulePacket actionGuids, 
+								Kit kit, 
 								Guid characterGuid)
 		{
 			ExchangeId = exchangeId;
 			Timestamp = timestamp;
 			Player = player;
 			PlayerStats = playerStats;
-			ActionGuids = actionGuids;
+			Kit = kit;
 			CharacterGuid = characterGuid;
 		}
 
@@ -37,7 +38,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 			Timestamp = document["Timestamp"];
 			Player = new PlayerAccount(document["Player"].AsDocument);
 			PlayerStats = new PlayerStatsPacket(document["PlayerStats"].AsDocument);
-			ActionGuids = new ActionModulePacket(document["ActionGuids"].AsDocument);
+			Kit = new Kit(document["Kit"].AsDocument);
 			CharacterGuid = document["CharacterGuid"];
 		}
 
@@ -49,7 +50,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 			retVal.Add("Timestamp", Timestamp);
 			retVal.Add("Player", Player.ToBsonDocument());
 			retVal.Add("PlayerStats", PlayerStats.ToBsonDocument());
-			retVal.Add("ActionGuids", ActionGuids.ToBsonDocument());
+			retVal.Add("Kit", Kit.ToBsonDocument());
 			retVal.Add("CharacterGuid", CharacterGuid);
 
 			return retVal;
@@ -61,7 +62,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 			writer.Write(Timestamp.Ticks);
 			writer.Write(Player);
 			writer.Write(PlayerStats);
-			writer.Write(ActionGuids);
+			writer.Write(Kit);
 			writer.Write(CharacterGuid.ToByteArray());
 		}
 
@@ -71,7 +72,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 			Timestamp = new DateTime(reader.ReadInt64());
 			Player = reader.ReadPacket(new PlayerAccount());
 			PlayerStats = reader.ReadPacket(new PlayerStatsPacket());
-			ActionGuids = reader.ReadPacket(new ActionModulePacket());
+			Kit = reader.ReadPacket(new Kit());
 			CharacterGuid = new Guid(reader.ReadBytes(16));
 		}
 
@@ -82,7 +83,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 					$"\nTimestamp: {Timestamp}" +
 					$"\nPlayerAccount: {Player}" +
 					$"\nPlayerStats: {PlayerStats}" +
-					$"\nActionGuids: {ActionGuids}" +
+					$"\nKit: {Kit}" +
 					$"\nCharacterGuid: {CharacterGuid}";
 		}
 	}

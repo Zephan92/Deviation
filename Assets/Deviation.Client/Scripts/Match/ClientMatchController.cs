@@ -1,6 +1,8 @@
 ﻿using Assets.Deviation.Client.Scripts;
 using Assets.Deviation.Client.Scripts.Match;
+using Assets.Deviation.Exchange.Scripts.DTO.Exchange;
 using Assets.Deviation.MasterServer.Scripts;
+using Assets.Scripts.DTO.Exchange;
 using Assets.Scripts.Interface;
 using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Library;
@@ -216,8 +218,8 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			if (ClientDataRepository.Instance.State == ClientState.Match && ClientDataRepository.Instance.HasExchange)
 			{
 				Guid characterGuid = _chosenTrader.Guid;
-				ActionModulePacket module = GetPlayerActionModule();
-				ExchangeDataEntry packet = new ExchangeDataEntry(ClientDataRepository.Instance.Exchange.ExchangeId, ClientDataRepository.Instance.PlayerAccount, module, characterGuid);
+				Kit kit = GetKit();
+				ExchangeDataEntry packet = new ExchangeDataEntry(ClientDataRepository.Instance.Exchange.ExchangeId, ClientDataRepository.Instance.PlayerAccount, kit, characterGuid);
 				Msf.Client.Connection.SendMessage((short)ExchangePlayerOpCodes.CreateExchangeData, packet, (response, error) => {
 					if (response == ResponseStatus.Error)
 					{
@@ -246,14 +248,17 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			SceneManager.LoadScene("DeviationClient - Exchange");
 		}
 
-		private ActionModulePacket GetPlayerActionModule()
+		private Kit GetKit()
 		{
-			var q = _actions[0].Id;
-			var w = _actions[1].Id;
-			var e = _actions[2].Id;
-			var r = _actions[3].Id;
+			//TODO Get Real CLips
+			//var q = _actions[0].Id;
+			//var w = _actions[1].Id;
+			//var e = _actions[2].Id;
 
-			return new ActionModulePacket(q, w, e, r);
+			IExchangeAction r = _actions[3];
+			IClip clip = new Clip();
+			IClip[] clips = new IClip[] { clip, clip, clip };
+			return new Kit(clips, r);
 		}
 	}
 }

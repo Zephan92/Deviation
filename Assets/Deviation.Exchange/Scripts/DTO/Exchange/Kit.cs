@@ -4,47 +4,79 @@ using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Interface.Exchange;
 using System;
 using Assets.Scripts.Library;
+using Assets.Deviation.Exchange.Scripts.DTO.Exchange;
+using Barebones.Networking;
+using LiteDB;
+using System.Linq;
 
 namespace Assets.Scripts.DTO.Exchange
 {
-	public class Kit : IKit
+	public interface IKit
+	{
+		IExchangePlayer Player { get; set; }
+		IClip[] Clips { get; }
+
+		void Reset();
+		BsonDocument ToBsonDocument();
+	}
+
+	public class Kit : SerializablePacket, IKit
 	{
 		public IExchangePlayer Player { get; set; }
-		public IExchangeAction[] Actions { get { return _actions; } }
-		public string[] ActionsNames { get { return _actionsNames; } }
-		public Guid[] ActionsGuids { get { return _actionsGuids; } }
+		public IClip[] Clips { get; private set; }
+		public IExchangeAction BasicAction { get; private set; }
 
-		//List of Modules in this kit
-		private IExchangeAction[] _actions;
-		private string[] _actionsNames;
-		private Guid[] _actionsGuids;
-
-		public Kit(string[] actionNames)
+		public Kit(){}
+		public Kit(IClip[] clips, IExchangeAction basicAction)
 		{
-			_actionsGuids = new Guid[4];
+			Clips = clips;
+			BasicAction = basicAction;
+		}
 
-			_actionsNames = actionNames;
-			_actions = new IExchangeAction[4];
-
-			for(int i = 0; i < actionNames.Length; i++)
+		public void Reset()
+		{
+			foreach (IClip clip in Clips)
 			{
-				_actions[i] = ActionLibrary.GetActionInstance(actionNames[i]);
-				_actions[i].ParentKit = this;
-				_actionsGuids[i] = _actions[i].Id;
+				clip.Reset();
+			}
+			//TODO BasicAction.Reset();
+		}
+
+		public Kit(BsonDocument document)
+		{
+			Clips = document["Clips"].AsArray.Select(x => new Clip(x.AsDocument)).ToArray();
+			BasicAction = ActionLibrary.GetActionInstance(document["BasicAction"].AsString);
+		}
+
+		public BsonDocument ToBsonDocument()
+		{
+			var retVal = new BsonDocument();
+
+			retVal.Add("Clips", new BsonArray(Clips.Select(i => i.ToBsonDocument())));
+			retVal.Add("BasicAction", BasicAction.Name);
+
+			return retVal;
+		}
+
+		public override void ToBinaryWriter(EndianBinaryWriter writer)
+		{
+			writer.Write(BasicAction.Name);
+			writer.Write(Clips.Length);
+			foreach (Clip clip in Clips)
+			{
+				writer.Write(clip);
 			}
 		}
 
-		public Kit(Guid[] actionGuids)
+		public override void FromBinaryReader(EndianBinaryReader reader)
 		{
-			_actionsNames = new string[4];
+			BasicAction = ActionLibrary.GetActionInstance(reader.ReadString());
+			int count = reader.ReadInt32();
+			Clips = new IClip[count];
 
-			_actions = new IExchangeAction[4];
-			_actionsGuids = actionGuids;
-			for (int i = 0; i < actionGuids.Length; i++)
+			for (int i = 0; i < count; i++)
 			{
-				_actions[i] = ActionLibrary.GetActionInstance(actionGuids[i]);
-				_actions[i].ParentKit = this;
-				_actionsNames[i] = _actions[i].Name;
+				Clips[i] = reader.ReadPacket(new Clip());
 			}
 		}
 	}

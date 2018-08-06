@@ -8,11 +8,16 @@ using Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelpers;
 
 public interface IExchangeController1v1
 {
+	//properties
 	UnityAction<ExchangeState> OnExchangeStateChange { get; set; }
 	ExchangeState ExchangeState { get; set; }
+	int Round { get; set; }
+
+	//Methods
 	void ServerResponse(int peerId);
 	void ResetExchange();
 	IExchangePlayer GetRoundWinner();
+	IExchangePlayer GetWinner();
 }
 
 [RequireComponent(typeof(NetworkIdentity))]
@@ -22,6 +27,9 @@ public interface IExchangeController1v1
 [RequireComponent(typeof(ServerExchangeControllerHelper))]
 public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 {
+	//public properties
+	public int Round { get; set; }
+
 	//private constants
 	private const int Round_Time_Seconds = 90;
 	private const int Round_End_Time_Seconds = 10;
@@ -144,6 +152,101 @@ public class ExchangeController1v1 : NetworkBehaviour, IExchangeController1v1
 			else if (player.Health.Current == maxHealth)
 			{
 				winner = null;
+			}
+		}
+
+		return winner;
+	}
+
+	public IExchangePlayer GetWinner()
+	{
+		IExchangePlayer winner = null;
+		int wins = 0;
+
+		foreach (IExchangePlayer player in _exchangePlayers)
+		{
+			var stats = player.PlayerStats;
+
+			if (stats.Wins + stats.Draws > wins)
+			{
+				winner = player;
+				wins = stats.Wins + stats.Draws;
+			}
+			else if (stats.Wins + stats.Draws == wins)
+			{
+				winner = null;
+			}
+		}
+
+		if (winner != null)
+		{
+			return winner;
+		}
+		else
+		{
+			int totalKnockouts = 0;
+
+			foreach (IExchangePlayer player in _exchangePlayers)
+			{
+				var stats = player.PlayerStats;
+
+				if (stats.KnockoutsDealt > totalKnockouts)
+				{
+					winner = player;
+					totalKnockouts = stats.KnockoutsDealt;
+				}
+				else if (stats.KnockoutsDealt == totalKnockouts)
+				{
+					winner = null;
+				}
+			}
+		}
+
+		if (winner != null)
+		{
+			return winner;
+		}
+		else
+		{
+			int totalDamageDealt = 0;
+
+			foreach (IExchangePlayer player in _exchangePlayers)
+			{
+				var stats = player.PlayerStats;
+
+				if (stats.DamageDealt > totalDamageDealt)
+				{
+					winner = player;
+					totalDamageDealt = stats.DamageDealt;
+				}
+				else if (stats.DamageDealt == totalDamageDealt)
+				{
+					winner = null;
+				}
+			}
+		}
+
+		if (winner != null)
+		{
+			return winner;
+		}
+		else
+		{
+			int totalAbilitiesUsed = 0;
+
+			foreach (IExchangePlayer player in _exchangePlayers)
+			{
+				var stats = player.PlayerStats;
+
+				if (stats.AbilitiesUsed > totalAbilitiesUsed)
+				{
+					winner = player;
+					totalAbilitiesUsed = stats.AbilitiesUsed;
+				}
+				else if (stats.AbilitiesUsed == totalAbilitiesUsed)
+				{
+					winner = null;
+				}
 			}
 		}
 

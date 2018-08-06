@@ -25,7 +25,7 @@ namespace Assets.Scripts.Library.Action.ActionModules
 				(
 					id: new Guid("12e42930-6c89-4a80-95df-ebeb4772a4a4"),
 					name: "StunField",
-					attack: new Attack(baseDamage: 15, energyRecoilModifier: -1.0f),
+					attack: new Attack(baseDamage: 15),
 					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
 					primaryActionName: "StunField",
 					cooldown: 1f,

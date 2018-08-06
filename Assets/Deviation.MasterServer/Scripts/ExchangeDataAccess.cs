@@ -1,5 +1,6 @@
 ﻿using Assets.Deviation.Exchange.Scripts;
 using Assets.Deviation.MasterServer.Scripts;
+using Assets.Scripts.DTO.Exchange;
 using Barebones.Networking;
 using LiteDB;
 using System;
@@ -29,7 +30,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 			BsonMapper.Global.RegisterType
 			(
 				serialize: (packet) => packet.ToBsonDocument(),
-				deserialize: (bson) => new ActionModulePacket(bson.AsDocument)
+				deserialize: (bson) => new Kit(bson.AsDocument)
 			);
 
 			BsonMapper.Global.RegisterType

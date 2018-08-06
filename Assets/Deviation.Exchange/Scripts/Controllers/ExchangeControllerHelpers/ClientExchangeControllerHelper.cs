@@ -27,9 +27,9 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 			etm = FindObjectOfType<ExchangeNetworkManager>();
 		}
 
+		[Client]
 		public override void Teardown()
 		{
-			if (!ShouldExecute()) { return; }
 			base.Teardown();
 
 			etm.StopClient();

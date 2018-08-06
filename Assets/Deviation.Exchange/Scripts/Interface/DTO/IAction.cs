@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Enum;
+﻿using Assets.Scripts.DTO.Exchange;
+using Assets.Scripts.Enum;
 using Assets.Scripts.Interface.Exchange;
 using System;
 using UnityEngine;
@@ -17,5 +18,7 @@ namespace Assets.Scripts.Interface.DTO
 		TraderType Type { get; }
 		string Description { get; set; }
 		void InitiateAttack(IBattlefieldController bc, BattlefieldZone zone);
+		int GetHashCode();
+		bool Equals(object obj);
 	}
 }

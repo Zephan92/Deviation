@@ -1,4 +1,5 @@
 ﻿using Assets.Deviation.MasterServer.Scripts;
+using Assets.Scripts.DTO.Exchange;
 using Assets.Scripts.Enum;
 using Assets.Scripts.Interface;
 using Assets.Scripts.Utilities;
@@ -27,14 +28,14 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 		private TimerManager tm;
 		private ICoroutineManager cm;
 
-		//private properties
+		//private fields
 		private PlayerController[] _players;
 		private IExchangePlayer[] _exchangePlayers;
 		private ConcurrentDictionary<int, bool> _clientReady;
 		private ExchangeDataEntry[] _exchangeDataEntries;
 		private int _exchangeId;
 		private bool _waitingForClients;
-		private System.Collections.IEnumerator _coroutine;
+		private IEnumerator _coroutine;
 
 		public override void Init()
 		{
@@ -56,9 +57,9 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 			bc = FindObjectOfType<ExchangeBattlefieldController>();
 		}
 
+		[Server]
 		public override void Setup()
 		{
-			if (!ShouldExecute()) { return; }
 			base.Setup();
 
 			if (_players == null)
@@ -81,9 +82,9 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 			WaitForClients(() => { ec.ExchangeState = ExchangeState.PreBattle; });
 		}
 
+		[Server]
 		public override void PreBattle()
 		{
-			if (!ShouldExecute()) { return; }
 			base.PreBattle();
 			bc.Init();
 
@@ -106,7 +107,11 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 							ExchangeDataEntry exchangeDataEntry = response.Deserialize(new ExchangeDataEntry());
 							_exchangeDataEntries[playerIndex] = exchangeDataEntry;
 							BattlefieldZone zone = (BattlefieldZone)playerIndex;
-							player.Init(0, 100, 0.001f, 0, 100, zone, exchangeDataEntry.Player.Id, exchangeDataEntry.ActionGuids.Guids);
+
+							//todo Get kit
+							IKit kit = new Kit();
+
+							player.Init(0, 100, zone, exchangeDataEntry.Player.Id, kit);
 						});
 				});
 			}
@@ -114,16 +119,16 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 			WaitForClients(() => { ec.ExchangeState = ExchangeState.Begin; });
 		}
 
+		[Server]
 		public override void Begin()
 		{
-			if (!ShouldExecute()) { return; }
 			base.Begin();
 			WaitForClients(() => { ec.ExchangeState = ExchangeState.Battle; });
 		}
 
+		[Server]
 		public override void Battle_FixedUpdate()
 		{
-			if (!ShouldExecute()) { return; }
 			base.Battle_FixedUpdate();
 
 			bool playerDefeated = false;
@@ -142,9 +147,9 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 			}
 		}
 
+		[Server]
 		public override void End()
 		{
-			if (!ShouldExecute()) { return; }
 			base.End();
 			IExchangePlayer winner = ec.GetRoundWinner();
 
@@ -167,11 +172,34 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 					player.PlayerStats.Draws++;
 				}
 			}
+
+			if (ec.Round >= 1)
+			{
+				winner = ec.GetWinner();
+				if (!ReferenceEquals(null, winner))
+				{
+					winner.PlayerStats.Winner = true;
+				}
+				else if (ec.Round >= 2)
+				{
+					//Draw
+				}
+				else
+				{
+					ec.Round++;
+					ResetExchange();
+				}
+			}
+			else
+			{
+				ec.Round++;
+				ResetExchange();
+			}
 		}
 
+		[Server]
 		public override void End_FixedUpdate()
 		{
-			if (!ShouldExecute()) { return; }
 			base.End_FixedUpdate();
 
 			if (tm.TimerUp("RoundEndTimer"))
@@ -180,9 +208,9 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 			}
 		}
 
+		[Server]
 		public override void PostBattle()
 		{
-			if (!ShouldExecute()) { return; }
 			base.PostBattle();
 
 			DateTime timestamp = DateTime.Now;
@@ -195,12 +223,35 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 															timestamp, 
 															exchangeDataEntry.Player, 
 															playerStats, 
-															exchangeDataEntry.ActionGuids, 
+															exchangeDataEntry.Kit, 
 															exchangeDataEntry.CharacterGuid);
 				Msf.Connection.SendMessage((short)ExchangePlayerOpCodes.CreateExchangeResultData, result);
 			}
 
 			WaitForClients(() => { ec.ExchangeState = ExchangeState.Teardown; });
+		}
+
+		[Server]
+		public void ResetExchange()
+		{
+			tm.RestartTimers();
+			bc.ResetBattlefield();
+
+			foreach (IExchangePlayer player in _exchangePlayers)
+			{
+				//TODO Get clips
+
+				player.Init(0, 100, player.Zone, player.PlayerId, null);
+				player.Kit.Reset();
+			}
+
+			WaitForClients(() => { ec.ExchangeState = ExchangeState.Begin; });
+		}
+
+		[Server]
+		public void ServerResponse(int peerId)
+		{
+			_clientReady[peerId] = true;
 		}
 
 		private void WaitForClients(Action callback)
@@ -224,24 +275,6 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 			}
 
 			cm.StartCoroutineThread_WhileLoop(WaitForClientsMethod, new object[] { callback }, 0f, ref _coroutine);
-		}
-
-		public void ServerResponse(int peerId)
-		{
-			_clientReady[peerId] = true;
-		}
-
-		public void ResetExchange()
-		{
-			tm.RestartTimers();
-			bc.ResetBattlefield();
-
-			foreach (IExchangePlayer player in _exchangePlayers)
-			{
-				player.Init(0, 100, 0.001f, 0, 100, player.Zone, player.PlayerId, player.Kit.ActionsGuids);
-			}
-
-			WaitForClients(() => { ec.ExchangeState = ExchangeState.Begin; });
 		}
 
 		private void WaitForClientsMethod(object[] callbackParameters)

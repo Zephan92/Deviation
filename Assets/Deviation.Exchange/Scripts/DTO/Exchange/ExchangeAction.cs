@@ -65,8 +65,14 @@ namespace Assets.Scripts.DTO.Exchange
 			PrimaryAction(bc, Attack, ParentKit.Player, zone);
 		}
 
-		public bool Equals(IExchangeAction action)
+		public override int GetHashCode()
 		{
+			return Id.GetHashCode();
+		}
+
+		public override bool Equals(object obj)
+		{
+			IExchangeAction action = (IExchangeAction)obj;
 			return	Id == action.Id &&
 					Name == action.Name &&
 					Attack == action.Attack &&
@@ -75,5 +81,6 @@ namespace Assets.Scripts.DTO.Exchange
 					PrimaryActionName == action.PrimaryActionName &&
 					Type == action.Type;
 		}
+
 	}
 }
