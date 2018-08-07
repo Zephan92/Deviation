@@ -296,6 +296,7 @@
     <Compile Include="Assets\Deviation.Exchange\Scripts\Controllers\ExchangeControllerHelpers\ExchangeControllerHelper.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Controllers\ExchangeControllerHelpers\ServerExchangeControllerHelper.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Display\FadeImage.cs" />
+    <Compile Include="Assets\Deviation.Exchange\Scripts\DTO\Exchange\BasicAction.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\DTO\Exchange\Clip.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\PlayerStats.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Splat.cs" />

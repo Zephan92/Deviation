@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Interface;
+﻿using Assets.Scripts.DTO.Exchange;
+using Assets.Scripts.Interface;
 using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Library;
 using Barebones.Networking;
@@ -13,16 +14,13 @@ using UnityEngine;
 
 namespace Assets.Deviation.Exchange.Scripts.DTO.Exchange
 {
-	public interface IClip
+	public interface IClip : IKitComponent
 	{
-		Dictionary<IExchangeAction, int> Actions { get; }
 		int Remaining { get; }
-		float TimeRemaining { get; }
-		bool Ready { get; }
+		Dictionary<IExchangeAction, int> Actions { get; }
 		IExchangeAction Peek();
 		IExchangeAction Pop();
 		void Add(IExchangeAction action, int count);
-		void Reset();
 		BsonDocument ToBsonDocument();
 	}
 
@@ -33,8 +31,22 @@ namespace Assets.Deviation.Exchange.Scripts.DTO.Exchange
 
 		public Dictionary<IExchangeAction, int> Actions { get; private set; }
 		public int Remaining => _remainingActions.Count;
-		public float TimeRemaining { get; }
+		public float TimeRemaining { get { return _timer.Remaining; } }
 		public bool Ready { get { return _timer.TimerUp; } }
+
+		private IExchangePlayer _player;
+		public IExchangePlayer Player
+		{
+			get { return _player; }
+			set
+			{
+				_player = value;
+				foreach (IExchangeAction action in _remainingActions)
+				{
+					action.Player = value;
+				}
+			}
+		}
 
 		private Stack<IExchangeAction> _remainingActions;
 		private RNGCryptoServiceProvider _provider = new RNGCryptoServiceProvider();
@@ -43,6 +55,7 @@ namespace Assets.Deviation.Exchange.Scripts.DTO.Exchange
 		public Clip()
 		{
 			Actions = new Dictionary<IExchangeAction, int>();
+			_remainingActions = new Stack<IExchangeAction>();
 		}
 
 		public Clip(Dictionary<IExchangeAction, int> actions)
@@ -52,6 +65,9 @@ namespace Assets.Deviation.Exchange.Scripts.DTO.Exchange
 
 		public Clip(Dictionary<Guid, int> actionGuids)
 		{
+			Actions = new Dictionary<IExchangeAction, int>();
+			_remainingActions = new Stack<IExchangeAction>();
+
 			foreach (var action in actionGuids)
 			{
 				Add(action.Key, action.Value);
@@ -60,6 +76,9 @@ namespace Assets.Deviation.Exchange.Scripts.DTO.Exchange
 
 		public Clip(Dictionary<string, int> actionNames)
 		{
+			Actions = new Dictionary<IExchangeAction, int>();
+			_remainingActions = new Stack<IExchangeAction>();
+
 			foreach (var action in actionNames)
 			{
 				Add(action.Key, action.Value);
@@ -68,6 +87,9 @@ namespace Assets.Deviation.Exchange.Scripts.DTO.Exchange
 
 		public Clip(List<IExchangeAction> actions)
 		{
+			Actions = new Dictionary<IExchangeAction, int>();
+			_remainingActions = new Stack<IExchangeAction>();
+
 			foreach (var action in actions)
 			{
 				Add(action, 1);
@@ -76,6 +98,9 @@ namespace Assets.Deviation.Exchange.Scripts.DTO.Exchange
 
 		public Clip(List<Guid> actions)
 		{
+			Actions = new Dictionary<IExchangeAction, int>();
+			_remainingActions = new Stack<IExchangeAction>();
+
 			foreach (var action in actions)
 			{
 				Add(action, 1);
@@ -84,6 +109,9 @@ namespace Assets.Deviation.Exchange.Scripts.DTO.Exchange
 
 		public Clip(List<string> actions)
 		{
+			Actions = new Dictionary<IExchangeAction, int>();
+			_remainingActions = new Stack<IExchangeAction>();
+
 			foreach (var action in actions)
 			{
 				Add(action, 1);
@@ -92,12 +120,20 @@ namespace Assets.Deviation.Exchange.Scripts.DTO.Exchange
 
 		public Clip(BsonDocument document) : this(JsonUtility.FromJson<Dictionary<string, int>>(document["Actions"]))
 		{
-
+			Actions = new Dictionary<IExchangeAction, int>();
+			_remainingActions = new Stack<IExchangeAction>();
 		}
 
 		public IExchangeAction Peek()
 		{
-			return _remainingActions.Peek();
+			if (Remaining > 0)
+			{
+				return _remainingActions.Peek();
+			}
+			else
+			{
+				throw new ClipException($"There are no more remaining actions in this clip.");
+			}
 		}
 
 		public IExchangeAction Pop()
@@ -106,13 +142,31 @@ namespace Assets.Deviation.Exchange.Scripts.DTO.Exchange
 			{
 				if (Ready)
 				{
-					_timer.Restart();
-					_timer.Cooldown = Peek().Cooldown;
 					return _remainingActions.Pop();
 				}
 				else
 				{
-					throw new ClipException($"An action was used recently. Wait {_timer.Remaining} before trying again.");
+					throw new ClipException($"Clip was used recently. Wait {_timer.Remaining} before trying again.");
+				}
+			}
+			else
+			{
+				throw new ClipException($"There are no more remaining actions in this clip.");
+			}
+		}
+
+		public void StartCooldown()
+		{
+			if (Remaining > 0)
+			{
+				if (Ready)
+				{
+					_timer.Restart();
+					_timer.Cooldown = Peek().Cooldown;
+				}
+				else
+				{
+					throw new ClipException($"Clip was used recently. Wait {_timer.Remaining} before trying again.");
 				}
 			}
 			else
@@ -160,16 +214,27 @@ namespace Assets.Deviation.Exchange.Scripts.DTO.Exchange
 		{
 			List<IExchangeAction> actions = new List<IExchangeAction>();
 
-			foreach (var action in Actions)
+			try
 			{
-				for (int i = 0; i < action.Value; i++)
+				foreach (var action in Actions)
 				{
-					actions.Add(action.Key);
+					for (int i = 0; i < action.Value; i++)
+					{
+						actions.Add(action.Key);
+					}
 				}
-			}
 
-			_remainingActions = new Stack<IExchangeAction>(Shuffle(actions));
-			_timer.Restart(true);
+				_remainingActions = new Stack<IExchangeAction>(Shuffle(actions));
+				foreach (IExchangeAction action in _remainingActions)
+				{
+					action.Player = Player;
+				}
+				_timer.Restart(true);
+			}
+			catch(Exception ex)
+			{
+				throw new ClipException($"Failed to Reset Clip.", ex);
+			}
 		}
 
 		private List<IExchangeAction> Shuffle(List<IExchangeAction> list)

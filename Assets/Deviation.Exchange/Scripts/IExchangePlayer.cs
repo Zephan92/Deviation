@@ -23,7 +23,9 @@ public interface IExchangePlayer
 	Quaternion Rotation { get; }
 
 	void Init(int healthMin, int healthMax, BattlefieldZone zone, long playerId, IKit kit);
-	bool Action(int actionNumber);
+	void Action(int actionNumber);
+	void BasicAction(int actionNumber);
 	void DisableAction(bool disabled, int actionNumber = -1);
 	void ToggleRenderer(bool value);
+	void Reinit();
 }

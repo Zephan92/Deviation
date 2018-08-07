@@ -44,6 +44,5 @@ namespace Assets.Scripts.Exchange.Display
 				GUI.Label(new Rect(Vector2.zero, details.Size - new Vector2(1, 1)),displayLabel, style);
 			GUI.EndGroup();
 		} 
-
 	}
 }

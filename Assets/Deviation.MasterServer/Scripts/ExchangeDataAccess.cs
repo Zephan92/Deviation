@@ -1,4 +1,5 @@
 ﻿using Assets.Deviation.Exchange.Scripts;
+using Assets.Deviation.Exchange.Scripts.DTO.Exchange;
 using Assets.Deviation.MasterServer.Scripts;
 using Assets.Scripts.DTO.Exchange;
 using Barebones.Networking;
@@ -43,6 +44,18 @@ namespace Assets.Deviation.MasterServer.Scripts
 			(
 				serialize: (packet) => packet.ToBsonDocument(),
 				deserialize: (bson) => new ExchangeDataEntry(bson.AsDocument)
+			);
+
+			BsonMapper.Global.RegisterType
+			(
+				serialize: (packet) => packet.ToBsonDocument(),
+				deserialize: (bson) => new Clip(bson.AsDocument)
+			);
+
+			BsonMapper.Global.RegisterType
+			(
+				serialize: (packet) => packet.ToBsonDocument(),
+				deserialize: (bson) => new BasicAction(bson.AsDocument)
 			);
 
 			_exchangeResult = db.GetCollection<ExchangeResult>(exchangeResultName);

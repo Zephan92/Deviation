@@ -34,7 +34,7 @@ public class TestClientMatchController : TestBase
 			var testArgs = Msf.Args.ExtractValue("-test");
 			if (testArgs != null && testArgs.Equals("GuestLogin"))
 			{
-				Debug.LogError("Test: ClientMatchController");
+				Debug.Log("Test: ClientMatchController");
 
 				StartCoroutine(PresetOptions(1f));
 			}

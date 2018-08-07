@@ -258,7 +258,8 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			IExchangeAction r = _actions[3];
 			IClip clip = new Clip();
 			IClip[] clips = new IClip[] { clip, clip, clip };
-			return new Kit(clips, r);
+			IBasicAction basicAction = new BasicAction(r);
+			return new Kit(clips, basicAction);
 		}
 	}
 }

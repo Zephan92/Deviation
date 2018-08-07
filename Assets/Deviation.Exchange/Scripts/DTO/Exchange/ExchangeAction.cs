@@ -27,7 +27,7 @@ namespace Assets.Scripts.DTO.Exchange
 		//This is how long after an action is used before it can be used again
 		public float Cooldown { get; set; }
 
-		public IKit ParentKit { get; set; }
+		public IExchangePlayer Player { get; set; }
 
 		public string PrimaryActionName { get; set; }
 
@@ -62,7 +62,7 @@ namespace Assets.Scripts.DTO.Exchange
 		//when this method is called, it runs the primary action and passes in the Attack and Battlefield Controller for use in that method
 		public void InitiateAttack(IBattlefieldController bc, BattlefieldZone zone)
 		{
-			PrimaryAction(bc, Attack, ParentKit.Player, zone);
+			PrimaryAction(bc, Attack, Player, zone);
 		}
 
 		public override int GetHashCode()
@@ -81,6 +81,5 @@ namespace Assets.Scripts.DTO.Exchange
 					PrimaryActionName == action.PrimaryActionName &&
 					Type == action.Type;
 		}
-
 	}
 }

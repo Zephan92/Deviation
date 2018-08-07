@@ -228,7 +228,7 @@ namespace Assets.Deviation.Client.Scripts.Client
 				var testArgs = Msf.Args.ExtractValue("-test");
 				if (testArgs != null && testArgs.Equals("GuestLogin"))
 				{
-					UnityEngine.Debug.LogError("Test: ClientController.HandleMatchFound");
+					UnityEngine.Debug.Log("Test: ClientController.HandleMatchFound");
 
 					JoinExchange();
 				}

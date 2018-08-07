@@ -1,11 +1,13 @@
 ﻿using Assets.Deviation.Exchange.Scripts;
 using Assets.Deviation.Exchange.Scripts.DTO.Exchange;
+using Assets.Deviation.MasterServer.Scripts;
 using Assets.Scripts.DTO.Exchange;
 using Assets.Scripts.Enum;
 using Assets.Scripts.Interface;
 using Assets.Scripts.Interface.DTO;
 using Assets.Scripts.Library;
 using Assets.Scripts.Utilities;
+using Barebones.MasterServer;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -115,31 +117,56 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 		}
 	}
 
-	public bool Action(int actionNumber)
+	public void Action(int actionNumber)
 	{
-		if (!isLocalPlayer || _actionsDisabled[actionNumber] || !_kit.Clips[actionNumber].Ready)
+		if (!isLocalPlayer || _actionsDisabled[actionNumber])
 		{
-			return false;
+			return;
 		}
 
-		bool success = false;
-		IExchangeAction action = _kit.Clips[actionNumber].Peek();
-		if (_kit.Clips[actionNumber].Ready)
+		CmdAction(actionNumber);
+	}
+
+	public void BasicAction(int actionNumber)
+	{
+		if (!isLocalPlayer || _actionsDisabled[actionNumber])
 		{
-			action = _kit.Clips[actionNumber].Pop();
-			CmdAction(action.Name);
-			success = true;
+			return;
 		}
 
-		return success;
+		CmdBasicAction();
 	}
 
 	[Command]
-	private void CmdAction(string actionName)
+	private void CmdAction(int actionNumber)
 	{
+		IClip clip = _kit.Clips[actionNumber];
+
+		if (!clip.Ready || clip.Remaining == 0)
+		{
+			return;
+		}
+
+		IExchangeAction action = clip.Pop();
 		PlayerStats.AbilitiesUsed++;
-		IExchangeAction action = ActionLibrary.GetActionInstance(actionName);
 		action.InitiateAttack(bc, _zone);
+		clip.StartCooldown();
+	}
+
+	[Command]
+	private void CmdBasicAction()
+	{
+		IBasicAction basic = _kit.BasicAction;
+
+		if (!basic.Ready)
+		{
+			return;
+		}
+
+		IExchangeAction action = basic.Action;
+		PlayerStats.AbilitiesUsed++;
+		action.InitiateAttack(bc, _zone);
+		basic.StartCooldown();
 	}
 
 	[Server]
@@ -159,27 +186,61 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 	{
 		_mover.Init(zone, 1f);
 
-		//TODO get clips
-
-		_kit = new Kit();
-		_kit.Player = this;
-
 		if (!isLocalPlayer)
 		{
 			return;
 		}
+
 		transform.position = bc.GetBattlefieldCoordinates(zone);
 
 		switch (zone)
 		{
 			case BattlefieldZone.Left:
 				Camera.main.transform.position = new Vector3(-2, 4, -2);
-				Camera.main.transform.rotation = Quaternion.Euler(new Vector3(30,60,0));
+				Camera.main.transform.rotation = Quaternion.Euler(new Vector3(30, 60, 0));
 				transform.rotation = Quaternion.Euler(new Vector3(0, 90, 0));
 				break;
 			case BattlefieldZone.Right:
 				Camera.main.transform.position = new Vector3(12, 4, -2);
-				Camera.main.transform.rotation = Quaternion.Euler(new Vector3(30,-60,0));
+				Camera.main.transform.rotation = Quaternion.Euler(new Vector3(30, -60, 0));
+				transform.rotation = Quaternion.Euler(new Vector3(0, -90, 0));
+				break;
+		}
+	}
+
+	public void Reinit()
+	{
+		ServerReinit();
+		RpcReinit();
+	}
+
+	public void ServerReinit()
+	{
+		_mover.Init(Zone, 1f);
+		_health.ReInit();
+		_kit.Reset();
+		gm.SetGridspaceOccupied(new GridCoordinate(ExchangeConstants.PLAYER_INITIAL_ROW, ExchangeConstants.PLAYER_INITIAL_COLUMN, Zone, true), true, Zone);
+	}
+
+	[ClientRpc]
+	[Client]
+	public void RpcReinit()
+	{
+		_mover.Init(Zone, 1f);
+
+		if (!isLocalPlayer)
+		{
+			return;
+		}
+
+		transform.position = bc.GetBattlefieldCoordinates(Zone);
+
+		switch (Zone)
+		{
+			case BattlefieldZone.Left:
+				transform.rotation = Quaternion.Euler(new Vector3(0, 90, 0));
+				break;
+			case BattlefieldZone.Right:
 				transform.rotation = Quaternion.Euler(new Vector3(0, -90, 0));
 				break;
 		}

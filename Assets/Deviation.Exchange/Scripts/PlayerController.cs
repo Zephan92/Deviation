@@ -133,7 +133,7 @@ public class PlayerController : NetworkBehaviour
 		}
 		else if (InputWrapper.GetKeyDown(KeyCode.R))
 		{
-			Player.Action(3);
+			Player.BasicAction(3);
 		}
 		else if (InputWrapper.GetKeyDown(KeyCode.Escape))
 		{

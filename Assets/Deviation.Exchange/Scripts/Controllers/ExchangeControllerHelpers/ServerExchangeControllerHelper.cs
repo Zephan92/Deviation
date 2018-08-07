@@ -107,11 +107,7 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 							ExchangeDataEntry exchangeDataEntry = response.Deserialize(new ExchangeDataEntry());
 							_exchangeDataEntries[playerIndex] = exchangeDataEntry;
 							BattlefieldZone zone = (BattlefieldZone)playerIndex;
-
-							//todo Get kit
-							IKit kit = new Kit();
-
-							player.Init(0, 100, zone, exchangeDataEntry.Player.Id, kit);
+							player.Init(0, 100, zone, exchangeDataEntry.Player.Id, exchangeDataEntry.Kit);
 						});
 				});
 			}
@@ -239,10 +235,7 @@ namespace Assets.Deviation.Exchange.Scripts.Controllers.ExchangeControllerHelper
 
 			foreach (IExchangePlayer player in _exchangePlayers)
 			{
-				//TODO Get clips
-
-				player.Init(0, 100, player.Zone, player.PlayerId, null);
-				player.Kit.Reset();
+				player.Reinit();
 			}
 
 			WaitForClients(() => { ec.ExchangeState = ExchangeState.Begin; });

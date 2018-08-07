@@ -34,7 +34,7 @@ public class TestClientController : TestBase
 			var testArgs = Msf.Args.ExtractValue("-test");
 			if (testArgs != null && testArgs.Equals("GuestLogin"))
 			{
-				UnityEngine.Debug.LogError("Test: ClientController");
+				UnityEngine.Debug.Log("Test: ClientController");
 
 				StartCoroutine(SearchForExchange());
 			}

@@ -13,7 +13,7 @@ namespace Assets.Scripts.Interface.DTO
 		IAttack Attack { get; set; }
 		Texture2D ActionTexture { get; set; }
 		float Cooldown { get; set; }
-		IKit ParentKit { get; set; }
+		IExchangePlayer Player { get; set; }
 		string PrimaryActionName { get; set; }
 		TraderType Type { get; }
 		string Description { get; set; }
