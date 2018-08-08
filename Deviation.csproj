@@ -292,6 +292,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Deviation.Client\Scripts\Client\KitsController.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Client\Kits\EditKitController.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Client\Kits\KitDetailsPanel.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Controllers\ExchangeControllerHelpers\ClientExchangeControllerHelper.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Controllers\ExchangeControllerHelpers\ExchangeControllerHelper.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Controllers\ExchangeControllerHelpers\ServerExchangeControllerHelper.cs" />

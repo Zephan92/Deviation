@@ -177,6 +177,7 @@ public class ExchangePlayer : NetworkBehaviour, IExchangePlayer
 		_zone = zone;
 		_kit.Player = this;
 		_initialized = true;
+		_kit.Reset();
 		gm.SetGridspaceOccupied(new GridCoordinate(ExchangeConstants.PLAYER_INITIAL_ROW, ExchangeConstants.PLAYER_INITIAL_COLUMN, zone, true), true, zone);
 	}
 

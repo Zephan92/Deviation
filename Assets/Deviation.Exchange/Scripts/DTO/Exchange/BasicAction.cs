@@ -101,5 +101,12 @@ namespace Assets.Deviation.Exchange.Scripts.DTO.Exchange
 				throw new ClipException($"Failed to deserialize BasicAction.", ex);
 			}
 		}
+
+		public override string ToString()
+		{
+			string retVal = $"BasicAction" +
+					$"\nAction: {Action}";
+			return retVal;
+		}
 	}
 }

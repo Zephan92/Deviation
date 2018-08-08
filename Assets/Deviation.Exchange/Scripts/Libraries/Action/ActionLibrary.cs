@@ -30,23 +30,38 @@ namespace Assets.Scripts.Library
 
 		public static string GetNameFromGuid(Guid actionGuid)
 		{
-
 			IExchangeAction action = GetActionLibrary_ByGuid()[actionGuid];
 			return action.Name;
 		}
 
 		public static IExchangeAction GetActionInstance(string actionName)
 		{
-			IExchangeAction action = GetActionLibrary_ByName()[actionName];
-			IExchangeAction actionInstance = new ExchangeAction(action.Id, action.Name,action.Attack,action.ActionTexture,action.PrimaryActionName,action.Cooldown,action.Type);
-			return actionInstance;
+			try
+			{
+				IExchangeAction action = GetActionLibrary_ByName()[actionName];
+				IExchangeAction actionInstance = new ExchangeAction(action.Id, action.Name, action.Attack, action.ActionTexture, action.PrimaryActionName, action.Cooldown, action.Type);
+				return actionInstance;
+			}
+			catch
+			{
+				Debug.LogError($"Action with name '{actionName}' does not exist.");
+				return null;
+			}
 		}
 
 		public static IExchangeAction GetActionInstance(Guid actionGuid)
 		{
-			IExchangeAction action = GetActionLibrary_ByGuid()[actionGuid];
-			IExchangeAction actionInstance = new ExchangeAction(action.Id, action.Name, action.Attack, action.ActionTexture, action.PrimaryActionName, action.Cooldown, action.Type);
-			return actionInstance;
+			try
+			{
+				IExchangeAction action = GetActionLibrary_ByGuid()[actionGuid];
+				IExchangeAction actionInstance = new ExchangeAction(action.Id, action.Name, action.Attack, action.ActionTexture, action.PrimaryActionName, action.Cooldown, action.Type);
+				return actionInstance;
+			}
+			catch
+			{
+				Debug.LogError($"Action with guid '{actionGuid}' does not exist.");
+				return null;
+			}
 		}
 
 		public static Dictionary<Guid, IExchangeAction> GetActionLibrary_ByGuid(TraderType moduleType = TraderType.Default)

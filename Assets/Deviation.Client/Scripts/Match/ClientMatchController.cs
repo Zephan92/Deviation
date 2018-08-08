@@ -248,18 +248,50 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			SceneManager.LoadScene("DeviationClient - Exchange");
 		}
 
+		private Kit CreateStarterKit()
+		{
+			IBasicAction basicAction = new BasicAction("Small Projectile");
+			var clip1Actions = new Dictionary<string, int>
+			{
+				{ "Small Projectile", 4 },
+				//{ "Small Projectile", 2 },
+				{ "Tremor", 2 },
+				{ "ShockWave", 4 }
+			};
+			var clip2Actions = new Dictionary<string, int>
+			{
+				{ "Small Projectile", 4 },
+				//{ "Small Projectile", 2 },
+				{ "Drain", 2 },
+				{ "Ambush", 4 }
+			};
+			var clip3Actions = new Dictionary<string, int>
+			{
+				{ "Small Projectile", 2 },
+				{ "Medium Projectile", 2 },
+				{ "Large Projectile", 2 },
+				{ "Wall Push", 4 }
+			};
+			IClip[] clips = new IClip[] { new Clip(clip1Actions), new Clip(clip2Actions), new Clip(clip3Actions) };
+			return new Kit("Starter Kit", clips, basicAction);
+		}
+
 		private Kit GetKit()
 		{
 			//TODO Get Real CLips
-			//var q = _actions[0].Id;
-			//var w = _actions[1].Id;
-			//var e = _actions[2].Id;
-
+			IExchangeAction q = _actions[0];
+			IExchangeAction w = _actions[1];
+			IExchangeAction e = _actions[2];
 			IExchangeAction r = _actions[3];
-			IClip clip = new Clip();
+			IClip clip = new Clip() {};
+			clip.Add(q, 4);
+			clip.Add(w, 3);
+			clip.Add(e, 3);
 			IClip[] clips = new IClip[] { clip, clip, clip };
 			IBasicAction basicAction = new BasicAction(r);
-			return new Kit(clips, basicAction);
+			Kit kit = new Kit("Default Kit",clips, basicAction);
+			kit = CreateStarterKit();
+			return kit;
 		}
 	}
 }

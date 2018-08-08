@@ -10,7 +10,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		Play,
 		Profile,
 		Craft,
-		Collection
+		Kits
 	}
 
 	public class ClientController : ControllerBase
@@ -22,14 +22,14 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		public GameObject CraftingUI;
 		public GameObject HomeUI;
 		public GameObject ProfileUI;
-		public GameObject CollectionUI;
+		public GameObject KitsUI;
 		public GameObject CurrentUI;
 
 		public Button PlayButton;
 		public Button HomeButton;
 		public Button ProfileButton;
 		public Button CraftButton;
-		public Button CollectionButton;
+		public Button KitsButton;
 
 		public ClientTab CurrentTab;
 
@@ -45,19 +45,19 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			CraftingUI = UIs.transform.Find("CraftingUI").gameObject;
 			HomeUI = UIs.transform.Find("HomeUI").gameObject;
 			ProfileUI = UIs.transform.Find("ProfileUI").gameObject;
-			CollectionUI = UIs.transform.Find("CollectionUI").gameObject;
+			KitsUI = UIs.transform.Find("KitsUI").gameObject;
 
 			PlayButton = Header.Find("Play").GetComponent<Button>();
 			HomeButton = Header.Find("Home").GetComponent<Button>();
 			ProfileButton = Header.Find("Profile").GetComponent<Button>();
 			CraftButton = Header.Find("Craft").GetComponent<Button>();
-			CollectionButton = Header.Find("Collection").GetComponent<Button>();
+			KitsButton = Header.Find("Kits").GetComponent<Button>();
 
 			PlayButton.onClick.AddListener(() => { SwitchTab(ClientTab.Play); });
 			HomeButton.onClick.AddListener(() => { SwitchTab(ClientTab.Home); });
 			ProfileButton.onClick.AddListener(() => { SwitchTab(ClientTab.Profile); });
 			CraftButton.onClick.AddListener(() => { SwitchTab(ClientTab.Craft); });
-			CollectionButton.onClick.AddListener(() => { SwitchTab(ClientTab.Collection); });
+			KitsButton.onClick.AddListener(() => { SwitchTab(ClientTab.Kits); });
 
 			SwitchTab(ClientTab.Home);
 		}
@@ -93,9 +93,9 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 					CurrentUI = CraftingUI;
 					break;
 
-				case ClientTab.Collection:
-					CollectionUI.SetActive(true);
-					CurrentUI = CollectionUI;
+				case ClientTab.Kits:
+					KitsUI.SetActive(true);
+					CurrentUI = KitsUI;
 					break;
 
 				case ClientTab.Home:

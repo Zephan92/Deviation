@@ -63,7 +63,7 @@ namespace Assets.Deviation.Exchange.Scripts.DTO.Exchange
 			Actions = actions;
 		}
 
-		public Clip(Dictionary<Guid, int> actionGuids)
+		public Clip(Dictionary<Guid, int> actionGuids) 
 		{
 			Actions = new Dictionary<IExchangeAction, int>();
 			_remainingActions = new Stack<IExchangeAction>();
@@ -118,10 +118,16 @@ namespace Assets.Deviation.Exchange.Scripts.DTO.Exchange
 			}
 		}
 
-		public Clip(BsonDocument document) : this(JsonUtility.FromJson<Dictionary<string, int>>(document["Actions"]))
+		public Clip(BsonDocument document)
 		{
 			Actions = new Dictionary<IExchangeAction, int>();
 			_remainingActions = new Stack<IExchangeAction>();
+
+			string[] actions = document["Actions"].AsArray.Select(x => x.AsString).ToArray();
+			foreach (string action in actions)
+			{
+				Add(action, 1);
+			}
 		}
 
 		public IExchangeAction Peek()
@@ -175,38 +181,32 @@ namespace Assets.Deviation.Exchange.Scripts.DTO.Exchange
 			}
 		}
 
-		public void Add(Guid action, int count)
-		{
-			Add(ActionLibrary.GetActionInstance(action), 1);
-		}
-
-		public void Add(string action, int count)
-		{
-			Add(ActionLibrary.GetActionInstance(action), 1);
-		}
-
+		public void Add(Guid action, int count){ Add(ActionLibrary.GetActionInstance(action), count); }
+		public void Add(string action, int count){ Add(ActionLibrary.GetActionInstance(action), count); }
 		public void Add(IExchangeAction action, int count)
 		{
-			if (Actions.Count() + count <= MAXACTIONCOUNT)
+			if (Actions.Count() + count > MAXACTIONCOUNT)
 			{
-				if (Actions.ContainsKey(action) && Actions[action] + count <= MAXACTIONTYPECOUNT)
+				throw new ClipException($"Cannot add more than {MAXACTIONCOUNT} actions to Clip. Action Name: {action.Name}, Count: {count}.");
+			}
+			else if (count > MAXACTIONTYPECOUNT)
+			{
+				throw new ClipException($"Cannot add more than {MAXACTIONTYPECOUNT} actions of type {action.Name} to Clip. Action Count: {count}.");
+			}
+			else if (Actions.ContainsKey(action))
+			{
+				if (Actions[action] + count > MAXACTIONTYPECOUNT)
 				{
-					if (Actions == null)
-					{
-						_remainingActions = new Stack<IExchangeAction>();
-						Actions = new Dictionary<IExchangeAction, int>();
-					}
-					
-					Actions.Add(action, count);
+					throw new ClipException($"Cannot add more than {MAXACTIONTYPECOUNT} actions of type {action.Name} to Clip. Action Count: {count}.");
 				}
 				else
 				{
-					throw new ClipException($"Cannot add more than {MAXACTIONTYPECOUNT} actions of type {action.Name} to Clip.");
+					Actions[action] += count;
 				}
 			}
 			else
 			{
-				throw new ClipException($"Cannot add more than {MAXACTIONCOUNT} actions to Clip.");
+				Actions.Add(action, count);
 			}
 		}
 
@@ -235,23 +235,6 @@ namespace Assets.Deviation.Exchange.Scripts.DTO.Exchange
 			{
 				throw new ClipException($"Failed to Reset Clip.", ex);
 			}
-		}
-
-		private List<IExchangeAction> Shuffle(List<IExchangeAction> list)
-		{
-			int n = list.Count;
-			while (n > 1)
-			{
-				byte[] box = new byte[1];
-				do _provider.GetBytes(box);
-				while (!(box[0] < n * (Byte.MaxValue / n)));
-				int k = (box[0] % n);
-				n--;
-				IExchangeAction value = list[k];
-				list[k] = list[n];
-				list[n] = value;
-			}
-			return list;
 		}
 
 		public override void ToBinaryWriter(EndianBinaryWriter writer)
@@ -292,16 +275,19 @@ namespace Assets.Deviation.Exchange.Scripts.DTO.Exchange
 		public BsonDocument ToBsonDocument()
 		{
 			var retVal = new BsonDocument();
-			Dictionary<string, int> actions = new Dictionary<string, int>();
+			var actions = new List<BsonValue>();
 
 			try
 			{
 				foreach (var action in Actions)
 				{
-					actions.Add(action.Key.Name, action.Value);
+					for (int i = 0; i < action.Value; i++)
+					{
+						actions.Add(action.Key.Name);
+					}
 				}
-				
-				retVal.Add("Actions", JsonUtility.ToJson(actions));
+
+				retVal.Add("Actions", new BsonArray(actions.ToArray()));
 			}
 			catch (Exception ex)
 			{
@@ -310,22 +296,40 @@ namespace Assets.Deviation.Exchange.Scripts.DTO.Exchange
 
 			return retVal;
 		}
+
+		public override string ToString()
+		{
+			string retVal = $"Clip";
+			foreach (var action in Actions)
+			{
+				retVal += $"\n{action.Key.Name}: {action.Value}";
+			}
+
+			return retVal;
+		}
+
+		private List<IExchangeAction> Shuffle(List<IExchangeAction> list)
+		{
+			int n = list.Count;
+			while (n > 1)
+			{
+				byte[] box = new byte[1];
+				do _provider.GetBytes(box);
+				while (!(box[0] < n * (Byte.MaxValue / n)));
+				int k = (box[0] % n);
+				n--;
+				IExchangeAction value = list[k];
+				list[k] = list[n];
+				list[n] = value;
+			}
+			return list;
+		}
 	}
 
 	public class ClipException : Exception
 	{
-		public ClipException()
-		{
-		}
-
-		public ClipException(string message)
-			: base(message)
-		{
-		}
-
-		public ClipException(string message, Exception inner)
-			: base(message, inner)
-		{
-		}
+		public ClipException(){}
+		public ClipException(string message) : base(message){}
+		public ClipException(string message, Exception inner) : base(message, inner){}
 	}
 }

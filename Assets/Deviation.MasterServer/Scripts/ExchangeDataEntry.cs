@@ -17,7 +17,6 @@ namespace Assets.Deviation.MasterServer.Scripts
 		public Guid CharacterGuid { get; set; }
 
 		public ExchangeDataEntry(){}
-
 		public ExchangeDataEntry(long id, PlayerAccount player, Kit kit, Guid characterGuid)
 		{
 			ExchangeId = id;
@@ -64,7 +63,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 
 		public override string ToString()
 		{
-			return $"--ExchangeDataEntry--" +
+			return $"ExchangeDataEntry" +
 					$"\nExchangeId: {ExchangeId}" +
 					$"\nPlayer: {Player}" +
 					$"\nCharacterGuid: {CharacterGuid}" +

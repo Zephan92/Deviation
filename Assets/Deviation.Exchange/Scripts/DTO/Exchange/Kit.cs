@@ -13,10 +13,10 @@ namespace Assets.Scripts.DTO.Exchange
 {
 	public interface IKit
 	{
+		string Name { get; set; }
 		IExchangePlayer Player { get; set; }
 		IClip[] Clips { get; }
 		IBasicAction BasicAction { get; }
-
 		void Reset();
 		BsonDocument ToBsonDocument();
 	}
@@ -32,6 +32,7 @@ namespace Assets.Scripts.DTO.Exchange
 
 	public class Kit : SerializablePacket, IKit
 	{
+		public string Name { get; set; }
 		private IExchangePlayer _player;
 		public IExchangePlayer Player {
 			get { return _player; }
@@ -49,58 +50,118 @@ namespace Assets.Scripts.DTO.Exchange
 		public IBasicAction BasicAction { get; private set; }
 
 		public Kit(){}
-		public Kit(IClip[] clips, IBasicAction basicAction)
+		public Kit(string name, IClip[] clips, IBasicAction basicAction)
 		{
+			Name = name;
 			Clips = clips;
 			BasicAction = basicAction;
 		}
 
 		public void Reset()
 		{
-			foreach (IClip clip in Clips)
+			try
 			{
-				clip.Reset();
+				foreach (IClip clip in Clips)
+				{
+					clip.Reset();
+				}
+				BasicAction.Reset();
 			}
-			BasicAction.Reset();
+			catch (Exception ex)
+			{
+				throw new KitException("Failed to Reset Kit", ex);
+			}
 		}
 
 		public Kit(BsonDocument document)
 		{
-			//add try catch
-			Clips = document["Clips"].AsArray.Select(x => new Clip(x.AsDocument)).ToArray();
-			BasicAction = new BasicAction(document["BasicAction"].AsString);
+			try
+			{
+				Name = document["Name"].AsString;
+				Clips = document["Clips"].AsArray.Select(x => new Clip(x.AsDocument)).ToArray();
+				BasicAction = new BasicAction(document["BasicAction"].AsString);
+			}
+			catch (Exception ex)
+			{
+				throw new KitException("Failed to deserialize Kit",ex);
+			}
 		}
 
 		public BsonDocument ToBsonDocument()
-		{//add try catch
-			var retVal = new BsonDocument();
+		{
+			try
+			{
+				var retVal = new BsonDocument();
 
-			retVal.Add("Clips", new BsonArray(Clips.Select(i => i.ToBsonDocument())));
-			retVal.Add("BasicAction", BasicAction.Action.Name);
+				retVal.Add("Name", Name);
+				retVal.Add("Clips", new BsonArray(Clips.Select(i => i.ToBsonDocument())));
+				retVal.Add("BasicAction", BasicAction.Action.Name);
 
-			return retVal;
+				return retVal;
+			}
+			catch (Exception ex)
+			{
+				throw new KitException("Failed to serialize Kit", ex);
+			}
 		}
 
 		public override void ToBinaryWriter(EndianBinaryWriter writer)
-		{//add try catch
-			writer.Write(BasicAction.Action.Name);
-			writer.Write(Clips.Length);
-			foreach (Clip clip in Clips)
+		{
+			try
 			{
-				writer.Write(clip);
+				writer.Write(Name);
+				writer.Write(BasicAction.Action.Name);
+				writer.Write(Clips.Length);
+				foreach (Clip clip in Clips)
+				{
+					writer.Write(clip);
+				}
+			}
+			catch (Exception ex)
+			{
+				throw new KitException("Failed to serialize Kit", ex);
 			}
 		}
 
 		public override void FromBinaryReader(EndianBinaryReader reader)
-		{//add try catch
-			BasicAction = new BasicAction(reader.ReadString());
-			int count = reader.ReadInt32();
-			Clips = new IClip[count];
-
-			for (int i = 0; i < count; i++)
+		{
+			try
 			{
-				Clips[i] = reader.ReadPacket(new Clip());
+				Name = reader.ReadString();
+				BasicAction = new BasicAction(reader.ReadString());
+				int count = reader.ReadInt32();
+				Clips = new IClip[count];
+
+				for (int i = 0; i < count; i++)
+				{
+					Clips[i] = reader.ReadPacket(new Clip());
+				}
+			}
+			catch (Exception ex)
+			{
+				throw new KitException("Failed to deserialize Kit", ex);
 			}
 		}
+
+		public override string ToString()
+		{
+			string retVal =  $"Kit" +
+					$"\nName: {Name}" +
+					$"\nBasicAction: {BasicAction}";
+
+			foreach (IClip clip in Clips)
+			{
+				retVal += $"\n{clip}";
+			}
+
+			return retVal;
+		}
+	}
+
+	public class KitException : Exception
+	{
+		public KitException() { }
+		public KitException(string message) : base(message) { }
+		public KitException(string message, Exception inner) : base(message, inner) { }
 	}
 }

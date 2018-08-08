@@ -31,6 +31,7 @@ namespace Assets.Deviation.Client.Scripts.Match
 		public UnityAction<List<IExchangeAction>> OnConfirmActions;
 		public Button ConfirmActionsButton;
 
+		private ChooseActionsUIState _uiState;
 		public ChooseActionsUIState UIState
 		{
 			get
@@ -40,15 +41,10 @@ namespace Assets.Deviation.Client.Scripts.Match
 			set
 			{
 				_uiState = value;
-
-				if (OnUIStateChange != null)
-				{
-					OnUIStateChange(value);
-				}
+				OnUIStateChange?.Invoke(value);
 			}
 		}
 		private UnityAction<ChooseActionsUIState> OnUIStateChange;
-		private ChooseActionsUIState _uiState;
 		private GameObject _chosenActionsPanel;
 
 		public override void Awake()
