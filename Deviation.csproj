@@ -292,9 +292,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Deviation.Client\Scripts\Client\MarketController.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\KitsController.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Client\Kits\ActionBubble.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Client\Kits\ClipDetailsPanel.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\Kits\EditKitController.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\Kits\KitDetailsPanel.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Client\Market\ActionTradeItem.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Client\Market\PriceWidget.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Client\Market\QuantityWidget.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Client\Market\TradeItem.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Client\Market\TradeReceipt.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Client\Market\TradeSelection.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Client\Market\TradeWindow.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Utilities\StringUtilities.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Controllers\ExchangeControllerHelpers\ClientExchangeControllerHelper.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Controllers\ExchangeControllerHelpers\ExchangeControllerHelper.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Controllers\ExchangeControllerHelpers\ServerExchangeControllerHelper.cs" />
@@ -304,9 +315,15 @@
     <Compile Include="Assets\Deviation.Exchange\Scripts\PlayerStats.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Splat.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Utilities\ObjectPool.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\DeviationOpCodes.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\DeviationServer.cs" />
     <Compile Include="Assets\Deviation.MasterServer\Scripts\ExchangeDataEntry.cs" />
     <Compile Include="Assets\Deviation.MasterServer\Scripts\ExchangeResults.cs" />
     <Compile Include="Assets\Deviation.MasterServer\Scripts\ExchangeResult.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\Market.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\MarketModule.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\Notification.cs" />
+    <Compile Include="Assets\Deviation.MasterServer\Scripts\NotificationModule.cs" />
     <Compile Include="Assets\Deviation.Odysseys\HotspotController.cs" />
     <Compile Include="Assets\Deviation.Odysseys\ResourceHotspot.cs" />
     <Compile Include="Assets\Deviation\PopupController.cs" />

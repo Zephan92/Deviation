@@ -253,10 +253,10 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			IBasicAction basicAction = new BasicAction("Small Projectile");
 			var clip1Actions = new Dictionary<string, int>
 			{
-				{ "Small Projectile", 4 },
-				//{ "Small Projectile", 2 },
+				{ "Small Projectile", 2 },
+				{ "Boomerang", 4 },
 				{ "Tremor", 2 },
-				{ "ShockWave", 4 }
+				{ "ShockWave", 2 }
 			};
 			var clip2Actions = new Dictionary<string, int>
 			{

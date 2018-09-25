@@ -7,14 +7,6 @@ using UnityEngine;
 
 namespace Assets.Deviation.MasterServer.Scripts
 {
-	public enum MaterialBankOpCodes
-	{
-		GetMaterials = 256,
-		GetMaterialBank = 264,
-		AddMaterialsToBag = 280,
-		RemoveMaterialsFromBag = 296,
-	}
-
 	public class MaterialBankModule : ServerModuleBehaviour
 	{
 		private MaterialBankObject _currentMaterialBank;

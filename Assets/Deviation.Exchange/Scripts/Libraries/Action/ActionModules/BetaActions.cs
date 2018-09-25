@@ -61,6 +61,16 @@ namespace Assets.Scripts.Library.Action.ActionModules
 					cooldown: 1.0f,
 					type: Type
 				),
+				new ExchangeAction
+				(
+					id: new Guid("e05bf0e5-5ced-4609-8b1e-14c748430cd8"),
+					name: "Boomerang",
+					attack: new Attack(baseDamage: 10, healthDrainModifier: -1f),
+					actionTexture: Resources.Load("AbilityIcons/Default") as Texture2D,
+					primaryActionName: "Boomerang",
+					cooldown: 1.0f,
+					type: Type
+				),
 			};
 
 			actions.ForEach(x => Actions_ByName.Add(x.Name, x));

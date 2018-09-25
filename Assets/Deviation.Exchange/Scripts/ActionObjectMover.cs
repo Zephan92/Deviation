@@ -6,8 +6,6 @@ using UnityEngine.Networking;
 using Assets.Scripts.Enum;
 using Assets.Scripts.Exchange.Attacks;
 
-
-
 [RequireComponent(typeof(ActionObject))]
 public class ActionObjectMover : NetworkBehaviour
 {
@@ -16,13 +14,13 @@ public class ActionObjectMover : NetworkBehaviour
 	[SyncVar]
 	private Quaternion _realRotation;
 	[SyncVar]
-	public int _currentRow;
+	private int _currentRow;
 	[SyncVar]
-	public int _currentColumn;
+	private int _currentColumn;
 	[SyncVar]
 	private bool _stopped = false;
 	[SyncVar]
-	public float _movementSpeed;
+	private float _movementSpeed;
 
 	public void UpdateRow(int value)
 	{
@@ -86,6 +84,25 @@ public class ActionObjectMover : NetworkBehaviour
 		}
 
 		RpcInit();
+	}
+
+	public void UpdateDirection(Direction direction)
+	{
+		switch (direction)
+		{
+			case Direction.Up:
+				gameObject.transform.rotation = Quaternion.LookRotation(gameObject.transform.position + new Vector3(0, 1));
+				break;
+			case Direction.Down:
+				gameObject.transform.rotation = Quaternion.LookRotation(gameObject.transform.position + new Vector3(0, -1));
+				break;
+			case Direction.Left:
+				gameObject.transform.rotation = Quaternion.LookRotation(gameObject.transform.position + new Vector3(-1, 0));
+				break;
+			case Direction.Right:
+				gameObject.transform.rotation = Quaternion.LookRotation(gameObject.transform.position + new Vector3(1, 0));
+				break;
+		}
 	}
 
 	public void MovingAction()

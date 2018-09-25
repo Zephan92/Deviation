@@ -73,20 +73,6 @@ namespace Assets.Deviation.MasterServer.Scripts
 		}
 	}
 
-	public enum Exchange1v1MatchMakingOpCodes
-	{
-		RequestJoinQueue = 128,
-		RequestLeaveQueue = 132,
-		RequestChangeQueuePool = 136,
-		RespondMatchFound = 140,
-		RespondChangeQueuePool = 144,
-		RequestJoinMatch = 148,
-		RequestDeclineMatch = 152,
-		RespondMatchReady = 156,
-		RespondMatchDisbanded = 160,
-		RespondRoomId = 164,
-	}
-
 	public class ExchangeMatchMakingPacket : SerializablePacket
 	{
 		public long PlayerId;

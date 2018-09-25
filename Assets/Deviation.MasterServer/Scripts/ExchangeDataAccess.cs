@@ -85,7 +85,6 @@ namespace Assets.Deviation.MasterServer.Scripts
 			_exchangeResult.Insert(result);
 		}
 
-		
 		//ExchangeDataEntry Logic
 		public List<ExchangeDataEntry> GetExchangeDataEntries(long exchangeDataId)
 		{

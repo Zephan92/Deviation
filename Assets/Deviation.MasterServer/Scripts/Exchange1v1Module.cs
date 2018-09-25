@@ -44,17 +44,6 @@ public class ExchangePlayerPacket : SerializablePacket
 	}
 }
 
-public enum ExchangePlayerOpCodes
-{
-	GetPlayerAccount = 0,
-	GetExchangePlayerInfo = 4,
-	CreateExchangeData = 8,
-	CreateExchangeResultData = 12,
-	GetExchangeResultData = 16
-	// (OpCodes should be unique. MSF internal opCodes 
-	// start from 32000, so you can use anything from 0 to 32000
-}
-
 public class Exchange1v1Module : ServerModuleBehaviour
 {
 	private PlayerDataAccess pda = new PlayerDataAccess();

@@ -10,7 +10,8 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		Play,
 		Profile,
 		Craft,
-		Kits
+		Kits,
+		Market,
 	}
 
 	public class ClientController : ControllerBase
@@ -24,12 +25,14 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		public GameObject ProfileUI;
 		public GameObject KitsUI;
 		public GameObject CurrentUI;
+		public GameObject MarketUI;
 
 		public Button PlayButton;
 		public Button HomeButton;
 		public Button ProfileButton;
 		public Button CraftButton;
 		public Button KitsButton;
+		public Button MarketButton;
 
 		public ClientTab CurrentTab;
 
@@ -46,18 +49,21 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			HomeUI = UIs.transform.Find("HomeUI").gameObject;
 			ProfileUI = UIs.transform.Find("ProfileUI").gameObject;
 			KitsUI = UIs.transform.Find("KitsUI").gameObject;
+			MarketUI = UIs.transform.Find("MarketUI").gameObject;
 
 			PlayButton = Header.Find("Play").GetComponent<Button>();
 			HomeButton = Header.Find("Home").GetComponent<Button>();
 			ProfileButton = Header.Find("Profile").GetComponent<Button>();
 			CraftButton = Header.Find("Craft").GetComponent<Button>();
 			KitsButton = Header.Find("Kits").GetComponent<Button>();
+			MarketButton = Header.Find("Market").GetComponent<Button>();
 
 			PlayButton.onClick.AddListener(() => { SwitchTab(ClientTab.Play); });
 			HomeButton.onClick.AddListener(() => { SwitchTab(ClientTab.Home); });
 			ProfileButton.onClick.AddListener(() => { SwitchTab(ClientTab.Profile); });
 			CraftButton.onClick.AddListener(() => { SwitchTab(ClientTab.Craft); });
 			KitsButton.onClick.AddListener(() => { SwitchTab(ClientTab.Kits); });
+			MarketButton.onClick.AddListener(() => { SwitchTab(ClientTab.Market); });
 
 			SwitchTab(ClientTab.Home);
 		}
@@ -96,6 +102,11 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 				case ClientTab.Kits:
 					KitsUI.SetActive(true);
 					CurrentUI = KitsUI;
+					break;
+
+				case ClientTab.Market:
+					MarketUI.SetActive(true);
+					CurrentUI = MarketUI;
 					break;
 
 				case ClientTab.Home:

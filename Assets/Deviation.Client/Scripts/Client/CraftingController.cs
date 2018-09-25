@@ -134,9 +134,9 @@ namespace Assets.Deviation.Client.Scripts.Client
 				return;
 			}
 
-			BaseRecipeComponent.GetComponentInChildren<DragableUI>()?.ReturnToOrignalParent();
-			SpecialRecipeComponent.GetComponentInChildren<DragableUI>()?.ReturnToOrignalParent();
-			TypeRecipeComponent.GetComponentInChildren<DragableUI>()?.ReturnToOrignalParent();
+			BaseRecipeComponent.GetComponentInChildren<DragableUI>()?.ReturnToOriginalParent();
+			SpecialRecipeComponent.GetComponentInChildren<DragableUI>()?.ReturnToOriginalParent();
+			TypeRecipeComponent.GetComponentInChildren<DragableUI>()?.ReturnToOriginalParent();
 
 			numBaseMaterialRows = PopulateMaterialsList(BaseMaterials, Bag.MaterialsByType(MaterialType.Base));
 			numSpecialMaterialRows = PopulateMaterialsList(SpecialMaterials, Bag.MaterialsByType(MaterialType.Special));

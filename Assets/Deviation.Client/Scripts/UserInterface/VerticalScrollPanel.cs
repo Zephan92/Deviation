@@ -33,7 +33,7 @@ namespace Assets.Deviation.Client.Scripts.UserInterface
 
 		public void Start()
 		{
-		
+			OnListChange(_itemCount);
 		}
 
 		public void Update()

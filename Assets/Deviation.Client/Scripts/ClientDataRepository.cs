@@ -149,7 +149,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 
 						PlayerAccount = response.Deserialize(new PlayerAccount());
 						PlayerAccountRecieved?.Invoke();
-
+						Msf.Client.Connection.SendMessage((short)ExchangePlayerOpCodes.Login, PlayerAccount);
 						HasPlayerAccount = true;
 						Debug.Log("Player Account Successfully Recieved");
 

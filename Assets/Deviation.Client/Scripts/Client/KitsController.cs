@@ -40,8 +40,8 @@ namespace Assets.Deviation.Client.Scripts.Client
 			IBasicAction basicAction = new BasicAction("Small Projectile");
 			var clip1Actions = new Dictionary<string, int>
 			{
-				{ "Small Projectile", 4 },
-				//{ "Small Projectile", 2 },
+				{ "Small Projectile", 2 },
+				{ "StunField", 2 },
 				{ "Tremor", 2 },
 				{ "ShockWave", 4 }
 			};
@@ -71,10 +71,10 @@ namespace Assets.Deviation.Client.Scripts.Client
 			kitRow.transform.SetParent(KitList.List.transform);
 			Create_CreateKitButtonPanel(kitRow);
 
-			for (int i = 1; i < kits.Count + 1; i++)
+			for (int i = 0; i < kits.Count; i++)
 			{
 				IKit kit = kits[i];
-				if (i % 6 == 0 && i > 0)
+				if (i % 5 == 4 && i > 0)
 				{
 					kitRow = new GameObject("KitRow");
 					LayoutGroupFactory.CreateHorizontalLayout(kitRow);
