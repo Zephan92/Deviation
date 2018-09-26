@@ -299,6 +299,7 @@
     <Compile Include="Assets\Deviation.Client\Scripts\Client\Kits\EditKitController.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\Kits\KitDetailsPanel.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\Market\ActionTradeItem.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Client\Market\ItemWidget.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\Market\PriceWidget.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\Market\QuantityWidget.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\Market\TradeItem.cs" />

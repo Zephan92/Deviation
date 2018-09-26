@@ -12,6 +12,17 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 {
 	public class PriceWidget : MonoBehaviour
 	{
+		//constants
+		private const int INITIAL_PRICE = 0;
+
+		//private variables
+		private int _amount;
+		private InputField AmountField;
+		private Button Over;
+		private Button Market;
+		private Button Under;
+
+		//public properties
 		public int Amount
 		{
 			get { return _amount; }
@@ -27,32 +38,32 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 				OnAmountChange(_amount);
 			}
 		}
-		public UnityAction<int> OnAmountChange;
-
-		private int _amount;
-		private InputField AmountField;
-		private Button OverpriceButton;
-		private Button MarketButton;
-		private Button UnderpriceButton;
+		public UnityAction<int> OnAmountChange { get; set; }
 
 		public void Awake()
 		{
 			_amount = 0;
-			AmountField = transform.Find("Amount").GetComponent<InputField>();
-			OverpriceButton = transform.Find("QuickPriceButtons").Find("OverMarket").GetComponent<Button>();
-			MarketButton = transform.Find("QuickPriceButtons").Find("Market").GetComponent<Button>();
-			UnderpriceButton = transform.Find("QuickPriceButtons").Find("UnderMarket").GetComponent<Button>();
+			AmountField = transform.Find("AmountRow").GetComponentInChildren<InputField>();
+			Over = transform.Find("AmountRow").Find("Over").GetComponent<Button>();
+			//Market = transform.Find("QuickPriceButtons").Find("Market").GetComponent<Button>();
+			Under = transform.Find("AmountRow").Find("Under").GetComponent<Button>();
 
-			OverpriceButton.onClick.AddListener(Overprice);
-			MarketButton.onClick.AddListener(Market);
-			UnderpriceButton.onClick.AddListener(Underprice);
+			Over.onClick.AddListener(Overprice);
+			//Market.onClick.AddListener(Market);
+			Under.onClick.AddListener(Underprice);
 
 			AmountField.onEndEdit.AddListener(OnEndEdit);
 		}
 
-		public void Market()
+		public void Reinitialize()
 		{
-			Amount = 3523;
+			Amount = INITIAL_PRICE;
+		}
+
+		public void SetToMarketPrice()
+		{
+			//get market price
+			Amount = 3125;
 		}
 
 		public void Overprice()

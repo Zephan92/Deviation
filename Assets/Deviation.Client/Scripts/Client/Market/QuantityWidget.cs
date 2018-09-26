@@ -12,6 +12,17 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 {
 	public class QuantityWidget : MonoBehaviour
 	{
+		//constants
+		private const int INITIAL_QUANTITY = 0;
+
+		//private variables
+		private int _amount;
+		private InputField AmountField;
+		private Button Plus;
+		private Button Minus;
+		private Button Reset;
+
+		//public properties
 		public int Amount
 		{
 			get { return _amount; }
@@ -27,28 +38,19 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 				OnAmountChange(_amount);
 			}
 		}
-		public UnityAction<int> OnAmountChange;
-
-		private int _amount;
-		private InputField AmountField;
-		private Button Add1;
-		private Button Add10;
-		private Button Add100;
-		private Button Add1k;
+		public UnityAction<int> OnAmountChange { get; set; }
 
 		public void Awake()
 		{
 			_amount = 0;
-			AmountField = transform.Find("Amount").GetComponent<InputField>();
-			Add1 = transform.Find("QuickAddButtons").Find("Add1").GetComponent<Button>();
-			Add10 = transform.Find("QuickAddButtons").Find("Add10").GetComponent<Button>();
-			Add100 = transform.Find("QuickAddButtons").Find("Add100").GetComponent<Button>();
-			Add1k = transform.Find("QuickAddButtons").Find("Add1k").GetComponent<Button>();
+			AmountField = transform.Find("AmountRow").GetComponentInChildren<InputField>();
+			Plus = transform.Find("AmountRow").Find("Plus").GetComponent<Button>();
+			//Reset = transform.Find("Amount").Find("Reset").GetComponent<Button>();
+			Minus = transform.Find("AmountRow").Find("Minus").GetComponent<Button>();
 
-			Add1.onClick.AddListener(() => { Add(1); });
-			Add10.onClick.AddListener(() => { Add(10); });
-			Add100.onClick.AddListener(() => { Add(100); });
-			Add1k.onClick.AddListener(() => { Add(1000); });
+			Plus.onClick.AddListener(() => { Add(1); });
+			//Reset.onClick.AddListener(() => { Amount = 1; });
+			Minus.onClick.AddListener(() => { Add(-1); });
 
 			AmountField.onEndEdit.AddListener(OnEndEdit);
 		}
@@ -56,6 +58,11 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 		public void Add(int value)
 		{
 			Amount += value;
+		}
+
+		public void Reinitialize()
+		{
+			Amount = 1;
 		}
 
 		private void OnEndEdit(string value)

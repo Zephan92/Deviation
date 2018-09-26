@@ -41,7 +41,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 			{
 				Debug.LogError($"Notifying Player {playerID}. Packet: {packet}");
 				IPeer peer = GetPlayerPeer(playerID);
-				peer.SendMessage((short)opCode, packet);
+				peer.SendMessage(opCode, packet);
 			}
 			else
 			{

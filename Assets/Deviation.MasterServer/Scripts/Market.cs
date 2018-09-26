@@ -105,22 +105,22 @@ namespace Assets.Deviation.MasterServer.Scripts
 
 							if (buy.Quantity > sell.Quantity)
 							{
+								buyNotification.Quantity = sell.Quantity;
+								buy.Quantity -= sell.Quantity;
 								sellsToRemove.Add(sell);
 								sell.Quantity = 0;
-								buy.Quantity -= sell.Quantity;
-								buyNotification.Quantity = sell.Quantity;
 							}
 							else if (buy.Quantity == sell.Quantity)
 							{
 								sellsToRemove.Add(sell);
-								sell.Quantity = 0;
 								buysToRemove.Add(buy);
+								sell.Quantity = 0;
 								buy.Quantity = 0;
 							}
-							else if (buy.Quantity > sell.Quantity)
+							else if (buy.Quantity < sell.Quantity)
 							{
-								sell.Quantity -= buy.Quantity;
 								sellNotification.Quantity = buy.Quantity;
+								sell.Quantity -= buy.Quantity;
 								buysToRemove.Add(buy);
 								buy.Quantity = 0;
 							}

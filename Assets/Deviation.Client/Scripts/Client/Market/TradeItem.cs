@@ -106,5 +106,6 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 	{
 		Action = 0,
 		Resource = 1,
+		Material = 2,
 	}
 }
