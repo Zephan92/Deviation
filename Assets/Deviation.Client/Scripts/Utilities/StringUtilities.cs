@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace Assets.Deviation.Client.Scripts.Utilities
 		public const int MILLION	= 1000000;
 		public const int BILLION	= 1000000000;
 
-		public static int ConvertAggregateStringToInt(string numberText)
+		public static int ConvertShortIntStringToInt(string numberText)
 		{
 			if (numberText.Length == 0)
 			{
@@ -48,7 +49,12 @@ namespace Assets.Deviation.Client.Scripts.Utilities
 			return 0;
 		}
 
-		public static string ConvertIntToAggregateString(int number)
+		public static int ConvertLongIntStringToInt(string number)
+		{
+			return int.Parse(number, NumberStyles.AllowThousands);
+		}
+
+		public static string ConvertIntToShortIntString(int number)
 		{
 			if (number >= THOUSAND * 100 && number < MILLION * 10)
 			{
@@ -64,9 +70,14 @@ namespace Assets.Deviation.Client.Scripts.Utilities
 			}
 		}
 
-		public static string ConvertStringToAggregateString(string numberText)
+		public static string ConvertStringToShortIntString(string numberText)
 		{
-			return ConvertIntToAggregateString(Int32.Parse(numberText));
+			return ConvertIntToShortIntString(Int32.Parse(numberText));
+		}
+
+		public static string ConvertIntToLongIntString(int number)
+		{
+			return number.ToString("#,##0");
 		}
 	}
 }

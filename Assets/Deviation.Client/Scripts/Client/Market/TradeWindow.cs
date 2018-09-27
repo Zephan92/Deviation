@@ -11,40 +11,51 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 {
 	public class TradeWindow : MonoBehaviour
 	{
-		public Transform TradeSelectionPanel;
-		public TradeSelection TradeSelection;
+		private Transform _tradeSelectionPanel;
+		private Transform _trades;
+		private Transform _buyTransform;
+		private Transform _sellTransform;
 
-		public Transform EmptyTransform;
-		public Transform FilledTransform;
+		private TradeSelection _tradeSelection;
+		private Button _buyButton;
+		private Button _sellButton;
 
-		public Transform BuyTransform;
-		public Transform SellTransform;
-
-		public Button BuyButton;
-		public Button SellButton;
-
+		private List<OfferDetailsPanel> _offerDetailPanels;
 
 		public void Start()
 		{
-			var parent = GameObject.Find("MarketUI");
-			TradeSelectionPanel = parent.transform.Find("TradingUI").Find("TradeSelection");
-			TradeSelection = TradeSelectionPanel.GetComponent<TradeSelection>();
-			EmptyTransform = transform.Find("Empty");
-			BuyTransform = EmptyTransform.Find("Item").Find("Buy");
-			SellTransform = EmptyTransform.Find("Item").Find("Sell");
-			BuyButton = BuyTransform.GetComponent<Button>();
-			SellButton = SellTransform.GetComponent<Button>();
+			//children
+			_trades = transform.Find("Trades");
+			_buyTransform = transform.Find("Buy");
+			_sellTransform = transform.Find("Sell");
+			_tradeSelectionPanel = transform.Find("TradeSelectionPopup");
 
-			FilledTransform = transform.Find("Filled");
+			_tradeSelection = _tradeSelectionPanel.GetComponent<TradeSelection>();
+			_buyButton = _buyTransform.GetComponent<Button>();
+			_sellButton = _sellTransform.GetComponent<Button>();
 
-			BuyButton.onClick.AddListener(() => OpenTradeSelection(TradeInterfaceType.Buy));
-			SellButton.onClick.AddListener(() => OpenTradeSelection(TradeInterfaceType.Sell));
+			_buyButton.onClick.AddListener(() => OpenTradeSelection(TradeInterfaceType.Buy));
+			_sellButton.onClick.AddListener(() => OpenTradeSelection(TradeInterfaceType.Sell));
+
+			_offerDetailPanels = _trades.GetComponentsInChildren<OfferDetailsPanel>().ToList();
 		}
 
 		public void OpenTradeSelection(TradeInterfaceType trade)
 		{
-			TradeSelection.Open();
-			TradeSelection.Init(trade);
+			_tradeSelection.Open();
+			_tradeSelection.Init(this, trade);
+		}
+
+		public void Fill(TradeInterfaceType type, ITradeItem trade)
+		{
+			foreach (var offer in _offerDetailPanels)
+			{
+				if (!offer.HasOffer)
+				{
+					offer.Init(type, trade);
+					return;
+				}
+			}
 		}
 	}
 }

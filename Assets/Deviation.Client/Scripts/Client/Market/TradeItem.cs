@@ -16,6 +16,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 		int Quantity { get; set; }
 		long PlayerID { get; set; }
 		TradeType Type { get; set; }
+		int Total { get; }
 	}
 
 	public class TradeItem : SerializablePacket, ITradeItem
@@ -25,6 +26,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 		public int Quantity { get; set; }
 		public long PlayerID { get; set; }
 		public TradeType Type { get; set; }
+		public int Total { get { return Price * Quantity; } }
 
 		public TradeItem(){}
 

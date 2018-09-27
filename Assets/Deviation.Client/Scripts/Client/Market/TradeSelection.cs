@@ -19,6 +19,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 	public class TradeSelection : MonoBehaviour
 	{
 		private MarketController mc;
+		private TradeWindow _tradeWindow;
 
 		public Transform TradeSelectionPanel;
 		public Text Title;
@@ -29,7 +30,6 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 		public ItemWidget Item;
 		public Text TotalPriceText;
 		public int TotalPrice;
-
 		public TradeInterfaceType Type;
 
 		public void Awake()
@@ -68,6 +68,8 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 					mc.Sell(trade);
 					break;
 			}
+
+			_tradeWindow.Fill(Type, trade);
 			Close();
 		}
 
@@ -92,7 +94,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 			if (totalPrice <= Int32.MaxValue)
 			{
 				TotalPrice = (int) totalPrice;
-				TotalPriceText.text = StringUtilities.ConvertIntToAggregateString(TotalPrice);
+				TotalPriceText.text = StringUtilities.ConvertIntToLongIntString(TotalPrice);
 			}
 			else
 			{
@@ -124,8 +126,9 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 				Quantity.Amount > 0;
 		}
 
-		public void Init(TradeInterfaceType type)
+		public void Init(TradeWindow window, TradeInterfaceType type)
 		{
+			_tradeWindow = window;
 			Type = type;
 			Title.text = $"{type} Offer";
 		}

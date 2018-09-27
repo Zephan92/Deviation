@@ -16,6 +16,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 		public int Quantity { get; set; }
 		public long PlayerID { get; set; }
 		public TradeType Type { get; set; }
+		public int Total { get { return Price * Quantity; } }
 
 		private IExchangeAction _action;
 

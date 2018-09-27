@@ -300,12 +300,14 @@
     <Compile Include="Assets\Deviation.Client\Scripts\Client\Kits\KitDetailsPanel.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\Market\ActionTradeItem.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\Market\ItemWidget.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\Client\Market\OfferDetailsPanel.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\Market\PriceWidget.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\Market\QuantityWidget.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\Market\TradeItem.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\Market\TradeReceipt.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\Market\TradeSelection.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Client\Market\TradeWindow.cs" />
+    <Compile Include="Assets\Deviation.Client\Scripts\UserInterface\DialogPopup.cs" />
     <Compile Include="Assets\Deviation.Client\Scripts\Utilities\StringUtilities.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Controllers\ExchangeControllerHelpers\ClientExchangeControllerHelper.cs" />
     <Compile Include="Assets\Deviation.Exchange\Scripts\Controllers\ExchangeControllerHelpers\ExchangeControllerHelper.cs" />

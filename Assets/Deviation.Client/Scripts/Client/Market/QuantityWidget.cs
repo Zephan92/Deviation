@@ -34,7 +34,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 				}
 
 				_amount = value;
-				AmountField.text = StringUtilities.ConvertIntToAggregateString(_amount);
+				AmountField.text = StringUtilities.ConvertIntToLongIntString(_amount);
 				OnAmountChange(_amount);
 			}
 		}
@@ -67,7 +67,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 
 		private void OnEndEdit(string value)
 		{
-			int amount = StringUtilities.ConvertAggregateStringToInt(value);
+			int amount = StringUtilities.ConvertShortIntStringToInt(value);
 
 			if (amount >= 0)
 			{
