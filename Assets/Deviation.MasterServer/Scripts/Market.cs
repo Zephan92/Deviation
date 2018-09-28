@@ -15,33 +15,45 @@ namespace Assets.Deviation.MasterServer.Scripts
 	{
 		private ConcurrentQueue<ITradeItem> _buyOrders;
 		private ConcurrentQueue<ITradeItem> _sellOrders;
+		private ConcurrentQueue<ITradeReceipt> _cancelOrders;
 
 		private Dictionary<string, List<ITradeItem>> buysByItemName;
 		private Dictionary<string, List<ITradeItem>> sellsByItemName;
 
 		private DeviationServer deviation;
+		private long orderCount;
 
 		public Market(DeviationServer server)
 		{
 			deviation = server;
 			_buyOrders = new ConcurrentQueue<ITradeItem>();
 			_sellOrders = new ConcurrentQueue<ITradeItem>();
+			_cancelOrders = new ConcurrentQueue<ITradeReceipt>();
 			buysByItemName = new Dictionary<string, List<ITradeItem>>();
 			sellsByItemName = new Dictionary<string, List<ITradeItem>>();
 		}
 
-		public void AddBuyOrder(ITradeItem trade)
+		public long AddBuyOrder(ITradeItem trade)
 		{
+			orderCount++;
+			trade.ID = orderCount;
 			_buyOrders.Enqueue(trade);
+			return orderCount;
 		}
 
-		public void AddSellOrder(ITradeItem trade)
+		public long AddSellOrder(ITradeItem trade)
 		{
+			orderCount++;
+			trade.ID = orderCount;
 			_sellOrders.Enqueue(trade);
+			return orderCount;
 		}
 
 		public void AddUpdateOrder(){ }
-		public void AddCancelOrder(){ }
+		public void AddCancelOrder(ITradeReceipt trade)
+		{
+			_cancelOrders.Enqueue(trade);
+		}
 
 		public void UpdateQueues()
 		{
@@ -77,6 +89,53 @@ namespace Assets.Deviation.MasterServer.Scripts
 					sellsByItemName.Add(item.Name, new List<ITradeItem>() { item });
 				}
 			}
+
+			ITradeReceipt cancelation;
+
+			while (_cancelOrders.TryPeek(out cancelation))
+			{
+				_cancelOrders.TryDequeue(out cancelation);
+				if (sellsByItemName.ContainsKey(cancelation.Name))
+				{
+					List<ITradeItem> sells = sellsByItemName[cancelation.Name];
+					List<ITradeItem> sellsToRemove = new List<ITradeItem>();
+
+					foreach (var sell in sells)
+					{
+						if (sell.ID == cancelation.ID)
+						{
+							NotifyPlayerTrade(sell, MarketOpCodes.Canceled);
+							sellsToRemove.Add(sell);
+						}
+					}
+
+					foreach (var sell in sellsToRemove)
+					{
+						sells.Remove(sell);
+					}
+				}
+
+				if (buysByItemName.ContainsKey(cancelation.Name))
+				{
+					List<ITradeItem> buys = buysByItemName[cancelation.Name];
+					List<ITradeItem> buysToRemove = new List<ITradeItem>();
+
+					foreach (var buy in buys)
+					{
+						if (buy.ID == cancelation.ID)
+						{
+							NotifyPlayerTrade(buy, MarketOpCodes.Canceled);
+							buysToRemove.Add(buy);
+						}
+					}
+
+					foreach (var buy in buysToRemove)
+					{
+						buys.Remove(buy);
+					}
+				}
+			}
+			
 		}
 
 		public void FindTrades()

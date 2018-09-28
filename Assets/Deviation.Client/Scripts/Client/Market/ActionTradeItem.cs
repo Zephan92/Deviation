@@ -11,6 +11,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 {
 	public class ActionTradeItem : SerializablePacket, ITradeItem
 	{
+		public long ID { get; set; }
 		public string Name { get; set; }
 		public int Price { get; set; }
 		public int Quantity { get; set; }
@@ -25,10 +26,11 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 			Type = TradeType.Action;
 		}
 
-		public ActionTradeItem(string name, int price, int quantity, long playerId)
+		public ActionTradeItem(long id, string name, int price, int quantity, long playerId)
 		{
 			_action = ActionLibrary.GetActionInstance(name);
 
+			ID = id;
 			Name = name;
 			Price = price;
 			Quantity = quantity;
@@ -36,10 +38,11 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 			Type = TradeType.Action;
 		}
 
-		public ActionTradeItem(IExchangeAction action, int price, int quantity, long playerId)
+		public ActionTradeItem(long id, IExchangeAction action, int price, int quantity, long playerId)
 		{
 			_action = action;
 
+			ID = id;
 			Name = action.Name;
 			Price = price;
 			Quantity = quantity;
@@ -49,6 +52,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 
 		public override void ToBinaryWriter(EndianBinaryWriter writer)
 		{
+			writer.Write(ID);
 			writer.Write(Name);
 			writer.Write(Price);
 			writer.Write(Quantity);
@@ -58,6 +62,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 
 		public override void FromBinaryReader(EndianBinaryReader reader)
 		{
+			ID = reader.ReadInt64();
 			Name = reader.ReadString();
 			Price = reader.ReadInt32();
 			Quantity = reader.ReadInt32();

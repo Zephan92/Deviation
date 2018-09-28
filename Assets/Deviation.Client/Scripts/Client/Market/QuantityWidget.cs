@@ -20,7 +20,6 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 		private InputField AmountField;
 		private Button Plus;
 		private Button Minus;
-		private Button Reset;
 
 		//public properties
 		public int Amount

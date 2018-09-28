@@ -26,9 +26,15 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 
 		public ITradeItem TradeOffer;
 		public TradeInterfaceType Type;
+		public MarketController mc;
+
+		public int quantityTrade;
+		public int totalPrice;
 
 		public void Awake()
 		{
+			mc = FindObjectOfType<MarketController>();
+
 			_placeholder = transform.Find("Placeholder");
 			_offerDetails = transform.Find("OfferDetails");
 
@@ -71,16 +77,36 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 
 		public void OnCancelClick()
 		{
-			HasOffer = false;
 			var go = Instantiate(Resources.Load("DialogPopup"), transform.root) as GameObject;
 			var dialogPopup = go.GetComponent<DialogPopup>();
 			string content = string.Format(DIALOG_CONTENT, TradeOffer.Name, Type);
-			dialogPopup.Init(DIALOG_TITLE, content, DIALOG_KEEP_1, () => { }, DIALOG_REMOVE_2, RemoveOffer);
+			dialogPopup.Init(DIALOG_TITLE, content, DIALOG_KEEP_1, () => { }, DIALOG_REMOVE_2, OnRemoveOfferClick);
+		}
+
+		private void OnRemoveOfferClick()
+		{
+			mc.Cancel(new TradeReceipt(TradeOffer));
 		}
 
 		public void RemoveOffer()
 		{
 			Reintialize();
+		}
+
+		public void OnProgressStatusChange(ITradeItem trade)
+		{
+			quantityTrade += trade.Quantity;
+			totalPrice += trade.Total;
+
+			if (quantityTrade >= TradeOffer.Quantity)
+			{
+				_progressStatus.color = Color.green;
+				_cancelOrderButton.gameObject.SetActive(false);
+			}
+			else
+			{
+				_progressStatus.color = Color.yellow;
+			}
 		}
 	}
 }

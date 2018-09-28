@@ -35,20 +35,25 @@ namespace Assets.Deviation.MasterServer.Scripts
 		{
 			TradeItem trade = message.Deserialize(new TradeItem());
 			Debug.LogError($"Handle Buy: {trade}");
-			_market.AddBuyOrder(trade);
-			//message.Peer.SendMessage((short)MarketOpCodes.Bought, trade);
+			long tradeID = _market.AddBuyOrder(trade);
+			message.Respond(new TradeReceipt(trade.Name, tradeID), ResponseStatus.Success);
 		}
 
 		private void HandleSell(IIncommingMessage message)
 		{
 			TradeItem trade = message.Deserialize(new TradeItem());
 			Debug.LogError($"Handle Sell: {trade}");
-			_market.AddSellOrder(trade);
-			//message.Peer.SendMessage((short) MarketOpCodes.Sold, trade);
+			long tradeID = _market.AddSellOrder(trade);
+			message.Respond(new TradeReceipt(trade.Name, tradeID), ResponseStatus.Success);
 		}
 
 		private void HandleUpdate(IIncommingMessage message){}
-		private void HandleCancel(IIncommingMessage message){}
+		private void HandleCancel(IIncommingMessage message)
+		{
+			TradeReceipt tradeReceipt = message.Deserialize(new TradeReceipt());
+			Debug.LogError($"Handle Cancel: {tradeReceipt}");
+			_market.AddCancelOrder(tradeReceipt);
+		}
 
 		private void FixedUpdate()
 		{

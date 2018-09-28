@@ -62,15 +62,19 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 			switch (Type)
 			{
 				case TradeInterfaceType.Buy:
-					mc.Buy(trade);
+					mc.Buy(trade, OnConfirmCallback);
 					break;
 				case TradeInterfaceType.Sell:
-					mc.Sell(trade);
+					mc.Sell(trade, OnConfirmCallback);
 					break;
 			}
 
-			_tradeWindow.Fill(Type, trade);
 			Close();
+		}
+
+		private void OnConfirmCallback(ITradeItem trade)
+		{
+			_tradeWindow.Fill(Type, trade);
 		}
 
 		private ITradeItem CreateTrade()
@@ -78,13 +82,13 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 			switch (Item.TradeItem.Type)
 			{
 				case TradeType.Action:
-					return new ActionTradeItem(Item.TradeItem.Name, Price.Amount, Quantity.Amount, ClientDataRepository.Instance.PlayerAccount.Id);
+					return new ActionTradeItem(0, Item.TradeItem.Name, Price.Amount, Quantity.Amount, ClientDataRepository.Instance.PlayerAccount.Id);
 				//case TradeType.Resource:
 				//return new ResourceTradeItem(ItemToTrade.Name, Price.Amount, Quantity.Amount, ClientDataRepository.Instance.PlayerAccount.Id);
 				//case TradeType.Material:
 				//return new MaterialTradeItem(ItemToTrade.Name, Price.Amount, Quantity.Amount, ClientDataRepository.Instance.PlayerAccount.Id);
 				default:
-					return new TradeItem(Item.TradeItem.Name, Price.Amount, Quantity.Amount, ClientDataRepository.Instance.PlayerAccount.Id, Item.TradeItem.Type);
+					return new TradeItem(0, Item.TradeItem.Name, Price.Amount, Quantity.Amount, ClientDataRepository.Instance.PlayerAccount.Id, Item.TradeItem.Type);
 			}
 		}
 

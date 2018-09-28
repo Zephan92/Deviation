@@ -1,4 +1,5 @@
-﻿using Assets.Deviation.Exchange.Scripts.Client;
+﻿using Assets.Deviation.Client.Scripts.UserInterface;
+using Assets.Deviation.Exchange.Scripts.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,8 +43,30 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 
 		public void OpenTradeSelection(TradeInterfaceType trade)
 		{
-			_tradeSelection.Open();
-			_tradeSelection.Init(this, trade);
+			if (OpenOfferPanel())
+			{
+				_tradeSelection.Open();
+				_tradeSelection.Init(this, trade);
+			}
+			else
+			{
+				var go = Instantiate(Resources.Load("DialogPopup"), transform.root) as GameObject;
+				var dialogPopup = go.GetComponent<DialogPopup>();
+				dialogPopup.Init("No Open Trade Offer Slots!", "You do not have enough room to add another offer, please collect or cancel your current trade offers to make room.", "OK", () => { });
+			}
+		}
+
+		public bool OpenOfferPanel()
+		{
+			foreach (var offer in _offerDetailPanels)
+			{
+				if (!offer.HasOffer)
+				{
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		public void Fill(TradeInterfaceType type, ITradeItem trade)
@@ -56,6 +79,45 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 					return;
 				}
 			}
+
+			Debug.LogError("Failed to find an Open Offer Panel");
+		}
+
+		public void CancelOffer(ITradeItem trade)
+		{
+			foreach (var panel in _offerDetailPanels)
+			{
+				if (panel.HasOffer && panel.TradeOffer.ID == trade.ID)
+				{
+					panel.RemoveOffer();
+					return;
+				}
+			}
+		}
+
+		public void Bought(ITradeItem trade)
+		{
+			foreach (var panel in _offerDetailPanels)
+			{
+				if (panel.HasOffer && panel.TradeOffer.ID == trade.ID)
+				{
+					panel.OnProgressStatusChange(trade);
+					return;
+				}
+			}
+		}
+
+		public void Sold(ITradeItem trade)
+		{
+			foreach (var panel in _offerDetailPanels)
+			{
+				if (panel.HasOffer && panel.TradeOffer.ID == trade.ID)
+				{
+					panel.OnProgressStatusChange(trade);
+					return;
+				}
+			}
+
 		}
 	}
 }

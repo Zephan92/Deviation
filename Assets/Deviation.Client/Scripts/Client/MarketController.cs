@@ -14,18 +14,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace Assets.Deviation.Client.Scripts.Client
 {
 	public class MarketController : MonoBehaviour
 	{
-		public Transform MenuBar;
+		private Transform menuBar;
+		private TradeWindow tradeWindow;
 
 		public void Awake()
 		{
 			var parent = GameObject.Find("MarketUI");
-			MenuBar = parent.transform.Find("Menu Bar");
+			menuBar = parent.transform.Find("Menu Bar");
+			tradeWindow = transform.Find("TradingUI").GetComponent<TradeWindow>();
 
 			Msf.Client.SetHandler((short)MarketOpCodes.Bought, HandleBought);
 			Msf.Client.SetHandler((short)MarketOpCodes.Sold, HandleSold);
@@ -33,30 +36,43 @@ namespace Assets.Deviation.Client.Scripts.Client
 			Msf.Client.SetHandler((short)MarketOpCodes.Canceled, HandleCanceled);
 		}
 
-		public void Buy(ITradeItem trade)
+		public void Buy(ITradeItem trade, UnityAction<ITradeItem> offerCallback)
 		{
 			Debug.Log($"Buy: {trade}");
-			Msf.Client.Connection.SendMessage((short)MarketOpCodes.Buy, trade);
+			if (tradeWindow.OpenOfferPanel())
+			{
+				Msf.Client.Connection.SendMessage((short)MarketOpCodes.Buy, trade, (response, data) => { offerCallback(DeserializeReceipt(data, trade)); });
+			}
 		}
 
-		public void Sell(ITradeItem trade)
+		public void Sell(ITradeItem trade, UnityAction<ITradeItem> offerCallback)
 		{
 			Debug.Log($"Sell: {trade}");
-			Msf.Client.Connection.SendMessage((short)MarketOpCodes.Sell, trade);
+			if (tradeWindow.OpenOfferPanel())
+			{
+				Msf.Client.Connection.SendMessage((short)MarketOpCodes.Sell, trade, (response, data) => { offerCallback(DeserializeReceipt(data, trade)); });
+			}
+		}
+
+		public void Cancel(ITradeReceipt trade)
+		{
+			Debug.Log($"Cancel: {trade}");
+			Msf.Client.Connection.SendMessage((short)MarketOpCodes.Cancel, trade);
 		}
 
 		private void HandleBought(IIncommingMessage message)
 		{
 			TradeItem trade = message.Deserialize(new TradeItem());
 			Debug.Log($"Bought: {trade}");
-			message.Respond(ResponseStatus.Success);
+			tradeWindow.Bought(trade);
 		}
 
 		private void HandleSold(IIncommingMessage message)
 		{
 			TradeItem trade = message.Deserialize(new TradeItem());
 			Debug.Log($"Sold: {trade}");
-			message.Respond(ResponseStatus.Success);
+			tradeWindow.Sold(trade);
+
 		}
 
 		private void HandleUpdated(IIncommingMessage message)
@@ -66,7 +82,9 @@ namespace Assets.Deviation.Client.Scripts.Client
 
 		private void HandleCanceled(IIncommingMessage message)
 		{
-
+			ITradeItem trade = message.Deserialize(new TradeItem());
+			Debug.Log($"Canceled: {trade}");
+			tradeWindow.CancelOffer(trade);
 		}
 
 		public List<ITradeItem> SearchForItems(string searchTerm)
@@ -78,10 +96,17 @@ namespace Assets.Deviation.Client.Scripts.Client
 
 			List<ITradeItem> items = new List<ITradeItem>();
 
-			ActionLibrary.GetActionLibrary_ByName().Keys.ToList().ForEach( action => items.Add(new TradeItem(action, 4564, 0, 0, TradeType.Action)));
-			MaterialLibrary.GetMaterials().ToList().ForEach(material => items.Add(new TradeItem(material.Name, 4564, 0, 0, TradeType.Material)));
+			ActionLibrary.GetActionLibrary_ByName().Keys.ToList().ForEach( action => items.Add(new TradeItem(0, action, 4564, 0, 0, TradeType.Action)));
+			MaterialLibrary.GetMaterials().ToList().ForEach(material => items.Add(new TradeItem(0, material.Name, 4564, 0, 0, TradeType.Material)));
 			items = items.OrderBy(x => x.Name).ToList();
 			return items.FindAll(i => i.Name.ToLower().Contains(searchTerm.ToLower())).ToList();
+		}
+
+		private ITradeItem DeserializeReceipt(IIncommingMessage message, ITradeItem trade)
+		{
+			ITradeReceipt receipt =  message.Deserialize(new TradeReceipt());
+			trade.ID = receipt.ID;
+			return trade;
 		}
 	}
 }

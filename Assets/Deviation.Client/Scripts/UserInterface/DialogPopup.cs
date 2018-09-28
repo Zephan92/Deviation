@@ -32,6 +32,16 @@ namespace Assets.Deviation.Client.Scripts.UserInterface
 			CloseButton.onClick.AddListener(Close);
 		}
 
+		public void Init(string title, string content, string actionName1, UnityAction actionOnClick1)
+		{
+			Title.text = title;
+			Content.text = content;
+			Action1.GetComponentInChildren<Text>().text = actionName1;
+			Action1.onClick.AddListener(actionOnClick1);
+			Action1.onClick.AddListener(Close);
+			Action2.gameObject.SetActive(false);
+		}
+
 		public void Init(string title, string content, string actionName1, UnityAction actionOnClick1, string actionName2, UnityAction actionOnClick2)
 		{
 			Title.text = title;

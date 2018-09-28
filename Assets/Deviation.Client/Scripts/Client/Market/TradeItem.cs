@@ -11,6 +11,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 {
 	public interface ITradeItem : ISerializablePacket
 	{
+		long ID { get; set; }
 		string Name { get; set; }
 		int Price { get; set; }
 		int Quantity { get; set; }
@@ -21,6 +22,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 
 	public class TradeItem : SerializablePacket, ITradeItem
 	{
+		public long ID { get; set; }
 		public string Name { get; set; }
 		public int Price { get; set; }
 		public int Quantity { get; set; }
@@ -30,8 +32,9 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 
 		public TradeItem(){}
 
-		public TradeItem(string name, int price, int quantity, long playerId, TradeType type)
+		public TradeItem(long tradeId, string name, int price, int quantity, long playerId, TradeType type)
 		{
+			ID = tradeId;
 			Name = name;
 			Price = price;
 			Quantity = quantity;
@@ -41,6 +44,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 
 		public TradeItem(ITradeItem item)
 		{
+			ID = item.ID;
 			Name = item.Name;
 			Price = item.Price;
 			Quantity = item.Quantity;
@@ -50,6 +54,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 
 		public TradeItem(BsonDocument document)
 		{
+			ID = document["TradeID"];
 			Name = document["Name"];
 			Price = document["Price"];
 			Quantity = document["Quantity"];
@@ -61,6 +66,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 		{
 			var retVal = new BsonDocument();
 
+			retVal.Add("TradeID", ID);
 			retVal.Add("Name", Name);
 			retVal.Add("Price", Price);
 			retVal.Add("Quantity", Quantity);
@@ -72,6 +78,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 
 		public override void ToBinaryWriter(EndianBinaryWriter writer)
 		{
+			writer.Write(ID);
 			writer.Write(Name);
 			writer.Write(Price);
 			writer.Write(Quantity);
@@ -81,6 +88,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 
 		public override void FromBinaryReader(EndianBinaryReader reader)
 		{
+			ID = reader.ReadInt64();
 			Name = reader.ReadString();
 			Price = reader.ReadInt32();
 			Quantity = reader.ReadInt32();
@@ -90,13 +98,14 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 
 		public override string ToString()
 		{
-			return $"Trade - Item: {Name}. Price: {Price}. Quantity: {Quantity}. PlayerID: {PlayerID}";
+			return $"Trade - Item: TradeID: {ID}. Name: {Name}. Price: {Price}. Quantity: {Quantity}. PlayerID: {PlayerID}";
 		}
 
 		public override bool Equals(object obj)
 		{
 			ITradeItem trade = (ITradeItem)obj;
-			return trade.Price == Price &&
+			return trade.ID == ID &&
+				trade.Price == Price &&
 				trade.Quantity == Quantity &&
 				trade.Name.Equals(Name) &&
 				trade.Type == Type &&
