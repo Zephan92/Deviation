@@ -9,10 +9,12 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Assets.Deviation.MasterServer.Scripts
+namespace Assets.Deviation.MasterServer.Scripts.Market
 {
 	public class Market
 	{
+		private MarketDataAccess mda = new MarketDataAccess();
+
 		private ConcurrentQueue<ITradeItem> _buyOrders;
 		private ConcurrentQueue<ITradeItem> _sellOrders;
 		private ConcurrentQueue<ITradeReceipt> _cancelOrders;
@@ -28,6 +30,19 @@ namespace Assets.Deviation.MasterServer.Scripts
 			deviation = server;
 			_buyOrders = new ConcurrentQueue<ITradeItem>();
 			_sellOrders = new ConcurrentQueue<ITradeItem>();
+
+			foreach (var buy in mda.GetBuyOrders())
+			{
+				orderCount++;
+				_buyOrders.Enqueue(buy);
+			}
+
+			foreach (var sell in mda.GetSellOrders())
+			{
+				orderCount++;
+				_buyOrders.Enqueue(sell);
+			}
+
 			_cancelOrders = new ConcurrentQueue<ITradeReceipt>();
 			buysByItemName = new Dictionary<string, List<ITradeItem>>();
 			sellsByItemName = new Dictionary<string, List<ITradeItem>>();
@@ -37,6 +52,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 		{
 			orderCount++;
 			trade.ID = orderCount;
+			mda.SaveBuyOrder(new TradeItem(trade));
 			_buyOrders.Enqueue(trade);
 			return orderCount;
 		}
@@ -45,6 +61,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 		{
 			orderCount++;
 			trade.ID = orderCount;
+			mda.SaveSellOrder(new TradeItem(trade));
 			_sellOrders.Enqueue(trade);
 			return orderCount;
 		}
@@ -53,6 +70,21 @@ namespace Assets.Deviation.MasterServer.Scripts
 		public void AddCancelOrder(ITradeReceipt trade)
 		{
 			_cancelOrders.Enqueue(trade);
+		}
+
+		public void ResponseWithPlayerOrders(long playerId)
+		{
+			var sells = mda.GetSellOrders(playerId);
+			foreach (var sell in sells)
+			{
+				NotifyPlayerTrade(sell, MarketOpCodes.Sell);
+			}
+
+			var buys = mda.GetBuyOrders(playerId);
+			foreach (var buy in buys)
+			{
+				NotifyPlayerTrade(buy, MarketOpCodes.Buy);
+			}
 		}
 
 		public void UpdateQueues()
@@ -111,6 +143,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 
 					foreach (var sell in sellsToRemove)
 					{
+						mda.RemoveSellOrder(sell.ID);
 						sells.Remove(sell);
 					}
 				}
@@ -131,6 +164,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 
 					foreach (var buy in buysToRemove)
 					{
+						mda.RemoveBuyOrder(buy.ID);
 						buys.Remove(buy);
 					}
 				}
@@ -166,6 +200,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 							{
 								buyNotification.Quantity = sell.Quantity;
 								buy.Quantity -= sell.Quantity;
+								mda.UpdateBuyOrder(new TradeItem(buy));
 								sellsToRemove.Add(sell);
 								sell.Quantity = 0;
 							}
@@ -180,6 +215,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 							{
 								sellNotification.Quantity = buy.Quantity;
 								sell.Quantity -= buy.Quantity;
+								mda.UpdateSellOrder(new TradeItem(sell));
 								buysToRemove.Add(buy);
 								buy.Quantity = 0;
 							}
@@ -191,11 +227,13 @@ namespace Assets.Deviation.MasterServer.Scripts
 
 					foreach (var item in sellsToRemove)
 					{
+						mda.RemoveSellOrder(item.ID);
 						sells.Remove(item);
 					}
 
 					foreach (var item in buysToRemove)
 					{
+						mda.RemoveBuyOrder(item.ID);
 						buys.Remove(item);
 					}
 				}
@@ -204,7 +242,7 @@ namespace Assets.Deviation.MasterServer.Scripts
 
 		private void NotifyPlayerTrade(ITradeItem trade, MarketOpCodes opCode)
 		{
-			deviation.Notification.NotifyPlayer(trade.PlayerID, (short) opCode, trade);
+			deviation.Notification.NotifyPlayer(trade.PlayerID, (short)opCode, trade);
 		}
 	}
 }

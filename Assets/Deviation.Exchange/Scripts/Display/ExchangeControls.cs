@@ -152,7 +152,15 @@ namespace Assets.Scripts.Exchange.Display
 
 			foreach (IExchangePlayer player in _players)
 			{
-				progressBar.DrawProgressBar(player.Position, playerhealthBar, player.Health.CurrentPercentage, player.Health.Current.ToString() + "/" + player.Health.Max.ToString());
+				try
+				{
+					progressBar.DrawProgressBar(player.Position, playerhealthBar, player.Health.CurrentPercentage, player.Health.Current.ToString() + "/" + player.Health.Max.ToString());
+				}
+				catch (Exception)
+				{
+					//we don't care if this fails
+				}
+				
 			}
 
 			

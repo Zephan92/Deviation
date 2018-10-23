@@ -1,4 +1,5 @@
 ﻿using Assets.Deviation.MasterServer.Scripts;
+using Assets.Deviation.MasterServer.Scripts.Exchange;
 using Assets.Scripts.DTO.Exchange;
 using Assets.Scripts.Enum;
 using Assets.Scripts.Interface;

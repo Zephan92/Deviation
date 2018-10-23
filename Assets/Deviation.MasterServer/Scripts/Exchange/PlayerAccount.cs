@@ -1,7 +1,7 @@
 ﻿using Barebones.Networking;
 using LiteDB;
 
-namespace Assets.Deviation.MasterServer.Scripts
+namespace Assets.Deviation.MasterServer.Scripts.Exchange
 {
 	public class PlayerAccount : SerializablePacket
 	{

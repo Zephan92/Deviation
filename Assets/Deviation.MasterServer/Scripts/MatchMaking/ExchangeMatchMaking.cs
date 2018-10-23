@@ -1,4 +1,5 @@
 ﻿using Assets.Deviation.Exchange.Scripts.Utilities;
+using Assets.Deviation.MasterServer.Scripts.Exchange;
 using Barebones.MasterServer;
 using Barebones.Networking;
 using System;
@@ -8,7 +9,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace Assets.Deviation.MasterServer.Scripts
+namespace Assets.Deviation.MasterServer.Scripts.MatchMaking
 {
 	public class ExchangeMatchMaking : MonoBehaviour
 	{

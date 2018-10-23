@@ -23,7 +23,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 
 		private List<OfferDetailsPanel> _offerDetailPanels;
 
-		public void Start()
+		public void Awake()
 		{
 			//children
 			_trades = transform.Find("Trades");
@@ -117,7 +117,6 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 					return;
 				}
 			}
-
 		}
 	}
 }

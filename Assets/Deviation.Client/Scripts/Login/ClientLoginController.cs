@@ -18,7 +18,7 @@ public class ClientLoginController : ControllerBase
 	{
 		base.Start();
 		ClientDataRepository.Instance.State = ClientState.Login;
-		ClientDataRepository.Instance.OnLogin += LoginSuccessful;
+		ClientDataRepository.Instance.OnLoginServer += LoginSuccessful;
 
 		system = EventSystem.current;
 		var signInPanel = GameObject.Find("Sign In Panel");
@@ -115,7 +115,7 @@ public class ClientLoginController : ControllerBase
 		}
 		
 		ClientDataRepository.Instance.GetPlayerAccount();
-		ClientDataRepository.Instance.PlayerAccountRecieved += () => {
+		ClientDataRepository.Instance.PlayerAccountRecieved += (playerAccount) => {
 			SceneManager.LoadScene("DeviationClient - Client");
 		};
 	}

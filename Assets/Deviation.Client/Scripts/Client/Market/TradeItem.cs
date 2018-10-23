@@ -11,7 +11,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 {
 	public interface ITradeItem : ISerializablePacket
 	{
-		long ID { get; set; }
+		Int64 ID { get; set; }
 		string Name { get; set; }
 		int Price { get; set; }
 		int Quantity { get; set; }
@@ -22,7 +22,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 
 	public class TradeItem : SerializablePacket, ITradeItem
 	{
-		public long ID { get; set; }
+		public Int64 ID { get; set; }
 		public string Name { get; set; }
 		public int Price { get; set; }
 		public int Quantity { get; set; }
@@ -32,7 +32,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 
 		public TradeItem(){}
 
-		public TradeItem(long tradeId, string name, int price, int quantity, long playerId, TradeType type)
+		public TradeItem(Int64 tradeId, string name, int price, int quantity, long playerId, TradeType type)
 		{
 			ID = tradeId;
 			Name = name;

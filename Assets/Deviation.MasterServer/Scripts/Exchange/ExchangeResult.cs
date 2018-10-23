@@ -4,7 +4,7 @@ using Barebones.Networking;
 using LiteDB;
 using System;
 
-namespace Assets.Deviation.MasterServer.Scripts
+namespace Assets.Deviation.MasterServer.Scripts.Exchange
 {
 	public class ExchangeResult : SerializablePacket
 	{

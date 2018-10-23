@@ -48,9 +48,9 @@ namespace Assets.Deviation.MasterServer.Scripts
 		Bought = 388,
 		Sell = 392,
 		Sold = 396,
-		Update = 400,
-		Updated = 404,
+		Collect = 400,
 		Cancel = 408,
 		Canceled = 412,
+		GetPlayerOrders = 416,
 	}
 }

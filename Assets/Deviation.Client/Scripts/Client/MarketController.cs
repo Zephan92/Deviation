@@ -1,8 +1,10 @@
 ﻿using Assets.Deviation.Client.Scripts.Client.Market;
 using Assets.Deviation.Client.Scripts.Match;
 using Assets.Deviation.Client.Scripts.UserInterface;
+using Assets.Deviation.Exchange.Scripts.Client;
 using Assets.Deviation.Exchange.Scripts.DTO.Exchange;
 using Assets.Deviation.MasterServer.Scripts;
+using Assets.Deviation.MasterServer.Scripts.Notification;
 using Assets.Deviation.Materials;
 using Assets.Scripts.DTO.Exchange;
 using Assets.Scripts.Library;
@@ -32,8 +34,36 @@ namespace Assets.Deviation.Client.Scripts.Client
 
 			Msf.Client.SetHandler((short)MarketOpCodes.Bought, HandleBought);
 			Msf.Client.SetHandler((short)MarketOpCodes.Sold, HandleSold);
-			Msf.Client.SetHandler((short)MarketOpCodes.Updated, HandleUpdated);
+			//Msf.Client.SetHandler((short)MarketOpCodes.Updated, HandleUpdated);
 			Msf.Client.SetHandler((short)MarketOpCodes.Canceled, HandleCanceled);
+		}
+
+		public void Start()
+		{
+			List<ISerializablePacket> buyOrders = ClientDataRepository.Instance.GetOrders(TradeInterfaceType.Buy);
+			foreach (ITradeItem trade in buyOrders)
+			{
+				tradeWindow.Fill(TradeInterfaceType.Buy, trade);
+			}
+
+			List<ISerializablePacket> sellOrders = ClientDataRepository.Instance.GetOrders(TradeInterfaceType.Sell);
+			foreach (ITradeItem trade in sellOrders)
+			{
+				tradeWindow.Fill(TradeInterfaceType.Sell, trade);
+			}
+
+
+			List<ISerializablePacket> buys = ClientDataRepository.Instance.GetNotifications(NotificationType.Bought);
+			foreach (ITradeItem trade in buys)
+			{
+				tradeWindow.Bought(trade);
+			}
+
+			List<ISerializablePacket> sells = ClientDataRepository.Instance.GetNotifications(NotificationType.Sold);
+			foreach (ITradeItem trade in sells)
+			{
+				tradeWindow.Sold(trade);
+			}
 		}
 
 		public void Buy(ITradeItem trade, UnityAction<ITradeItem> offerCallback)
@@ -72,7 +102,6 @@ namespace Assets.Deviation.Client.Scripts.Client
 			TradeItem trade = message.Deserialize(new TradeItem());
 			Debug.Log($"Sold: {trade}");
 			tradeWindow.Sold(trade);
-
 		}
 
 		private void HandleUpdated(IIncommingMessage message)

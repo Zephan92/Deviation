@@ -1,7 +1,7 @@
 ﻿using LiteDB;
 using UnityEngine;
 
-namespace Assets.Deviation.MasterServer.Scripts
+namespace Assets.Deviation.MasterServer.Scripts.Exchange
 {
 	public class PlayerDataAccess
 	{

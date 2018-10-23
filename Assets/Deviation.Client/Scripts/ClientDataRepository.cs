@@ -1,11 +1,17 @@
 ﻿using Assets.Deviation.Client.Scripts;
+using Assets.Deviation.Client.Scripts.Client.Market;
 using Assets.Deviation.MasterServer.Scripts;
+using Assets.Deviation.MasterServer.Scripts.Exchange;
+using Assets.Deviation.MasterServer.Scripts.MatchMaking;
+using Assets.Deviation.MasterServer.Scripts.Notification;
 using Barebones.MasterServer;
 using Barebones.Networking;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -40,24 +46,56 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		}
 		public UnityAction<ClientState> OnClientDataStateChange;
 
-		public PlayerAccount PlayerAccount;
+		public PlayerAccount PlayerAccount
+		{
+			get
+			{
+				return _playerAccount;
+			}
+			set
+			{
+				_playerAccount = value;
+				PlayerAccountRecieved?.Invoke(value);
+			}
+		}
+		public PlayerAccount _playerAccount;
+		public UnityAction<PlayerAccount> PlayerAccountRecieved;
 
 		public MatchFoundPacket Exchange;
 
 		public int RoomId = -1;
 		
-		public UnityAction PlayerAccountRecieved;
-		public UnityAction<AccountInfoPacket, string> OnLogin;
-
-		public bool LoggedIn;
+		public UnityAction<AccountInfoPacket, string> OnLoginServer;
+		public bool LoggedIn
+		{
+			get
+			{
+				return _loggedIn;
+			}
+			set
+			{
+				_loggedIn = value;
+				OnLoggedIn?.Invoke(value);
+			}
+		}
+		public UnityAction<bool> OnLoggedIn;
+		public bool _loggedIn;
 		public bool HasPlayerAccount;
 		public bool HasExchange;
+
+		private Dictionary<NotificationType, List<ISerializablePacket>> notifications = new Dictionary<NotificationType, List<ISerializablePacket>>();
+		private Dictionary<TradeInterfaceType, List<ISerializablePacket>> orders = new Dictionary<TradeInterfaceType, List<ISerializablePacket>>();
 
 		public void Awake()
 		{
 			InstanceExists();
 			OnClientDataStateChange += ClientDataStateChange;
 			Msf.Client.SetHandler((short)Exchange1v1MatchMakingOpCodes.RespondRoomId, HandleReceiveRoomId);
+			Msf.Client.SetHandler((short)MarketOpCodes.Buy, HandleBuyNotification);
+			Msf.Client.SetHandler((short)MarketOpCodes.Sell, HandleSellNotification);
+			Msf.Client.SetHandler((short)MarketOpCodes.Bought, HandleBoughtNotification);
+			Msf.Client.SetHandler((short)MarketOpCodes.Sold, HandleSoldNotification);
+
 		}
 
 		private void ClientDataStateChange(ClientState state)
@@ -69,6 +107,14 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 				case ClientState.Login:
 					break;
 				case ClientState.Client:
+					if (LoggedIn)
+					{
+						SendMessage((short)MarketOpCodes.GetPlayerOrders, PlayerAccount);
+					}
+					else
+					{
+						OnLoggedIn += (loggedIn) => { SendMessage((short)MarketOpCodes.GetPlayerOrders, PlayerAccount); };
+					}
 					break;
 				case ClientState.Match:
 					break;
@@ -77,6 +123,18 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 					Exchange = null;
 					HasExchange = false;
 					break;
+			}
+		}
+
+		private void SendMessage(short opCode, ISerializablePacket packet)
+		{
+			if (Msf.Connection.IsConnected)
+			{
+				Msf.Connection.SendMessage(opCode, packet);
+			}
+			else
+			{
+				Msf.Connection.Connected += () => { Msf.Connection.SendMessage(opCode, packet); };
 			}
 		}
 
@@ -122,8 +180,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			{
 				Msf.Client.Auth.LogInAsGuest((successful, error) =>
 				{
-					OnLogin?.Invoke(successful, error);
-					LoggedIn = true;
+					OnLoginServer?.Invoke(successful, error);
 					UnityEngine.Debug.Log("Logged in successfully");
 				});
 			}
@@ -146,13 +203,10 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 				{
 					Msf.Client.Connection.SendMessage((short)ExchangePlayerOpCodes.GetPlayerAccount, Msf.Client.Auth.AccountInfo.Username, (status, response) =>
 					{
-
 						PlayerAccount = response.Deserialize(new PlayerAccount());
-						PlayerAccountRecieved?.Invoke();
-						Msf.Client.Connection.SendMessage((short)ExchangePlayerOpCodes.Login, PlayerAccount);
+						Msf.Client.Connection.SendMessage((short)ExchangePlayerOpCodes.Login, PlayerAccount, (loginStatus, loginReponse) => { LoggedIn = true; });
 						HasPlayerAccount = true;
-						Debug.Log("Player Account Successfully Recieved");
-
+						Debug.Log("Player Account Successfully Received");
 					});
 				}
 				else
@@ -163,6 +217,99 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			else
 			{
 				Debug.LogError("Not Connected To Server. Failed to get player account.");
+			}
+		}
+
+		private void HandleBoughtNotification(IIncommingMessage message)
+		{
+			ISerializablePacket trade = message.Deserialize(new TradeItem());
+			Debug.Log($"Bought Notification: {trade}");
+			SaveNotification(NotificationType.Bought, trade);
+		}
+
+		private void HandleSoldNotification(IIncommingMessage message)
+		{
+			ISerializablePacket trade = message.Deserialize(new TradeItem());
+			Debug.Log($"Sold Notification: {trade}");
+			SaveNotification(NotificationType.Sold, trade);
+		}
+
+		public List<ISerializablePacket> GetNotifications(NotificationType notificationType)
+		{
+			if (notifications.ContainsKey(notificationType))
+			{
+				return notifications[notificationType];
+			}
+			else
+			{
+				return new List<ISerializablePacket>();
+			}
+		}
+
+		private void SaveNotification(NotificationType notificationType, ISerializablePacket packet)
+		{
+			if (notifications.ContainsKey(notificationType))
+			{
+				notifications[notificationType].Add(packet);
+			}
+			else
+			{
+				notifications.Add(notificationType, new List<ISerializablePacket>{ packet });
+			}
+		}
+
+		private void HandleBuyNotification(IIncommingMessage message)
+		{
+			ISerializablePacket trade = message.Deserialize(new TradeItem());
+			Debug.Log($"Buy Order: {trade}");
+			SaveOrder(TradeInterfaceType.Buy, trade);
+		}
+
+		private void HandleSellNotification(IIncommingMessage message)
+		{
+			ISerializablePacket trade = message.Deserialize(new TradeItem());
+			Debug.Log($"Sell Order: {trade}");
+			SaveOrder(TradeInterfaceType.Sell, trade);
+		}
+
+		public List<ISerializablePacket> GetOrders(TradeInterfaceType orderType)
+		{
+			if (orders.ContainsKey(orderType))
+			{
+				return orders[orderType];
+			}
+			else
+			{
+				return new List<ISerializablePacket>();
+			}
+		}
+
+		private void SaveOrder(TradeInterfaceType orderType, ISerializablePacket packet)
+		{
+			if (orders.ContainsKey(orderType))
+			{
+				orders[orderType].Add(packet);
+			}
+			else
+			{
+				orders.Add(orderType, new List<ISerializablePacket> { packet });
+			}
+		}
+
+		void OnApplicationQuit()
+		{
+			try
+			{
+				Msf.Client.Connection.SendMessage((short)ExchangePlayerOpCodes.Logout, PlayerAccount);
+
+				if (Msf.Client.Connection != null)
+				{
+					Msf.Client.Connection.Disconnect();
+				}
+			}
+			catch(Exception ex)
+			{
+				//eat the exception
 			}
 		}
 	}

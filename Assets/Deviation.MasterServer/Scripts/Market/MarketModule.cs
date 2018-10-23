@@ -1,4 +1,5 @@
 ﻿using Assets.Deviation.Client.Scripts.Client.Market;
+using Assets.Deviation.MasterServer.Scripts.Exchange;
 using Barebones.MasterServer;
 using Barebones.Networking;
 using System;
@@ -8,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Assets.Deviation.MasterServer.Scripts
+namespace Assets.Deviation.MasterServer.Scripts.Market
 {
 	public class MarketModule : ServerModuleBehaviour
 	{
@@ -23,8 +24,9 @@ namespace Assets.Deviation.MasterServer.Scripts
 
 			server.SetHandler((short)MarketOpCodes.Buy, HandleBuy);
 			server.SetHandler((short)MarketOpCodes.Sell, HandleSell);
-			server.SetHandler((short)MarketOpCodes.Update, HandleUpdate);
+			server.SetHandler((short)MarketOpCodes.Collect, HandleCollect);
 			server.SetHandler((short)MarketOpCodes.Cancel, HandleCancel);
+			server.SetHandler((short)MarketOpCodes.GetPlayerOrders, HandleGetPlayerOrders);
 
 			_market = new Market(deviation);
 
@@ -47,12 +49,23 @@ namespace Assets.Deviation.MasterServer.Scripts
 			message.Respond(new TradeReceipt(trade.Name, tradeID), ResponseStatus.Success);
 		}
 
-		private void HandleUpdate(IIncommingMessage message){}
+		private void HandleCollect(IIncommingMessage message)
+		{
+
+		}
+
 		private void HandleCancel(IIncommingMessage message)
 		{
 			TradeReceipt tradeReceipt = message.Deserialize(new TradeReceipt());
 			Debug.LogError($"Handle Cancel: {tradeReceipt}");
 			_market.AddCancelOrder(tradeReceipt);
+		}
+
+		private void HandleGetPlayerOrders(IIncommingMessage message)
+		{
+			PlayerAccount player = message.Deserialize(new PlayerAccount());
+			Debug.LogError($"Handle Get Player Orders: {player}");
+			_market.ResponseWithPlayerOrders(player.Id);
 		}
 
 		private void FixedUpdate()

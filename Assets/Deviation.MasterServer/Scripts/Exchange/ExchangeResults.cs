@@ -4,7 +4,7 @@ using LiteDB;
 using System;
 using System.Collections.Generic;
 
-namespace Assets.Deviation.MasterServer.Scripts
+namespace Assets.Deviation.MasterServer.Scripts.Exchange
 {
 	public class ExchangeResults : SerializablePacket
 	{

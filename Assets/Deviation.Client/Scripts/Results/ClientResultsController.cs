@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Barebones.MasterServer;
 using Assets.Deviation.MasterServer.Scripts;
+using Assets.Deviation.MasterServer.Scripts.Exchange;
 
 namespace Assets.Deviation.Client.Scripts.Results
 {

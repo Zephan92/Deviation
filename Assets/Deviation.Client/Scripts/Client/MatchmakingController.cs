@@ -1,6 +1,7 @@
 ﻿using Assets.Deviation.Exchange;
 using Assets.Deviation.Exchange.Scripts.Client;
 using Assets.Deviation.MasterServer.Scripts;
+using Assets.Deviation.MasterServer.Scripts.MatchMaking;
 using Assets.Scripts.Interface;
 using Assets.Scripts.Utilities;
 using Barebones.MasterServer;
@@ -97,7 +98,7 @@ namespace Assets.Deviation.Client.Scripts.Client
 				}
 				else
 				{
-					ClientDataRepository.Instance.PlayerAccountRecieved += () =>
+					ClientDataRepository.Instance.PlayerAccountRecieved += (playerAccount) =>
 					{
 						JoinQueueButton.interactable = true;
 					};

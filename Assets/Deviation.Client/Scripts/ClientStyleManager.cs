@@ -1,4 +1,7 @@
-﻿using Assets.Scripts.Utilities;
+﻿using Assets.Deviation.MasterServer.Scripts;
+using Assets.Scripts.Utilities;
+using Barebones.MasterServer;
+using Barebones.Networking;
 using System;
 using System.Collections;
 using System.Runtime.InteropServices;
@@ -32,7 +35,32 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 
 		public void QuitClient()
 		{
+			Msf.Client.Connection.SendMessage((short)ExchangePlayerOpCodes.Logout, ClientDataRepository.Instance.PlayerAccount, (status, data) => { StartCoroutine(WaitForDisconnect()); });
+		}
+
+		private IEnumerator WaitForDisconnect()
+		{
+			Msf.Connection.Disconnect();
+			if (Msf.Connection.IsConnected)
+			{
+				yield return new WaitUntil(() => Msf.Connection.IsConnected == false);
+			}
+			else
+			{
+				yield return null;
+			}
+			Quit();
+		}
+
+		private void Quit()
+		{
+#if UNITY_EDITOR
+			// Application.Quit() does not work in the editor so
+			// UnityEditor.EditorApplication.isPlaying need to be set to false to end the game
+			UnityEditor.EditorApplication.isPlaying = false;
+#else
 			Application.Quit();
+#endif
 		}
 
 		public void Awake()

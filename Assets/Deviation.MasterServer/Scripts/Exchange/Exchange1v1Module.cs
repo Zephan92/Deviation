@@ -12,6 +12,7 @@ using System.IO;
 using Assets.Deviation.MasterServer.Scripts;
 using LiteDB;
 using Assets.Deviation.Exchange.Scripts.DTO.Exchange;
+using Assets.Deviation.MasterServer.Scripts.Exchange;
 
 public class ExchangePlayerPacket : SerializablePacket
 {

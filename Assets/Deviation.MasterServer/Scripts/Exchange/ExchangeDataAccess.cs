@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace Assets.Deviation.MasterServer.Scripts
+namespace Assets.Deviation.MasterServer.Scripts.Exchange
 {
 	public class ExchangeDataAccess
 	{

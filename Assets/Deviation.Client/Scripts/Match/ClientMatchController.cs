@@ -2,6 +2,7 @@
 using Assets.Deviation.Client.Scripts.Match;
 using Assets.Deviation.Exchange.Scripts.DTO.Exchange;
 using Assets.Deviation.MasterServer.Scripts;
+using Assets.Deviation.MasterServer.Scripts.Exchange;
 using Assets.Scripts.DTO.Exchange;
 using Assets.Scripts.Interface;
 using Assets.Scripts.Interface.DTO;

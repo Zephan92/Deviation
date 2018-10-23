@@ -134,7 +134,6 @@ namespace Barebones.Networking
 			m_Socket.OnError += (sender, e) =>
 			{
 				m_Error = e.Message;
-				Logs.Error(e.Message);
 			};
 			m_Socket.OnClose += (sender, args) => m_IsConnected = false;
 
