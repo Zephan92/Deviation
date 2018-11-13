@@ -52,14 +52,18 @@ namespace Assets.Deviation.Client.Scripts.Client.Sidebar
 			{
 				switch(type)
 				{
-					case NotificationType.Bought:
-						ITradeItem buy = (ITradeItem) Packet;
-						Message.text = string.Format(BOUGHT_MESSAGE, buy.Quantity, buy.Name, buy.Quantity > 1 ? "s" : "");
-						break;
+					case NotificationType.MarketUpdate:
+						ITradeItem order = (ITradeItem) Packet;
+						switch (order.OrderType)
+						{
+							case OrderType.Buy:
+								Message.text = string.Format(BOUGHT_MESSAGE, order.Quantity, order.Name, order.Quantity > 1 ? "s" : "");
+								break;
 
-					case NotificationType.Sold:
-						ITradeItem sell = (ITradeItem) Packet;
-						Message.text = string.Format(SOLD_MESSAGE, sell.Quantity, sell.Name, sell.Quantity > 1 ? "s" : "");
+							case OrderType.Sell:
+								Message.text = string.Format(SOLD_MESSAGE, order.Quantity, order.Name, order.Quantity > 1 ? "s" : "");
+								break;
+						}
 						break;
 				}
 

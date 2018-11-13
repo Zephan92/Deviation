@@ -11,39 +11,27 @@ namespace Assets.Deviation.MasterServer.Scripts.Notification
 {
 	public class NotificationDataAccess
 	{
-		string buysName = "Buys";
+		string ordersName = "Orders";
 		string sellsName = "Sells";
 
 		LiteDatabase db = new LiteDatabase(@"Notification.db");
-		LiteCollection<TradeItem> _buys;
+		LiteCollection<TradeItem> _orders;
 		LiteCollection<TradeItem> _sells;
 
 		public NotificationDataAccess()
 		{
-			_buys = db.GetCollection<TradeItem>(buysName);
-			_buys.EnsureIndex(x => x.PlayerID);
-			_sells = db.GetCollection<TradeItem>(sellsName);
-			_sells.EnsureIndex(x => x.PlayerID);
+			_orders = db.GetCollection<TradeItem>(ordersName);
+			_orders.EnsureIndex(x => x.PlayerID);
 		}
 
-		public void SaveBuyOrder(TradeItem trade)
+		public void SaveMarketUpdate(TradeItem trade)
 		{
-			_buys.Insert(trade);
+			_orders.Insert(trade);
 		}
 
-		public void SaveSellOrder(TradeItem trade)
+		public List<TradeItem> GetMarketOrders(long playerId)
 		{
-			_sells.Insert(trade);
-		}
-
-		public List<TradeItem> GetBuyOrder(long playerId)
-		{
-			return _buys.Find(Query.EQ("PlayerID", new BsonValue(playerId))).ToList();
-		}
-
-		public List<TradeItem> GetSellOrder(long playerId)
-		{
-			return _sells.Find(Query.EQ("PlayerID", new BsonValue(playerId))).ToList();
+			return _orders.Find(Query.EQ("PlayerID", new BsonValue(playerId))).ToList();
 		}
 	}
 }

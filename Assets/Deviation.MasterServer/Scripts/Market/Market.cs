@@ -53,6 +53,7 @@ namespace Assets.Deviation.MasterServer.Scripts.Market
 			orderCount++;
 			trade.ID = orderCount;
 			mda.SaveBuyOrder(new TradeItem(trade));
+			mda.SavePlayerOrder(new TradeItem(trade));
 			_buyOrders.Enqueue(trade);
 			return orderCount;
 		}
@@ -62,6 +63,7 @@ namespace Assets.Deviation.MasterServer.Scripts.Market
 			orderCount++;
 			trade.ID = orderCount;
 			mda.SaveSellOrder(new TradeItem(trade));
+			mda.SavePlayerOrder(new TradeItem(trade));
 			_sellOrders.Enqueue(trade);
 			return orderCount;
 		}
@@ -74,16 +76,10 @@ namespace Assets.Deviation.MasterServer.Scripts.Market
 
 		public void ResponseWithPlayerOrders(long playerId)
 		{
-			var sells = mda.GetSellOrders(playerId);
-			foreach (var sell in sells)
+			var orders = mda.GetPlayerOrders(playerId);
+			foreach (var order in orders)
 			{
-				NotifyPlayerTrade(sell, MarketOpCodes.Sell);
-			}
-
-			var buys = mda.GetBuyOrders(playerId);
-			foreach (var buy in buys)
-			{
-				NotifyPlayerTrade(buy, MarketOpCodes.Buy);
+				NotifyPlayerTrade(order, MarketOpCodes.PlayerOrders);
 			}
 		}
 
@@ -144,6 +140,7 @@ namespace Assets.Deviation.MasterServer.Scripts.Market
 					foreach (var sell in sellsToRemove)
 					{
 						mda.RemoveSellOrder(sell.ID);
+						mda.RemovePlayerOrder(new TradeItem(sell));
 						sells.Remove(sell);
 					}
 				}
@@ -165,6 +162,7 @@ namespace Assets.Deviation.MasterServer.Scripts.Market
 					foreach (var buy in buysToRemove)
 					{
 						mda.RemoveBuyOrder(buy.ID);
+						mda.RemovePlayerOrder(new TradeItem(buy));
 						buys.Remove(buy);
 					}
 				}
@@ -220,20 +218,22 @@ namespace Assets.Deviation.MasterServer.Scripts.Market
 								buy.Quantity = 0;
 							}
 							
-							NotifyPlayerTrade(sellNotification, MarketOpCodes.Sold);
-							NotifyPlayerTrade(buyNotification, MarketOpCodes.Bought);
+							NotifyPlayerTrade(sellNotification, MarketOpCodes.MarketUpdate);
+							NotifyPlayerTrade(buyNotification, MarketOpCodes.MarketUpdate);
 						}
 					}
 
 					foreach (var item in sellsToRemove)
 					{
 						mda.RemoveSellOrder(item.ID);
+						mda.UpdatePlayerOrder(new TradeItem(item));
 						sells.Remove(item);
 					}
 
 					foreach (var item in buysToRemove)
 					{
 						mda.RemoveBuyOrder(item.ID);
+						mda.UpdatePlayerOrder(new TradeItem(item));
 						buys.Remove(item);
 					}
 				}

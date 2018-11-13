@@ -8,7 +8,7 @@ namespace Assets.Deviation.MasterServer.Scripts.Notification
 {
 	public enum NotificationType
 	{
-		Bought,
-		Sold,
+		ActiveOrders,
+		MarketUpdate,
 	}
 }

@@ -25,7 +25,6 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 		private Text _totalPrice;
 
 		public ITradeItem TradeOffer;
-		public TradeInterfaceType Type;
 		public MarketController mc;
 
 		public int quantityTrade;
@@ -48,16 +47,15 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 			_cancelOrderButton.onClick.AddListener(OnCancelClick);
 		}
 
-		public void Init(TradeInterfaceType type, ITradeItem trade)
+		public void Init(ITradeItem trade)
 		{
 			HasOffer = true;
 			TradeOffer = trade;
-			Type = type;
 
 			_placeholder.gameObject.SetActive(false);
 			_offerDetails.gameObject.SetActive(true);
 
-			_title.text = $"{Type}";
+			_title.text = $"{TradeOffer.OrderType}";
 			_itemName.text = TradeOffer.Name;
 			_totalPrice.text = StringUtilities.ConvertIntToLongIntString(TradeOffer.Total);
 		}
@@ -79,7 +77,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 		{
 			var go = Instantiate(Resources.Load("DialogPopup"), transform.root) as GameObject;
 			var dialogPopup = go.GetComponent<DialogPopup>();
-			string content = string.Format(DIALOG_CONTENT, TradeOffer.Name, Type);
+			string content = string.Format(DIALOG_CONTENT, TradeOffer.Name, TradeOffer.OrderType);
 			dialogPopup.Init(DIALOG_TITLE, content, DIALOG_KEEP_1, () => { }, DIALOG_REMOVE_2, OnRemoveOfferClick);
 		}
 

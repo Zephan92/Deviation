@@ -24,16 +24,10 @@ namespace Assets.Deviation.Client.Scripts.Client.Sidebar
 
 		public void OnEnable()
 		{
-			List<ISerializablePacket> buys = ClientDataRepository.Instance.GetNotifications(NotificationType.Bought);
-			foreach (ITradeItem trade in buys)
+			List<ISerializablePacket> orders = ClientDataRepository.Instance.GetNotifications(NotificationType.MarketUpdate);
+			foreach (ITradeItem trade in orders)
 			{
-				Create_Panel(NotificationType.Bought, trade, Notifications.List);
-			}
-
-			List<ISerializablePacket> sells = ClientDataRepository.Instance.GetNotifications(NotificationType.Sold);
-			foreach (ITradeItem trade in sells)
-			{
-				Create_Panel(NotificationType.Sold, trade, Notifications.List);
+				Create_Panel(NotificationType.MarketUpdate, trade, Notifications.List);
 			}
 		}
 

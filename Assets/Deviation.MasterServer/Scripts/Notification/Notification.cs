@@ -60,14 +60,9 @@ namespace Assets.Deviation.MasterServer.Scripts.Notification
 		{
 			switch (opCode)
 			{
-				case (short) MarketOpCodes.Bought:
-					TradeItem buy = MessageHelper.Deserialize(packet.ToBytes(), new TradeItem());
-					nda.SaveBuyOrder(buy);
-					break;
-
-				case (short) MarketOpCodes.Sold:
-					TradeItem sell = MessageHelper.Deserialize(packet.ToBytes(), new TradeItem());
-					nda.SaveSellOrder(sell);
+				case (short) MarketOpCodes.MarketUpdate:
+					TradeItem order = MessageHelper.Deserialize(packet.ToBytes(), new TradeItem());
+					nda.SaveMarketUpdate(order);
 					break;
 			}
 		}
@@ -77,23 +72,14 @@ namespace Assets.Deviation.MasterServer.Scripts.Notification
 			Dictionary<short, List<ISerializablePacket>> retval = new Dictionary<short, List<ISerializablePacket>>();
 			List<ISerializablePacket> notifications;
 
-			//buys
+			//orders
 			notifications = new List<ISerializablePacket>();
-			List<TradeItem> buys = nda.GetBuyOrder(playerId);
-			foreach (var trade in buys)
+			List<TradeItem> orders = nda.GetMarketOrders(playerId);
+			foreach (var trade in orders)
 			{
 				notifications.Add(trade);
 			}
-			retval.Add((short) MarketOpCodes.Bought, notifications);
-
-			//sells
-			notifications = new List<ISerializablePacket>();
-			List<TradeItem> sells = nda.GetSellOrder(playerId);
-			foreach (var trade in sells)
-			{
-				notifications.Add(trade);
-			}
-			retval.Add((short)MarketOpCodes.Sold, notifications);
+			retval.Add((short) MarketOpCodes.MarketUpdate, notifications);
 
 			return retval;
 		}

@@ -45,12 +45,12 @@ namespace Assets.Deviation.MasterServer.Scripts
 	public enum MarketOpCodes
 	{
 		Buy = 384,
-		Bought = 388,
 		Sell = 392,
-		Sold = 396,
+		MarketUpdate = 396,
 		Collect = 400,
 		Cancel = 408,
 		Canceled = 412,
 		GetPlayerOrders = 416,
+		PlayerOrders = 420,
 	}
 }

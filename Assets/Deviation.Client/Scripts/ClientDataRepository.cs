@@ -64,7 +64,7 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		public MatchFoundPacket Exchange;
 
 		public int RoomId = -1;
-		
+
 		public UnityAction<AccountInfoPacket, string> OnLoginServer;
 		public bool LoggedIn
 		{
@@ -84,18 +84,16 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 		public bool HasExchange;
 
 		private Dictionary<NotificationType, List<ISerializablePacket>> notifications = new Dictionary<NotificationType, List<ISerializablePacket>>();
-		private Dictionary<TradeInterfaceType, List<ISerializablePacket>> orders = new Dictionary<TradeInterfaceType, List<ISerializablePacket>>();
+		public List<ITradeItem> MarketOrders { get; set; }
 
 		public void Awake()
 		{
 			InstanceExists();
+			MarketOrders = new List<ITradeItem>();
 			OnClientDataStateChange += ClientDataStateChange;
 			Msf.Client.SetHandler((short)Exchange1v1MatchMakingOpCodes.RespondRoomId, HandleReceiveRoomId);
-			Msf.Client.SetHandler((short)MarketOpCodes.Buy, HandleBuyNotification);
-			Msf.Client.SetHandler((short)MarketOpCodes.Sell, HandleSellNotification);
-			Msf.Client.SetHandler((short)MarketOpCodes.Bought, HandleBoughtNotification);
-			Msf.Client.SetHandler((short)MarketOpCodes.Sold, HandleSoldNotification);
-
+			Msf.Client.SetHandler((short)MarketOpCodes.PlayerOrders, HandlePlayerOrders);
+			Msf.Client.SetHandler((short)MarketOpCodes.MarketUpdate, HandleMarketUpdate);
 		}
 
 		private void ClientDataStateChange(ClientState state)
@@ -220,18 +218,18 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			}
 		}
 
-		private void HandleBoughtNotification(IIncommingMessage message)
+		private void HandlePlayerOrders(IIncommingMessage message)
 		{
-			ISerializablePacket trade = message.Deserialize(new TradeItem());
-			Debug.Log($"Bought Notification: {trade}");
-			SaveNotification(NotificationType.Bought, trade);
+			ITradeItem trade = message.Deserialize(new TradeItem());
+			Debug.Log($"Player Order Notification: {trade}");
+			MarketOrders.Add(trade);
 		}
 
-		private void HandleSoldNotification(IIncommingMessage message)
+		private void HandleMarketUpdate(IIncommingMessage message)
 		{
 			ISerializablePacket trade = message.Deserialize(new TradeItem());
-			Debug.Log($"Sold Notification: {trade}");
-			SaveNotification(NotificationType.Sold, trade);
+			Debug.Log($"Player Order Notification: {trade}");
+			SaveNotification(NotificationType.MarketUpdate, trade);
 		}
 
 		public List<ISerializablePacket> GetNotifications(NotificationType notificationType)
@@ -255,44 +253,6 @@ namespace Assets.Deviation.Exchange.Scripts.Client
 			else
 			{
 				notifications.Add(notificationType, new List<ISerializablePacket>{ packet });
-			}
-		}
-
-		private void HandleBuyNotification(IIncommingMessage message)
-		{
-			ISerializablePacket trade = message.Deserialize(new TradeItem());
-			Debug.Log($"Buy Order: {trade}");
-			SaveOrder(TradeInterfaceType.Buy, trade);
-		}
-
-		private void HandleSellNotification(IIncommingMessage message)
-		{
-			ISerializablePacket trade = message.Deserialize(new TradeItem());
-			Debug.Log($"Sell Order: {trade}");
-			SaveOrder(TradeInterfaceType.Sell, trade);
-		}
-
-		public List<ISerializablePacket> GetOrders(TradeInterfaceType orderType)
-		{
-			if (orders.ContainsKey(orderType))
-			{
-				return orders[orderType];
-			}
-			else
-			{
-				return new List<ISerializablePacket>();
-			}
-		}
-
-		private void SaveOrder(TradeInterfaceType orderType, ISerializablePacket packet)
-		{
-			if (orders.ContainsKey(orderType))
-			{
-				orders[orderType].Add(packet);
-			}
-			else
-			{
-				orders.Add(orderType, new List<ISerializablePacket> { packet });
 			}
 		}
 

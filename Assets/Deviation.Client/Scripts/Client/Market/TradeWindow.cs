@@ -35,13 +35,13 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 			_buyButton = _buyTransform.GetComponent<Button>();
 			_sellButton = _sellTransform.GetComponent<Button>();
 
-			_buyButton.onClick.AddListener(() => OpenTradeSelection(TradeInterfaceType.Buy));
-			_sellButton.onClick.AddListener(() => OpenTradeSelection(TradeInterfaceType.Sell));
+			_buyButton.onClick.AddListener(() => OpenTradeSelection(OrderType.Buy));
+			_sellButton.onClick.AddListener(() => OpenTradeSelection(OrderType.Sell));
 
 			_offerDetailPanels = _trades.GetComponentsInChildren<OfferDetailsPanel>().ToList();
 		}
 
-		public void OpenTradeSelection(TradeInterfaceType trade)
+		public void OpenTradeSelection(OrderType trade)
 		{
 			if (OpenOfferPanel())
 			{
@@ -69,13 +69,13 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 			return false;
 		}
 
-		public void Fill(TradeInterfaceType type, ITradeItem trade)
+		public void Fill(ITradeItem trade)
 		{
 			foreach (var offer in _offerDetailPanels)
 			{
 				if (!offer.HasOffer)
 				{
-					offer.Init(type, trade);
+					offer.Init(trade);
 					return;
 				}
 			}
@@ -95,19 +95,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 			}
 		}
 
-		public void Bought(ITradeItem trade)
-		{
-			foreach (var panel in _offerDetailPanels)
-			{
-				if (panel.HasOffer && panel.TradeOffer.ID == trade.ID)
-				{
-					panel.OnProgressStatusChange(trade);
-					return;
-				}
-			}
-		}
-
-		public void Sold(ITradeItem trade)
+		public void MarketUpdate(ITradeItem trade)
 		{
 			foreach (var panel in _offerDetailPanels)
 			{

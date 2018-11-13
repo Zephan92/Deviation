@@ -10,8 +10,9 @@ using UnityEngine.UI;
 
 namespace Assets.Deviation.Client.Scripts.Client.Market
 {
-	public enum TradeInterfaceType
+	public enum OrderType
 	{
+		None,
 		Buy,
 		Sell
 	}
@@ -30,7 +31,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 		public ItemWidget Item;
 		public Text TotalPriceText;
 		public int TotalPrice;
-		public TradeInterfaceType Type;
+		public OrderType Type;
 
 		public void Awake()
 		{
@@ -61,10 +62,10 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 
 			switch (Type)
 			{
-				case TradeInterfaceType.Buy:
+				case OrderType.Buy:
 					mc.Buy(trade, OnConfirmCallback);
 					break;
-				case TradeInterfaceType.Sell:
+				case OrderType.Sell:
 					mc.Sell(trade, OnConfirmCallback);
 					break;
 			}
@@ -74,21 +75,21 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 
 		private void OnConfirmCallback(ITradeItem trade)
 		{
-			_tradeWindow.Fill(Type, trade);
+			_tradeWindow.Fill(trade);
 		}
 
 		private ITradeItem CreateTrade()
 		{
-			switch (Item.TradeItem.Type)
+			switch (Item.TradeItem.ResourceType)
 			{
-				case TradeType.Action:
-					return new ActionTradeItem(0, Item.TradeItem.Name, Price.Amount, Quantity.Amount, ClientDataRepository.Instance.PlayerAccount.Id);
+				case ResourceType.Action:
+					return new ActionTradeItem(0, Item.TradeItem.Name, Price.Amount, Quantity.Amount, ClientDataRepository.Instance.PlayerAccount.Id, OrderType.None);
 				//case TradeType.Resource:
 				//return new ResourceTradeItem(ItemToTrade.Name, Price.Amount, Quantity.Amount, ClientDataRepository.Instance.PlayerAccount.Id);
 				//case TradeType.Material:
 				//return new MaterialTradeItem(ItemToTrade.Name, Price.Amount, Quantity.Amount, ClientDataRepository.Instance.PlayerAccount.Id);
 				default:
-					return new TradeItem(0, Item.TradeItem.Name, Price.Amount, Quantity.Amount, ClientDataRepository.Instance.PlayerAccount.Id, Item.TradeItem.Type);
+					return new TradeItem(0, Item.TradeItem.Name, Price.Amount, Quantity.Amount, ClientDataRepository.Instance.PlayerAccount.Id, Item.TradeItem.ResourceType, OrderType.None);
 			}
 		}
 
@@ -130,7 +131,7 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 				Quantity.Amount > 0;
 		}
 
-		public void Init(TradeWindow window, TradeInterfaceType type)
+		public void Init(TradeWindow window, OrderType type)
 		{
 			_tradeWindow = window;
 			Type = type;

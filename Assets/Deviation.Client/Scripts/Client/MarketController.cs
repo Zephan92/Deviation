@@ -32,42 +32,30 @@ namespace Assets.Deviation.Client.Scripts.Client
 			menuBar = parent.transform.Find("Menu Bar");
 			tradeWindow = transform.Find("TradingUI").GetComponent<TradeWindow>();
 
-			Msf.Client.SetHandler((short)MarketOpCodes.Bought, HandleBought);
-			Msf.Client.SetHandler((short)MarketOpCodes.Sold, HandleSold);
+			Msf.Client.SetHandler((short)MarketOpCodes.MarketUpdate, HandleMarketUpdate);
 			//Msf.Client.SetHandler((short)MarketOpCodes.Updated, HandleUpdated);
 			Msf.Client.SetHandler((short)MarketOpCodes.Canceled, HandleCanceled);
 		}
 
 		public void Start()
 		{
-			List<ISerializablePacket> buyOrders = ClientDataRepository.Instance.GetOrders(TradeInterfaceType.Buy);
-			foreach (ITradeItem trade in buyOrders)
+			List<ITradeItem> orders = ClientDataRepository.Instance.MarketOrders;
+			foreach (ITradeItem trade in orders)
 			{
-				tradeWindow.Fill(TradeInterfaceType.Buy, trade);
+				tradeWindow.Fill(trade);
 			}
 
-			List<ISerializablePacket> sellOrders = ClientDataRepository.Instance.GetOrders(TradeInterfaceType.Sell);
-			foreach (ITradeItem trade in sellOrders)
+			List<ISerializablePacket> marketUpdates = ClientDataRepository.Instance.GetNotifications(NotificationType.MarketUpdate);
+			foreach (ITradeItem trade in marketUpdates)
 			{
-				tradeWindow.Fill(TradeInterfaceType.Sell, trade);
-			}
-
-
-			List<ISerializablePacket> buys = ClientDataRepository.Instance.GetNotifications(NotificationType.Bought);
-			foreach (ITradeItem trade in buys)
-			{
-				tradeWindow.Bought(trade);
-			}
-
-			List<ISerializablePacket> sells = ClientDataRepository.Instance.GetNotifications(NotificationType.Sold);
-			foreach (ITradeItem trade in sells)
-			{
-				tradeWindow.Sold(trade);
+				tradeWindow.MarketUpdate(trade);
 			}
 		}
 
 		public void Buy(ITradeItem trade, UnityAction<ITradeItem> offerCallback)
 		{
+			trade.OrderType = OrderType.Buy;
+
 			Debug.Log($"Buy: {trade}");
 			if (tradeWindow.OpenOfferPanel())
 			{
@@ -77,6 +65,8 @@ namespace Assets.Deviation.Client.Scripts.Client
 
 		public void Sell(ITradeItem trade, UnityAction<ITradeItem> offerCallback)
 		{
+			trade.OrderType = OrderType.Sell;
+
 			Debug.Log($"Sell: {trade}");
 			if (tradeWindow.OpenOfferPanel())
 			{
@@ -90,18 +80,11 @@ namespace Assets.Deviation.Client.Scripts.Client
 			Msf.Client.Connection.SendMessage((short)MarketOpCodes.Cancel, trade);
 		}
 
-		private void HandleBought(IIncommingMessage message)
+		private void HandleMarketUpdate(IIncommingMessage message)
 		{
 			TradeItem trade = message.Deserialize(new TradeItem());
-			Debug.Log($"Bought: {trade}");
-			tradeWindow.Bought(trade);
-		}
-
-		private void HandleSold(IIncommingMessage message)
-		{
-			TradeItem trade = message.Deserialize(new TradeItem());
-			Debug.Log($"Sold: {trade}");
-			tradeWindow.Sold(trade);
+			Debug.Log($"MarketUpdate: {trade}");
+			tradeWindow.MarketUpdate(trade);
 		}
 
 		private void HandleUpdated(IIncommingMessage message)
@@ -125,8 +108,8 @@ namespace Assets.Deviation.Client.Scripts.Client
 
 			List<ITradeItem> items = new List<ITradeItem>();
 
-			ActionLibrary.GetActionLibrary_ByName().Keys.ToList().ForEach( action => items.Add(new TradeItem(0, action, 4564, 0, 0, TradeType.Action)));
-			MaterialLibrary.GetMaterials().ToList().ForEach(material => items.Add(new TradeItem(0, material.Name, 4564, 0, 0, TradeType.Material)));
+			ActionLibrary.GetActionLibrary_ByName().Keys.ToList().ForEach( action => items.Add(new TradeItem(0, action, 4564, 0, 0, ResourceType.Action, OrderType.None)));
+			MaterialLibrary.GetMaterials().ToList().ForEach(material => items.Add(new TradeItem(0, material.Name, 4564, 0, 0, ResourceType.Material, OrderType.None)));
 			items = items.OrderBy(x => x.Name).ToList();
 			return items.FindAll(i => i.Name.ToLower().Contains(searchTerm.ToLower())).ToList();
 		}

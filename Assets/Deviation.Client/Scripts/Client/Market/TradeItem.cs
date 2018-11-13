@@ -16,7 +16,9 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 		int Price { get; set; }
 		int Quantity { get; set; }
 		long PlayerID { get; set; }
-		TradeType Type { get; set; }
+		ResourceType ResourceType { get; set; }
+		OrderType OrderType { get; set; }
+
 		int Total { get; }
 	}
 
@@ -27,19 +29,21 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 		public int Price { get; set; }
 		public int Quantity { get; set; }
 		public long PlayerID { get; set; }
-		public TradeType Type { get; set; }
+		public ResourceType ResourceType { get; set; }
+		public OrderType OrderType { get; set; }
 		public int Total { get { return Price * Quantity; } }
 
 		public TradeItem(){}
 
-		public TradeItem(Int64 tradeId, string name, int price, int quantity, long playerId, TradeType type)
+		public TradeItem(Int64 tradeId, string name, int price, int quantity, long playerId, ResourceType resourceType, OrderType orderType)
 		{
 			ID = tradeId;
 			Name = name;
 			Price = price;
 			Quantity = quantity;
 			PlayerID = playerId;
-			Type = type;
+			ResourceType = resourceType;
+			OrderType = orderType;
 		}
 
 		public TradeItem(ITradeItem item)
@@ -49,7 +53,8 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 			Price = item.Price;
 			Quantity = item.Quantity;
 			PlayerID = item.PlayerID;
-			Type = item.Type;
+			ResourceType = item.ResourceType;
+			OrderType = item.OrderType;
 		}
 
 		public TradeItem(BsonDocument document)
@@ -59,7 +64,9 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 			Price = document["Price"];
 			Quantity = document["Quantity"];
 			PlayerID = document["PlayerID"];
-			Type = (TradeType) document["Type"].AsInt32;
+			ResourceType = (ResourceType) document["ResourceType"].AsInt32;
+			OrderType = (OrderType)document["OrderType"].AsInt32;
+
 		}
 
 		public BsonDocument ToBsonDocument()
@@ -71,7 +78,8 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 			retVal.Add("Price", Price);
 			retVal.Add("Quantity", Quantity);
 			retVal.Add("PlayerID", PlayerID);
-			retVal.Add("Type", (int) Type);
+			retVal.Add("ResourceType", (int)ResourceType);
+			retVal.Add("OrderType", (int)OrderType);
 
 			return retVal;
 		}
@@ -83,7 +91,8 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 			writer.Write(Price);
 			writer.Write(Quantity);
 			writer.Write(PlayerID);
-			writer.Write((int)Type);
+			writer.Write((int)ResourceType);
+			writer.Write((int)OrderType);
 		}
 
 		public override void FromBinaryReader(EndianBinaryReader reader)
@@ -93,12 +102,14 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 			Price = reader.ReadInt32();
 			Quantity = reader.ReadInt32();
 			PlayerID = reader.ReadInt64();
-			Type = (TradeType)reader.ReadInt32();
+			ResourceType = (ResourceType)reader.ReadInt32();
+			OrderType = (OrderType)reader.ReadInt32();
+
 		}
 
 		public override string ToString()
 		{
-			return $"Trade - Item: TradeID: {ID}. Name: {Name}. Price: {Price}. Quantity: {Quantity}. PlayerID: {PlayerID}";
+			return $"Trade ({OrderType})- Item: TradeID: {ID}. Name: {Name}. Price: {Price}. Quantity: {Quantity}. PlayerID: {PlayerID}";
 		}
 
 		public override bool Equals(object obj)
@@ -108,12 +119,13 @@ namespace Assets.Deviation.Client.Scripts.Client.Market
 				trade.Price == Price &&
 				trade.Quantity == Quantity &&
 				trade.Name.Equals(Name) &&
-				trade.Type == Type &&
+				trade.OrderType == OrderType &&
+				trade.ResourceType == ResourceType &&
 				trade.PlayerID == PlayerID;
 		}
 	}
 
-	public enum TradeType
+	public enum ResourceType
 	{
 		Action = 0,
 		Resource = 1,
